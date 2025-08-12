@@ -3,8 +3,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#define DEBUG_MODE 1
+#define RAYGUI_IMPLEMENTATION
+#include "include/raygui.h"
 
+#define DEBUG_MODE 1
 
 #define MAP_TILE_SIZE 100
 #define MAP_SIZE_X 5
@@ -158,7 +160,7 @@ int main() {
         DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
 
         
-        if (DEBUG_MODE == 1) {
+        if (DEBUG_MODE) {
             static char debugText[6][64];
             snprintf(debugText[0], sizeof(debugText[0]), "Offset: %dx%d", (int)offsetX, (int)offsetY);
             snprintf(debugText[1], sizeof(debugText[1]), "Monitor Count: %d", GetMonitorCount());

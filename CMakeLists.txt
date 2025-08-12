@@ -11,9 +11,11 @@ else()
     message(STATUS "raylib found: ${raylib_VERSION}")
 endif()
 
+include_directories(include)
+
+
 add_executable(${PROJECT_NAME}
     src/main.cpp
-    # src/game.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} raylib)
