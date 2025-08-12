@@ -66,15 +66,14 @@ void InitDisplaySystem() {
     displayWidth = trueMonitorWidth;
     displayHeight = trueMonitorHeight;
     
-    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    // SetWindowState(FLAG_WINDOW_RESIZABLE);
     // ClearWindowState(FLAG_WINDOW_RESIZABLE);
     
     SetWindowPosition(
         (trueMonitorWidth - DEFAULT_WINDOW_WIDTH) / 2,
         (trueMonitorHeight - DEFAULT_WINDOW_HEIGHT) / 2
     );
-    
-    
+
     UpdateScreenDimensions();
 }
 
@@ -113,6 +112,8 @@ int main() {
     while (!WindowShouldClose())
     {
         UpdateScreenDimensions();
+
+        if (IsKeyPressed(KEY_F11)) ToggleBorderlessWindowed();
 
         offsetX = (screenWidth - MAP_TILE_SIZE * MAP_SIZE_X) / 2;
         offsetY = (screenHeight - MAP_TILE_SIZE * MAP_SIZE_Y) / 2;
