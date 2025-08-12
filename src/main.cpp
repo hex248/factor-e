@@ -20,10 +20,17 @@ int trueMonitorWidth = DEFAULT_WINDOW_WIDTH;
 int trueMonitorHeight = DEFAULT_WINDOW_HEIGHT;
 Vector2 screenCenter = { DEFAULT_WINDOW_WIDTH / 2.0f, DEFAULT_WINDOW_HEIGHT / 2.0f };
 
+typedef struct Tile {
+    unsigned char id;
+    char name[16];
+    Color color;
+} Tile;
+
 typedef struct Map {
     unsigned int tilesX;
     unsigned int tilesY;
     unsigned char *tileIds;
+    Tile *tiles;
 } Map;
 
 void UpdateScreenDimensions() {
@@ -100,6 +107,14 @@ int main() {
     map.tileIds = (unsigned char *)calloc(map.tilesX*map.tilesY, sizeof(unsigned char));
     for (unsigned int i = 0; i < map.tilesY*map.tilesX; i++) map.tileIds[i] = i;
 
+    map.tiles = (Tile *)calloc(map.tilesX*map.tilesY, sizeof(Tile));
+    for (unsigned int i = 0; i < map.tilesY*map.tilesX; i++) {
+        map.tiles[i].id = i;
+        snprintf(map.tiles[i].name, sizeof(map.tiles[i].name), "T%d", i + 1);
+        int lightness = GetRandomValue(0, 120);
+        map.tiles[i].color = (Color){ lightness + 120, lightness, lightness, 255 };
+    }
+
     while (!WindowShouldClose())
     {
         UpdateScreenDimensions();
@@ -115,11 +130,18 @@ int main() {
         {
             for (unsigned int x = 0; x < map.tilesX; x++)
             {
+                DrawRectangle(offsetX + x*MAP_TILE_SIZE, offsetY + y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE, map.tiles[y*map.tilesX + x].color);
+                Vector2 textSize = MeasureTextEx(fontSmall, map.tiles[y*map.tilesX + x].name, (float)fontSmall.baseSize, 2);
+                Vector2 textPos = { 
+                    offsetX + x*MAP_TILE_SIZE + (MAP_TILE_SIZE - textSize.x) / 2, 
+                    offsetY + y*MAP_TILE_SIZE + (MAP_TILE_SIZE - textSize.y) / 2 
+                };
+                DrawTextEx(fontSmall, map.tiles[y*map.tilesX + x].name, textPos, (float)fontSmall.baseSize, 2, WHITE);
                 DrawRectangleLines(offsetX + x*MAP_TILE_SIZE, offsetY + y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE, WHITE);
             }
         }
 
-        DrawCircle((int)screenCenter.x, (int)screenCenter.y, 50.0f, WHITE);
+        DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
 
         
         if (DEBUG_MODE == 1) {
