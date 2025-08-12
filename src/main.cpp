@@ -66,7 +66,8 @@ void InitDisplaySystem() {
     displayWidth = trueMonitorWidth;
     displayHeight = trueMonitorHeight;
     
-    ClearWindowState(FLAG_WINDOW_RESIZABLE);
+    SetWindowState(FLAG_WINDOW_RESIZABLE);
+    // ClearWindowState(FLAG_WINDOW_RESIZABLE);
     
     SetWindowPosition(
         (trueMonitorWidth - DEFAULT_WINDOW_WIDTH) / 2,
