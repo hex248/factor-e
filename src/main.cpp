@@ -93,8 +93,12 @@ int main() {
     SetTargetFPS(144);
 
     Font fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
+    Font fontLargeExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 128, 0, 250);
     Font fontMedium = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 64, 0, 250);
+    Font fontMediumExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 64, 0, 250);
     Font fontSmall = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 32, 0, 250);
+    Font fontSmallExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 32, 0, 250);
+
     SetTextLineSpacing(16);
 
     Map map = { 0 };
@@ -124,21 +128,39 @@ int main() {
 
         BeginDrawing();
 
-        ClearBackground(BLACK);
+        ClearBackground((Color){ 10, 10, 10, 255 });
 
         for (unsigned int y = 0; y < map.tilesY; y++)
         {
             for (unsigned int x = 0; x < map.tilesX; x++)
             {
-                DrawRectangle(offsetX + x*MAP_TILE_SIZE, offsetY + y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE, map.tiles[y*map.tilesX + x].color);
+                int tileX = (int)(offsetX + x * MAP_TILE_SIZE);
+                int tileY = (int)(offsetY + y * MAP_TILE_SIZE);
+                
+                DrawRectangle(tileX, tileY, MAP_TILE_SIZE, MAP_TILE_SIZE, map.tiles[y*map.tilesX + x].color);
+                
                 Vector2 textSize = MeasureTextEx(fontSmall, map.tiles[y*map.tilesX + x].name, (float)fontSmall.baseSize, 2);
-                Vector2 textPos = { 
-                    offsetX + x*MAP_TILE_SIZE + (MAP_TILE_SIZE - textSize.x) / 2, 
-                    offsetY + y*MAP_TILE_SIZE + (MAP_TILE_SIZE - textSize.y) / 2 
+                Vector2 textPos = {
+                    tileX + (MAP_TILE_SIZE - textSize.x) / 2,
+                    tileY + (MAP_TILE_SIZE - textSize.y) / 2
                 };
                 DrawTextEx(fontSmall, map.tiles[y*map.tilesX + x].name, textPos, (float)fontSmall.baseSize, 2, WHITE);
-                DrawRectangleLines(offsetX + x*MAP_TILE_SIZE, offsetY + y*MAP_TILE_SIZE, MAP_TILE_SIZE, MAP_TILE_SIZE, WHITE);
             }
+        }
+        
+        int gridStartX = (int)offsetX;
+        int gridStartY = (int)offsetY;
+        int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
+        int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
+        
+        for (unsigned int x = 0; x <= MAP_SIZE_X; x++) {
+            int lineX = gridStartX + x * MAP_TILE_SIZE;
+            DrawLine(lineX, gridStartY, lineX, gridEndY, WHITE);
+        }
+        
+        for (unsigned int y = 0; y <= MAP_SIZE_Y; y++) {
+            int lineY = gridStartY + y * MAP_TILE_SIZE;
+            DrawLine(gridStartX, lineY, gridEndX, lineY, WHITE);
         }
 
         DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
@@ -146,7 +168,7 @@ int main() {
         
         if (DEBUG_MODE == 1) {
             static char debugText[8][64];
-            snprintf(debugText[0], sizeof(debugText[0]), "Offset: %.2fx%.2f", offsetX, offsetY);
+            snprintf(debugText[0], sizeof(debugText[0]), "Offset: %dx%d", (int)offsetX, (int)offsetY);
             snprintf(debugText[1], sizeof(debugText[1]), "Monitor Count: %d", GetMonitorCount());
             snprintf(debugText[2], sizeof(debugText[2]), "Current Monitor: %d", GetCurrentMonitor());
             snprintf(debugText[3], sizeof(debugText[3]), "Screen: %dx%d", screenWidth, screenHeight);
@@ -156,7 +178,7 @@ int main() {
             snprintf(debugText[7], sizeof(debugText[7]), "Fullscreen: %s", IsWindowFullscreen() ? "Yes" : "No");
             
             for (int i = 0; i < 8; i++) {
-                DrawTextEx(fontSmall, debugText[i], (Vector2){ 0, i * 25 }, (float)fontSmall.baseSize, 2, WHITE);
+                DrawTextEx(fontSmallExtraLight, debugText[i], (Vector2){ 0, i * 25 }, (float)fontSmallExtraLight.baseSize, 2, WHITE);
             }
         }
 
@@ -164,8 +186,11 @@ int main() {
     }
 
     UnloadFont(fontLarge);
+    UnloadFont(fontLargeExtraLight);
     UnloadFont(fontMedium);
+    UnloadFont(fontMediumExtraLight);
     UnloadFont(fontSmall);
+    UnloadFont(fontSmallExtraLight);
 
     free(map.tileIds);
 
