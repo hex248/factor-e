@@ -5,6 +5,42 @@
 
 #define DEBUG_MODE 1
 
+int GetCurrentMonitor() {
+    int monitorCount = GetMonitorCount();
+    int bestMonitor = 0;
+    int highestRefreshRate = 0;
+    int highestResolution = 0;
+    
+    for (int i = 0; i < monitorCount; i++) {
+        int refreshRate = GetMonitorRefreshRate(i);
+        int width = GetMonitorWidth(i);
+        int height = GetMonitorHeight(i);
+        int resolution = width * height;
+
+        // highest refresh rate
+        if (refreshRate > highestRefreshRate) {
+            highestRefreshRate = refreshRate;
+            highestResolution = resolution;
+            bestMonitor = i;
+        }
+        // if equal, use highest resolution
+        else if (refreshRate == highestRefreshRate && resolution > highestResolution) {
+            highestResolution = resolution;
+            bestMonitor = i;
+        }
+        // if no refresh rate info available (0 Hz), use highest resolution
+        else if (highestRefreshRate == 0 && resolution > highestResolution) {
+            highestResolution = resolution;
+            bestMonitor = i;
+        }
+        else {
+            bestMonitor = 0;
+        }
+    }
+    
+    return bestMonitor;
+}
+
 #define MAP_TILE_SIZE 100
 #define MAP_SIZE_X 15
 #define MAP_SIZE_Y 9
@@ -12,6 +48,7 @@
 #define DEFAULT_WINDOW_WIDTH 1600
 #define DEFAULT_WINDOW_HEIGHT 900
 
+int monitor = GetCurrentMonitor();
 int screenWidth = DEFAULT_WINDOW_WIDTH;
 int screenHeight = DEFAULT_WINDOW_HEIGHT;
 int displayWidth = DEFAULT_WINDOW_WIDTH;
@@ -34,16 +71,16 @@ typedef struct Map {
 } Map;
 
 void UpdateScreenDimensions() {
-    int currentMonitor = GetCurrentMonitor();
-    
+    monitor = GetCurrentMonitor();
+
     if (IsWindowFullscreen()) {
         screenWidth = trueMonitorWidth;
         screenHeight = trueMonitorHeight;
         displayWidth = trueMonitorWidth;
         displayHeight = trueMonitorHeight;
     } else {
-        trueMonitorWidth = GetMonitorWidth(currentMonitor);
-        trueMonitorHeight = GetMonitorHeight(currentMonitor);
+        trueMonitorWidth = GetMonitorWidth(monitor);
+        trueMonitorHeight = GetMonitorHeight(monitor);
         displayWidth = trueMonitorWidth;
         displayHeight = trueMonitorHeight;
         
@@ -56,16 +93,16 @@ void UpdateScreenDimensions() {
 
 void InitDisplaySystem() {
     InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "FACTOR E");
-    
-    int primaryMonitor = 0;
-    trueMonitorWidth = GetMonitorWidth(primaryMonitor);
-    trueMonitorHeight = GetMonitorHeight(primaryMonitor);
+
+    monitor = GetCurrentMonitor();
+
+    trueMonitorWidth = GetMonitorWidth(monitor);
+    trueMonitorHeight = GetMonitorHeight(monitor);
     
     displayWidth = trueMonitorWidth;
     displayHeight = trueMonitorHeight;
     
     SetWindowState(FLAG_WINDOW_UNDECORATED);
-    SetWindowState(FLAG_FULLSCREEN_MODE);
     SetWindowState(FLAG_BORDERLESS_WINDOWED_MODE);
     ClearWindowState(FLAG_WINDOW_RESIZABLE);
     
@@ -74,15 +111,9 @@ void InitDisplaySystem() {
         (trueMonitorHeight - DEFAULT_WINDOW_HEIGHT) / 2
     );
     
-    BeginDrawing();
-    EndDrawing();
     
     SetWindowState(FLAG_FULLSCREEN_MODE);
     
-    for (int i = 0; i < 5; i++) {
-        BeginDrawing();
-        EndDrawing();
-    }
     
     UpdateScreenDimensions();
 }
@@ -170,7 +201,7 @@ int main() {
             static char debugText[8][64];
             snprintf(debugText[0], sizeof(debugText[0]), "Offset: %dx%d", (int)offsetX, (int)offsetY);
             snprintf(debugText[1], sizeof(debugText[1]), "Monitor Count: %d", GetMonitorCount());
-            snprintf(debugText[2], sizeof(debugText[2]), "Current Monitor: %d", GetCurrentMonitor());
+            snprintf(debugText[2], sizeof(debugText[2]), "Current Monitor: %d", monitor);
             snprintf(debugText[3], sizeof(debugText[3]), "Screen: %dx%d", screenWidth, screenHeight);
             snprintf(debugText[4], sizeof(debugText[4]), "Display Size: %dx%d", displayWidth, displayHeight);
             snprintf(debugText[5], sizeof(debugText[5]), "True Monitor: %dx%d", trueMonitorWidth, trueMonitorHeight);
