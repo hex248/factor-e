@@ -1,6 +1,9 @@
 #include "raylib.h"
 #include <iostream>
 #include <stdlib.h>
+#include <stdio.h>
+
+#define DEBUG_MODE 1
 
 #define MAP_TILE_SIZE 100
 #define MAP_SIZE_X 15
@@ -118,14 +121,22 @@ int main() {
 
         DrawCircle((int)screenCenter.x, (int)screenCenter.y, 50.0f, WHITE);
 
-        DrawTextEx(fontSmall, TextFormat("Offset: %.2fx%.2f", offsetX, offsetY), (Vector2){ 0, 0 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("Monitor Count: %d", GetMonitorCount()), (Vector2){ 0, 25 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("Current Monitor: %d", GetCurrentMonitor()), (Vector2){ 0, 50 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("Screen: %dx%d", screenWidth, screenHeight), (Vector2){ 0, 75 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("Display Size: %dx%d", displayWidth, displayHeight), (Vector2){ 0, 100 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("True Monitor: %dx%d", trueMonitorWidth, trueMonitorHeight), (Vector2){ 0, 125 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y), (Vector2){ 0, 150 }, (float)fontSmall.baseSize, 2, WHITE);
-        DrawTextEx(fontSmall, TextFormat("Fullscreen: %s", IsWindowFullscreen() ? "Yes" : "No"), (Vector2){ 0, 175 }, (float)fontSmall.baseSize, 2, WHITE);
+        
+        if (DEBUG_MODE == 1) {
+            static char debugText[8][64];
+            snprintf(debugText[0], sizeof(debugText[0]), "Offset: %.2fx%.2f", offsetX, offsetY);
+            snprintf(debugText[1], sizeof(debugText[1]), "Monitor Count: %d", GetMonitorCount());
+            snprintf(debugText[2], sizeof(debugText[2]), "Current Monitor: %d", GetCurrentMonitor());
+            snprintf(debugText[3], sizeof(debugText[3]), "Screen: %dx%d", screenWidth, screenHeight);
+            snprintf(debugText[4], sizeof(debugText[4]), "Display Size: %dx%d", displayWidth, displayHeight);
+            snprintf(debugText[5], sizeof(debugText[5]), "True Monitor: %dx%d", trueMonitorWidth, trueMonitorHeight);
+            snprintf(debugText[6], sizeof(debugText[6]), "Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y);
+            snprintf(debugText[7], sizeof(debugText[7]), "Fullscreen: %s", IsWindowFullscreen() ? "Yes" : "No");
+            
+            for (int i = 0; i < 8; i++) {
+                DrawTextEx(fontSmall, debugText[i], (Vector2){ 0, i * 25 }, (float)fontSmall.baseSize, 2, WHITE);
+            }
+        }
 
         EndDrawing();
     }
