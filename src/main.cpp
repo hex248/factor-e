@@ -104,9 +104,9 @@ int main() {
     map.tiles = (Tile *)calloc(map.tilesX*map.tilesY, sizeof(Tile));
     for (unsigned int i = 0; i < map.tilesY*map.tilesX; i++) {
         map.tiles[i].id = i;
-        snprintf(map.tiles[i].name, sizeof(map.tiles[i].name), "T%d", i + 1);
+        snprintf(map.tiles[i].name, sizeof(map.tiles[i].name), "%d", i + 1);
         int lightness = GetRandomValue(0, 120);
-        map.tiles[i].color = (Color){ lightness + 120, lightness, lightness, 255 };
+        map.tiles[i].color = (Color){ lightness, lightness + 80, lightness, 255 };
     }
 
     while (!WindowShouldClose())
