@@ -6,7 +6,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
-#define DEBUG_MODE 1
+#define START_DEBUG_MODE 1
 
 #define MAP_TILE_SIZE 100
 #define MAP_SIZE_X 5
@@ -14,6 +14,8 @@
 
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
+
+bool debug = START_DEBUG_MODE;
 
 int screenWidth = DEFAULT_WINDOW_WIDTH;
 int screenHeight = DEFAULT_WINDOW_HEIGHT;
@@ -126,6 +128,8 @@ int main()
 
         if (IsKeyPressed(KEY_F11))
             ToggleBorderlessWindowed();
+        if (IsKeyPressed(KEY_F1))
+            debug = !debug;
 
         offsetX = (screenWidth - MAP_TILE_SIZE * MAP_SIZE_X) / 2;
         offsetY = (screenHeight - MAP_TILE_SIZE * MAP_SIZE_Y) / 2;
@@ -170,7 +174,7 @@ int main()
 
         DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
 
-        if (DEBUG_MODE)
+        if (debug)
         {
             static char debugText[6][64];
             snprintf(debugText[0], sizeof(debugText[0]), "Offset: %dx%d", (int)offsetX, (int)offsetY);
