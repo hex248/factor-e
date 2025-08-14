@@ -11,13 +11,31 @@
 #define START_SHOW_CONTROLS 1
 
 #define MAP_TILE_SIZE 100
-#define MAP_SIZE_X 5
-#define MAP_SIZE_Y 5
+#define MAP_SIZE_X 13
+#define MAP_SIZE_Y 13
+
+#define PLAYER_SPEED 5
 
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
 
 #define CONFIG_FILE_NAME "factor-e.config"
+
+class Player
+{
+public:
+    Vector2 position;
+    float size;
+    float speed = 5.0f;
+    Color color;
+
+    Player(Vector2 pos, float sz, float sp, Color col) : position(pos), size(sz), speed(sp), color(col) {}
+
+    void Draw()
+    {
+        DrawCircleV(position, size, color);
+    }
+};
 
 typedef struct Config
 {
@@ -248,10 +266,27 @@ int main()
         map.tiles[i].color = (Color){lightness, lightness + 80, lightness, 255};
     }
 
+    Player player = Player(Vector2{screenWidth / 2.0f, screenHeight / 2.0f}, 25.0f, PLAYER_SPEED, PINK);
+
+    Camera2D camera = {0};
+    camera.target = (Vector2){player.position.x, player.position.y};
+    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+    camera.rotation = 0.0f;
+    camera.zoom = 1.0f;
+
     while (!WindowShouldClose())
     {
         UpdateScreenDimensions();
         UpdateConfig();
+
+        if (IsKeyDown(KEY_W))
+            player.position.y -= player.speed * 50.0f * GetFrameTime();
+        if (IsKeyDown(KEY_S))
+            player.position.y += player.speed * 50.0f * GetFrameTime();
+        if (IsKeyDown(KEY_A))
+            player.position.x -= player.speed * 50.0f * GetFrameTime();
+        if (IsKeyDown(KEY_D))
+            player.position.x += player.speed * 50.0f * GetFrameTime();
 
         if (IsKeyPressed(KEY_F1))
             showControls = !showControls;
@@ -310,9 +345,13 @@ int main()
         offsetX = (screenWidth - MAP_TILE_SIZE * MAP_SIZE_X) / 2;
         offsetY = (screenHeight - MAP_TILE_SIZE * MAP_SIZE_Y) / 2;
 
+        camera.target = (Vector2){player.position.x, player.position.y};
+
         BeginDrawing();
 
         ClearBackground((Color){10, 10, 10, 255});
+
+        BeginMode2D(camera);
 
         for (unsigned int y = 0; y < map.tilesY; y++)
         {
@@ -348,7 +387,11 @@ int main()
             DrawLine(gridStartX, lineY, gridEndX, lineY, WHITE);
         }
 
-        DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
+        // DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
+
+        player.Draw();
+
+        EndMode2D();
 
         if (showDebug)
         {
@@ -362,7 +405,7 @@ int main()
 
             for (int i = 0; i < 6; i++)
             {
-                DrawTextEx(fontSmallExtraLight, debugText[i], (Vector2){0, i * 25}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
+                DrawTextEx(fontSmallExtraLight, debugText[i], (Vector2){0, i * 25.0f}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
             }
         }
 
