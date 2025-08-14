@@ -1,0 +1,15 @@
+{
+    "version": "1.0",
+    "layers": {
+        "ground": {
+            "renderOrder": 0,
+            "name": "Ground Layer",
+            "description": "terrain"
+        },
+        "object": {
+            "renderOrder": 1,
+            "name": "Object Layer",
+            "description": "interactive objects, structures, and obstacles"
+        }
+    }
+}

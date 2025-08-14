@@ -1,0 +1,90 @@
+{
+    "version": "1.0",
+    "tileTypes": {
+        "dirt": {
+            "id": 0,
+            "name": "Dirt",
+            "description": "dirt",
+            "layer": "ground",
+            "sprite": "assets/sprites/dirt.png",
+            "collision": {
+                "solid": false,
+                "width": 1,
+                "height": 1
+            },
+            "gameplay": {
+                "walkable": true,
+                "buildable": true,
+                "harvestable": false
+            }
+        },
+        "grass": {
+            "id": 1,
+            "name": "Grass",
+            "description": "green green grass",
+            "layer": "ground",
+            "sprite": "assets/sprites/grass.png",
+            "collision": {
+                "solid": false,
+                "width": 1,
+                "height": 1
+            },
+            "gameplay": {
+                "walkable": true,
+                "buildable": true,
+                "harvestable": false
+            }
+        },
+        "rock": {
+            "id": 2,
+            "name": "Rock",
+            "description": "a grey rock",
+            "layer": "object",
+            "sprite": "assets/sprites/rock.png",
+            "collision": {
+                "solid": true,
+                "width": 0.75,
+                "height": 0.75
+            },
+            "gameplay": {
+                "walkable": false,
+                "buildable": false,
+                "harvestable": true
+            }
+        },
+        "tree": {
+            "id": 3,
+            "name": "Tree",
+            "description": "stump",
+            "layer": "object",
+            "sprite": "assets/sprites/tree.png",
+            "collision": {
+                "solid": true,
+                "width": 0.8,
+                "height": 0.8
+            },
+            "gameplay": {
+                "walkable": false,
+                "buildable": false,
+                "harvestable": true
+            }
+        },
+        "poison_flower": {
+            "id": 4,
+            "name": "Poison Flower",
+            "description": "scary flower causes long lasting pain",
+            "layer": "object",
+            "sprite": "assets/sprites/poison-flower.png",
+            "collision": {
+                "solid": false,
+                "width": 0.3,
+                "height": 0.3
+            },
+            "gameplay": {
+                "walkable": true,
+                "buildable": false,
+                "harvestable": true
+            }
+        }
+    }
+}

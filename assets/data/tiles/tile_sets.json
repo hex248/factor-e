@@ -1,0 +1,26 @@
+{
+    "tileSets": {
+        "field_biome": {
+            "name": "Field",
+            "description": "very green place",
+            "tiles": ["grass", "dirt", "tree", "rock", "poison_flower"],
+            "weights": {
+                "grass": 40,
+                "dirt": 30,
+                "tree": 20,
+                "rock": 5,
+                "poison_flower": 5
+            },
+            "rules": {
+                "tree": {
+                    "cannotBeAdjacentTo": ["tree", "rock"],
+                    "mustBeOn": ["grass", "dirt"]
+                },
+                "rock": {
+                    "cannotBeAdjacentTo": ["rock", "tree"],
+                    "mustBeOn": ["grass", "dirt"]
+                }
+            }
+        }
+    }
+}
