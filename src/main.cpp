@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
@@ -15,7 +16,22 @@
 #define DEFAULT_WINDOW_WIDTH 1280
 #define DEFAULT_WINDOW_HEIGHT 720
 
+#define CONFIG_FILE_NAME "factor-e.config"
+
+typedef struct Config
+{
+    bool borderlessFullscreen;
+    int preferredMonitor;
+    int windowWidth;
+    int windowHeight;
+    int windowPosX;
+    int windowPosY;
+} Config;
+
 bool debug = START_DEBUG_MODE;
+
+Config config = {0};
+bool configChanged = false;
 
 int screenWidth = DEFAULT_WINDOW_WIDTH;
 int screenHeight = DEFAULT_WINDOW_HEIGHT;
@@ -39,6 +55,96 @@ typedef struct Map
     unsigned char *tileIds;
     Tile *tiles;
 } Map;
+
+void SaveConfig()
+{
+    FILE *file = fopen(CONFIG_FILE_NAME, "w");
+    if (file != NULL)
+    {
+        fprintf(file, "borderlessFullscreen=%d\n", config.borderlessFullscreen ? 1 : 0);
+        fprintf(file, "preferredMonitor=%d\n", config.preferredMonitor);
+        fprintf(file, "windowWidth=%d\n", config.windowWidth);
+        fprintf(file, "windowHeight=%d\n", config.windowHeight);
+        fprintf(file, "windowPosX=%d\n", config.windowPosX);
+        fprintf(file, "windowPosY=%d\n", config.windowPosY);
+        fclose(file);
+        configChanged = false;
+    }
+}
+
+void LoadConfig()
+{
+    // set default values
+    config.borderlessFullscreen = false;
+    config.preferredMonitor = 0;
+    config.windowWidth = DEFAULT_WINDOW_WIDTH;
+    config.windowHeight = DEFAULT_WINDOW_HEIGHT;
+    config.windowPosX = -1; // -1 is center
+    config.windowPosY = -1;
+
+    FILE *file = fopen(CONFIG_FILE_NAME, "r");
+    if (file != NULL)
+    {
+        char line[256];
+        while (fgets(line, sizeof(line), file))
+        {
+            char key[64], value[64];
+            if (sscanf(line, "%63[^=]=%63s", key, value) == 2)
+            {
+                if (strcmp(key, "borderlessFullscreen") == 0)
+                    config.borderlessFullscreen = (atoi(value) != 0);
+                else if (strcmp(key, "preferredMonitor") == 0)
+                    config.preferredMonitor = atoi(value);
+                else if (strcmp(key, "windowWidth") == 0)
+                    config.windowWidth = atoi(value);
+                else if (strcmp(key, "windowHeight") == 0)
+                    config.windowHeight = atoi(value);
+                else if (strcmp(key, "windowPosX") == 0)
+                    config.windowPosX = atoi(value);
+                else if (strcmp(key, "windowPosY") == 0)
+                    config.windowPosY = atoi(value);
+            }
+        }
+        fclose(file);
+    }
+}
+
+void UpdateConfig()
+{
+    bool wasChanged = false;
+
+    if (!IsWindowFullscreen())
+    {
+        Vector2 windowPos = GetWindowPosition();
+        if (config.windowPosX != (int)windowPos.x || config.windowPosY != (int)windowPos.y)
+        {
+            config.windowPosX = (int)windowPos.x;
+            config.windowPosY = (int)windowPos.y;
+            wasChanged = true;
+        }
+
+        int currentWidth = GetRenderWidth();
+        int currentHeight = GetRenderHeight();
+        if (config.windowWidth != currentWidth || config.windowHeight != currentHeight)
+        {
+            config.windowWidth = currentWidth;
+            config.windowHeight = currentHeight;
+            wasChanged = true;
+        }
+    }
+
+    int currentMonitor = GetCurrentMonitor();
+    if (config.preferredMonitor != currentMonitor)
+    {
+        config.preferredMonitor = currentMonitor;
+        wasChanged = true;
+    }
+
+    if (wasChanged)
+    {
+        configChanged = true;
+    }
+}
 
 void UpdateScreenDimensions()
 {
@@ -67,10 +173,16 @@ void UpdateScreenDimensions()
 
 void InitDisplaySystem()
 {
-    InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "FACTOR E");
+    LoadConfig();
 
-    int monitor = GetCurrentMonitor();
+    InitWindow(config.windowWidth, config.windowHeight, "FACTOR E");
 
+    // set preferred monitor
+    int monitorCount = GetMonitorCount();
+    if (config.preferredMonitor >= monitorCount)
+        config.preferredMonitor = 0;
+
+    int monitor = config.preferredMonitor;
     trueMonitorWidth = GetMonitorWidth(monitor);
     trueMonitorHeight = GetMonitorHeight(monitor);
 
@@ -78,11 +190,23 @@ void InitDisplaySystem()
     displayHeight = trueMonitorHeight;
 
     SetWindowState(FLAG_WINDOW_RESIZABLE);
-    // ClearWindowState(FLAG_WINDOW_RESIZABLE);
 
-    SetWindowPosition(
-        (trueMonitorWidth - DEFAULT_WINDOW_WIDTH) / 2,
-        (trueMonitorHeight - DEFAULT_WINDOW_HEIGHT) / 2);
+    if (config.windowPosX == -1 || config.windowPosY == -1)
+    {
+        // center on preferred monitor
+        int monitorX = GetMonitorPosition(monitor).x;
+        int monitorY = GetMonitorPosition(monitor).y;
+        SetWindowPosition(
+            monitorX + (trueMonitorWidth - config.windowWidth) / 2,
+            monitorY + (trueMonitorHeight - config.windowHeight) / 2);
+    }
+    else
+    {
+        SetWindowPosition(config.windowPosX, config.windowPosY);
+    }
+
+    if (config.borderlessFullscreen)
+        ToggleBorderlessWindowed();
 
     UpdateScreenDimensions();
 }
@@ -125,11 +249,59 @@ int main()
     while (!WindowShouldClose())
     {
         UpdateScreenDimensions();
+        UpdateConfig();
 
-        if (IsKeyPressed(KEY_F11))
-            ToggleBorderlessWindowed();
         if (IsKeyPressed(KEY_F1))
             debug = !debug;
+        if (IsKeyPressed(KEY_F10))
+        {
+            int monitorCount = GetMonitorCount();
+            if (monitorCount > 1)
+            {
+                config.preferredMonitor = (config.preferredMonitor + 1) % monitorCount;
+                Vector2 monitorPos = GetMonitorPosition(config.preferredMonitor);
+                int monitorWidth = GetMonitorWidth(config.preferredMonitor);
+                int monitorHeight = GetMonitorHeight(config.preferredMonitor);
+
+                if (IsWindowFullscreen())
+                {
+                    // toggle off fullscreen, move window, then toggle back on
+                    ToggleBorderlessWindowed();
+                    SetWindowPosition((int)monitorPos.x + (monitorWidth - config.windowWidth) / 2,
+                                      (int)monitorPos.y + (monitorHeight - config.windowHeight) / 2);
+                    ToggleBorderlessWindowed();
+                }
+                else
+                {
+                    SetWindowPosition((int)monitorPos.x + (monitorWidth - config.windowWidth) / 2,
+                                      (int)monitorPos.y + (monitorHeight - config.windowHeight) / 2);
+                }
+                configChanged = true;
+            }
+        }
+        if (IsKeyPressed(KEY_F11))
+        {
+            ToggleBorderlessWindowed();
+            config.borderlessFullscreen = IsWindowFullscreen();
+            configChanged = true;
+        }
+
+        // save config if it changed
+        static float configSaveTimer = 0.0f;
+        if (configChanged)
+        {
+            configSaveTimer += GetFrameTime();
+            // 1 second buffer time for saving to avoid spam
+            if (configSaveTimer >= 1.0f)
+            {
+                SaveConfig();
+                configSaveTimer = 0.0f;
+            }
+        }
+        else
+        {
+            configSaveTimer = 0.0f;
+        }
 
         offsetX = (screenWidth - MAP_TILE_SIZE * MAP_SIZE_X) / 2;
         offsetY = (screenHeight - MAP_TILE_SIZE * MAP_SIZE_Y) / 2;
@@ -201,6 +373,9 @@ int main()
     UnloadFont(fontSmallExtraLight);
 
     free(map.tileIds);
+
+    if (configChanged)
+        SaveConfig();
 
     CloseWindow();
     return 0;
