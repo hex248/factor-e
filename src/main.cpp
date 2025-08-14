@@ -37,7 +37,7 @@ int main()
     bool exitWindow = false;
     const int CLOSE_KEY = KEY_ESCAPE;
 
-    Player player = Player(Vector2{screenWidth / 2.0f, screenHeight / 2.0f}, 25.0f, PLAYER_SPEED, (Color){244, 112, 46, 255});
+    Player player = Player(Vector2{0.0f, 0.0f}, 25.0f, PLAYER_SPEED, (Color){244, 112, 46, 255});
 
     Camera2D camera = {0};
     camera.target = (Vector2){player.position.x, player.position.y};
@@ -49,6 +49,8 @@ int main()
     {
         UpdateScreenDimensions();
         UpdateConfig();
+
+        camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
 
         HandleControls();
         player.HandleMovement();

@@ -24,8 +24,11 @@ void InitWorld(Map *map)
 
 void DrawWorld(Map *map, Font fontSmall)
 {
-    float offsetX = (screenWidth - MAP_TILE_SIZE * MAP_SIZE_X) / 2;
-    float offsetY = (screenHeight - MAP_TILE_SIZE * MAP_SIZE_Y) / 2;
+    // position grid at a fixed world coordinate (centered around 0,0)
+    float offsetX = -(MAP_TILE_SIZE * MAP_SIZE_X) / 2.0f;
+    float offsetY = -(MAP_TILE_SIZE * MAP_SIZE_Y) / 2.0f;
+
+    Font fontSmall = GetFontSmall();
 
     // draw tiles
     for (unsigned int y = 0; y < map->tilesY; y++)
