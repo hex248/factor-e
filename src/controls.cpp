@@ -1,7 +1,7 @@
 #include "controls.h"
 #include "config.h"
 
-bool showDebug = true;
+bool showDebug = false;
 bool showControls = true;
 
 void HandleControls()

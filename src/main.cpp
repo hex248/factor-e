@@ -32,6 +32,11 @@ int main()
     Map map = {0};
     InitWorld(&map);
 
+    SetExitKey(KEY_NULL);
+    bool exitWindowRequested = false;
+    bool exitWindow = false;
+    const int CLOSE_KEY = KEY_ESCAPE;
+
     Player player = Player(Vector2{screenWidth / 2.0f, screenHeight / 2.0f}, 25.0f, PLAYER_SPEED, (Color){244, 112, 46, 255});
 
     Camera2D camera = {0};
@@ -40,8 +45,21 @@ int main()
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
-    while (!WindowShouldClose())
+    while (!exitWindow)
     {
+        if (WindowShouldClose() || IsKeyPressed(CLOSE_KEY))
+        {
+            exitWindowRequested = !exitWindowRequested;
+        }
+
+        if (exitWindowRequested)
+        {
+            if (IsKeyPressed(KEY_Y))
+                exitWindow = true;
+            else if (IsKeyPressed(KEY_N))
+                exitWindowRequested = false;
+        }
+
         UpdateScreenDimensions();
         UpdateConfig();
 
@@ -78,6 +96,19 @@ int main()
 
         DrawDebugInfo(fontSmallExtraLight);
         DrawControlsInfo(fontSmallExtraLight);
+
+        if (exitWindowRequested)
+        {
+            DrawRectangle(0, 0, screenWidth, screenHeight, (Color){0, 0, 0, 200});
+            char *closeText = "close the window? y/n";
+            int fontSize = fontMedium.baseSize;
+            Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, 2.0f);
+            DrawTextEx(fontMedium, closeText,
+                       (Vector2){
+                           screenWidth / 2 - textSize.x / 2,
+                           screenHeight / 2 - textSize.y / 2},
+                       fontSize, 2.0f, WHITE);
+        }
 
         EndDrawing();
     }
