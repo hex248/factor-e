@@ -16,18 +16,23 @@ Vector2 screenCenter = {DEFAULT_WINDOW_WIDTH / 2.0f, DEFAULT_WINDOW_HEIGHT / 2.0
 
 void SaveConfig()
 {
-    FILE *file = fopen(CONFIG_FILE_NAME, "w");
-    if (file != NULL)
-    {
-        fprintf(file, "borderlessFullscreen=%d\n", config.borderlessFullscreen ? 1 : 0);
-        fprintf(file, "preferredMonitor=%d\n", config.preferredMonitor);
-        fprintf(file, "windowWidth=%d\n", config.windowWidth);
-        fprintf(file, "windowHeight=%d\n", config.windowHeight);
-        fprintf(file, "windowPosX=%d\n", config.windowPosX);
-        fprintf(file, "windowPosY=%d\n", config.windowPosY);
-        fclose(file);
+    char configText[512];
+    snprintf(configText, sizeof(configText),
+             "borderlessFullscreen=%d\n"
+             "preferredMonitor=%d\n"
+             "windowWidth=%d\n"
+             "windowHeight=%d\n"
+             "windowPosX=%d\n"
+             "windowPosY=%d\n",
+             config.borderlessFullscreen ? 1 : 0,
+             config.preferredMonitor,
+             config.windowWidth,
+             config.windowHeight,
+             config.windowPosX,
+             config.windowPosY);
+
+    if (SaveFileText(CONFIG_FILE_NAME, configText))
         configChanged = false;
-    }
 }
 
 void LoadConfig()
@@ -40,11 +45,11 @@ void LoadConfig()
     config.windowPosX = -1; // -1 is center
     config.windowPosY = -1;
 
-    FILE *file = fopen(CONFIG_FILE_NAME, "r");
-    if (file != NULL)
+    char *fileText = LoadFileText(CONFIG_FILE_NAME);
+    if (fileText != NULL)
     {
-        char line[256];
-        while (fgets(line, sizeof(line), file))
+        char *line = strtok(fileText, "\n");
+        while (line != NULL)
         {
             char key[64], value[64];
             if (sscanf(line, "%63[^=]=%63s", key, value) == 2)
@@ -62,8 +67,10 @@ void LoadConfig()
                 else if (strcmp(key, "windowPosY") == 0)
                     config.windowPosY = atoi(value);
             }
+            line = strtok(NULL, "\n");
         }
-        fclose(file);
+
+        UnloadFileText(fileText);
     }
 }
 
@@ -99,9 +106,7 @@ void UpdateConfig()
     }
 
     if (wasChanged)
-    {
         configChanged = true;
-    }
 }
 
 void UpdateScreenDimensions()
