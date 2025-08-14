@@ -47,19 +47,6 @@ int main()
 
     while (!exitWindow)
     {
-        if (WindowShouldClose() || IsKeyPressed(CLOSE_KEY))
-        {
-            exitWindowRequested = !exitWindowRequested;
-        }
-
-        if (exitWindowRequested)
-        {
-            if (IsKeyPressed(KEY_Y))
-                exitWindow = true;
-            else if (IsKeyPressed(KEY_N))
-                exitWindowRequested = false;
-        }
-
         UpdateScreenDimensions();
         UpdateConfig();
 
@@ -97,10 +84,23 @@ int main()
         DrawDebugInfo(fontSmallExtraLight);
         DrawControlsInfo(fontSmallExtraLight);
 
+        // exit confirmation prompt
+        if (WindowShouldClose() || IsKeyPressed(CLOSE_KEY))
+        {
+            exitWindowRequested = !exitWindowRequested;
+        }
+        if (exitWindowRequested)
+        {
+            if (IsKeyPressed(KEY_Y) || IsKeyPressed(KEY_ENTER))
+                exitWindow = true;
+            else if (IsKeyPressed(KEY_N))
+                exitWindowRequested = false;
+        }
+
         if (exitWindowRequested)
         {
             DrawRectangle(0, 0, screenWidth, screenHeight, (Color){0, 0, 0, 200});
-            char *closeText = "close the window? y/n";
+            const char *closeText = "close the window? (Y/n)";
             int fontSize = fontMedium.baseSize;
             Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, 2.0f);
             DrawTextEx(fontMedium, closeText,
