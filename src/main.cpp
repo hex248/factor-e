@@ -7,7 +7,6 @@
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
-// Include our custom modules
 #include "config.h"
 #include "player.h"
 #include "world.h"

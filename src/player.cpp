@@ -1,10 +1,50 @@
 #include "player.h"
 
-Player::Player(Vector2 pos, float sz, float sp, Color col) : position(pos), size(sz), speed(sp), color(col) {}
+Player::Player(Vector2 pos, float sz, float sp, Color col) : position(pos), size(sz), speed(sp), color(col), spriteLoaded(false)
+{
+    LoadSprite();
+}
+
+Player::~Player()
+{
+    UnloadSprite();
+}
+
+void Player::LoadSprite()
+{
+    if (spriteLoaded)
+        return;
+
+    Image playerImage = LoadImage(PLAYER_SPRITE_PATH);
+
+    // nearest neighbour resize sprite
+    ImageResizeNN(&playerImage,
+                  (int)(playerImage.width * PLAYER_SPRITE_SCALE),
+                  (int)(playerImage.height * PLAYER_SPRITE_SCALE));
+
+    sprite = LoadTextureFromImage(playerImage);
+    UnloadImage(playerImage);
+    spriteLoaded = true;
+}
+
+void Player::UnloadSprite()
+{
+    if (spriteLoaded)
+    {
+        UnloadTexture(sprite);
+        spriteLoaded = false;
+    }
+}
 
 void Player::Draw()
 {
-    DrawCircleV(position, size, color);
+    if (!spriteLoaded)
+        return;
+
+    DrawTexture(sprite,
+                (int)(position.x - sprite.width / 2.0f),
+                (int)(position.y - sprite.height / 2.0f),
+                color);
 }
 
 void Player::HandleMovement()
