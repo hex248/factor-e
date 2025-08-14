@@ -16,6 +16,11 @@ include_directories(include)
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
+    src/config.cpp
+    src/player.cpp
+    src/world.cpp
+    src/controls.cpp
+    src/ui.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} raylib)
