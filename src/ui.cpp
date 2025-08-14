@@ -3,7 +3,52 @@
 #include "controls.h"
 #include <stdio.h>
 
-void DrawDebugInfo(Font font)
+static Font fontLarge;
+static Font fontLargeExtraLight;
+static Font fontMedium;
+static Font fontMediumExtraLight;
+static Font fontSmall;
+static Font fontSmallExtraLight;
+static bool fontsLoaded = false;
+
+void InitFonts()
+{
+    if (fontsLoaded)
+        return;
+
+    fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
+    fontLargeExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 128, 0, 250);
+    fontMedium = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 64, 0, 250);
+    fontMediumExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 64, 0, 250);
+    fontSmall = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 32, 0, 250);
+    fontSmallExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 32, 0, 250);
+
+    SetTextLineSpacing(16);
+    fontsLoaded = true;
+}
+
+void CleanupFonts()
+{
+    if (!fontsLoaded)
+        return;
+
+    UnloadFont(fontLarge);
+    UnloadFont(fontLargeExtraLight);
+    UnloadFont(fontMedium);
+    UnloadFont(fontMediumExtraLight);
+    UnloadFont(fontSmall);
+    UnloadFont(fontSmallExtraLight);
+    fontsLoaded = false;
+}
+
+Font GetFontLarge() { return fontLarge; }
+Font GetFontLargeExtraLight() { return fontLargeExtraLight; }
+Font GetFontMedium() { return fontMedium; }
+Font GetFontMediumExtraLight() { return fontMediumExtraLight; }
+Font GetFontSmall() { return fontSmall; }
+Font GetFontSmallExtraLight() { return fontSmallExtraLight; }
+
+void DrawDebugInfo()
 {
     if (!showDebug)
         return;
@@ -18,18 +63,31 @@ void DrawDebugInfo(Font font)
 
     for (int i = 0; i < 5; i++)
     {
-        DrawTextEx(font, debugText[i], (Vector2){0, i * 25.0f}, (float)font.baseSize, 2, WHITE);
+        DrawTextEx(fontSmallExtraLight, debugText[i], (Vector2){0, i * 25.0f}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
     }
 }
 
-void DrawControlsInfo(Font font)
+void DrawControlsInfo()
 {
     if (!showControls)
         return;
 
     const char *controls = "F1: Hide Controls | F2: Debug | F10: Switch Monitor | F11: Borderless";
-    Vector2 controlsSize = MeasureTextEx(font, controls, (float)font.baseSize, 2);
-    DrawTextEx(font, controls,
+    Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, (float)fontSmallExtraLight.baseSize, 2);
+    DrawTextEx(fontSmallExtraLight, controls,
                (Vector2){screenWidth - controlsSize.x - 10, screenHeight - controlsSize.y - 10},
-               (float)font.baseSize, 2, WHITE);
+               (float)fontSmallExtraLight.baseSize, 2, WHITE);
+}
+
+void DrawExitConfirmation()
+{
+    DrawRectangle(0, 0, screenWidth, screenHeight, (Color){0, 0, 0, 200});
+    const char *closeText = "close the window? (Y/n)";
+    int fontSize = fontMedium.baseSize;
+    Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, 2.0f);
+    DrawTextEx(fontMedium, closeText,
+               (Vector2){
+                   screenWidth / 2 - textSize.x / 2,
+                   screenHeight / 2 - textSize.y / 2},
+               fontSize, 2.0f, WHITE);
 }

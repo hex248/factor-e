@@ -1,5 +1,6 @@
 #include "world.h"
 #include "config.h"
+#include "ui.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -22,7 +23,7 @@ void InitWorld(Map *map)
     }
 }
 
-void DrawWorld(Map *map, Font fontSmall)
+void DrawWorld(Map *map)
 {
     // position grid at a fixed world coordinate (centered around 0,0)
     float offsetX = -(MAP_TILE_SIZE * MAP_SIZE_X) / 2.0f;

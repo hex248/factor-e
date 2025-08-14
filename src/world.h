@@ -23,7 +23,7 @@ typedef struct Map
 } Map;
 
 void InitWorld(Map *map);
-void DrawWorld(Map *map, Font fontSmall);
+void DrawWorld(Map *map);
 void CleanupWorld(Map *map);
 
 #endif

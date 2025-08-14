@@ -20,14 +20,7 @@ int main()
 
     SetTargetFPS(144);
 
-    Font fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
-    Font fontLargeExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 128, 0, 250);
-    Font fontMedium = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 64, 0, 250);
-    Font fontMediumExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 64, 0, 250);
-    Font fontSmall = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 32, 0, 250);
-    Font fontSmallExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 32, 0, 250);
-
-    SetTextLineSpacing(16);
+    InitFonts();
 
     Map map = {0};
     InitWorld(&map);
@@ -79,12 +72,12 @@ int main()
         ClearBackground((Color){10, 10, 10, 255});
 
         BeginMode2D(camera);
-        DrawWorld(&map, fontSmall);
+        DrawWorld(&map);
         player.Draw();
         EndMode2D();
 
-        DrawDebugInfo(fontSmallExtraLight);
-        DrawControlsInfo(fontSmallExtraLight);
+        DrawDebugInfo();
+        DrawControlsInfo();
 
         // exit confirmation prompt
         if (WindowShouldClose() || IsKeyPressed(CLOSE_KEY))
@@ -101,27 +94,14 @@ int main()
 
         if (exitWindowRequested)
         {
-            DrawRectangle(0, 0, screenWidth, screenHeight, (Color){0, 0, 0, 200});
-            const char *closeText = "close the window? (Y/n)";
-            int fontSize = fontMedium.baseSize;
-            Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, 2.0f);
-            DrawTextEx(fontMedium, closeText,
-                       (Vector2){
-                           screenWidth / 2 - textSize.x / 2,
-                           screenHeight / 2 - textSize.y / 2},
-                       fontSize, 2.0f, WHITE);
+            DrawExitConfirmation();
         }
 
         EndDrawing();
     }
 
     // CLEAN UP
-    UnloadFont(fontLarge);
-    UnloadFont(fontLargeExtraLight);
-    UnloadFont(fontMedium);
-    UnloadFont(fontMediumExtraLight);
-    UnloadFont(fontSmall);
-    UnloadFont(fontSmallExtraLight);
+    CleanupFonts();
 
     CleanupWorld(&map);
 
