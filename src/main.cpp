@@ -32,7 +32,7 @@ int main()
     Map map = {0};
     InitWorld(&map);
 
-    Player player = Player(Vector2{screenWidth / 2.0f, screenHeight / 2.0f}, 25.0f, PLAYER_SPEED, BLUE);
+    Player player = Player(Vector2{screenWidth / 2.0f, screenHeight / 2.0f}, 25.0f, PLAYER_SPEED, (Color){244, 112, 46, 255});
 
     Camera2D camera = {0};
     camera.target = (Vector2){player.position.x, player.position.y};
