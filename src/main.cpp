@@ -7,7 +7,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include "include/raygui.h"
 
-#define START_DEBUG_MODE 1
+#define START_SHOW_DEBUG 1
+#define START_SHOW_CONTROLS 1
 
 #define MAP_TILE_SIZE 100
 #define MAP_SIZE_X 5
@@ -28,7 +29,8 @@ typedef struct Config
     int windowPosY;
 } Config;
 
-bool debug = START_DEBUG_MODE;
+bool showDebug = START_SHOW_DEBUG;
+bool showControls = START_SHOW_CONTROLS;
 
 Config config = {0};
 bool configChanged = false;
@@ -252,7 +254,9 @@ int main()
         UpdateConfig();
 
         if (IsKeyPressed(KEY_F1))
-            debug = !debug;
+            showControls = !showControls;
+        if (IsKeyPressed(KEY_F2))
+            showDebug = !showDebug;
         if (IsKeyPressed(KEY_F10))
         {
             int monitorCount = GetMonitorCount();
@@ -346,7 +350,7 @@ int main()
 
         DrawCircle((int)screenCenter.x, (int)screenCenter.y, 30.0f, WHITE);
 
-        if (debug)
+        if (showDebug)
         {
             static char debugText[6][64];
             snprintf(debugText[0], sizeof(debugText[0]), "Offset: %dx%d", (int)offsetX, (int)offsetY);
@@ -360,6 +364,15 @@ int main()
             {
                 DrawTextEx(fontSmallExtraLight, debugText[i], (Vector2){0, i * 25}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
             }
+        }
+
+        if (showControls)
+        {
+            const char *controls = "F1: Hide Controls | F2: Debug | F10: Switch Monitor | F11: Borderless";
+            Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, (float)fontSmallExtraLight.baseSize, 2);
+            DrawTextEx(fontSmallExtraLight, controls,
+                       (Vector2){screenWidth - controlsSize.x - 10, screenHeight - controlsSize.y - 10},
+                       (float)fontSmallExtraLight.baseSize, 2, WHITE);
         }
 
         EndDrawing();
