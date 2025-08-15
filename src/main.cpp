@@ -13,6 +13,8 @@
 #include "controls.h"
 #include "ui.h"
 
+#define DEV_MODE 1
+
 int main()
 {
     InitDisplaySystem();
@@ -24,7 +26,8 @@ int main()
     Map map = {0};
     InitWorld(&map);
 
-    SetExitKey(KEY_NULL);
+    if (!DEV_MODE)
+        SetExitKey(KEY_NULL);
     bool exitWindowRequested = false;
     bool exitWindow = false;
     const int CLOSE_KEY = KEY_ESCAPE;
@@ -85,13 +88,15 @@ int main()
         }
         if (exitWindowRequested)
         {
+            if (DEV_MODE)
+                exitWindow = true;
             if (IsKeyPressed(KEY_Y) || IsKeyPressed(KEY_ENTER))
                 exitWindow = true;
             else if (IsKeyPressed(KEY_N))
                 exitWindowRequested = false;
         }
 
-        if (exitWindowRequested)
+        if (exitWindowRequested && !DEV_MODE)
         {
             DrawExitConfirmation();
         }
