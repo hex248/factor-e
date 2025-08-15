@@ -136,7 +136,23 @@ TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
 
     int randomValue = GetRandomValue(0, totalWeight - 1);
 
+    // ?sort weights descending
+    // this ensures that all weights are accounted for, even if the second weight is greater than the first
+    // EXAMPLE:
+    //     grass: 20
+    //     dirt: 40
+    // dirt has 40/60 chance and grass has 20/60
+    // without sorting, grass would have been chosen much more frequently as it comes first.
+    std::vector<std::pair<std::string, int>> sortedWeights;
     for (const auto &[key, value] : weights)
+    {
+        sortedWeights.emplace_back(key, value);
+    }
+    std::sort(sortedWeights.begin(), sortedWeights.end(),
+              [](const auto &a, const auto &b)
+              { return a.second > b.second; });
+
+    for (const auto &[key, value] : sortedWeights)
     {
         if (randomValue < value)
         {
