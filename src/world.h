@@ -3,6 +3,8 @@
 
 #include "raylib.h"
 #include <string>
+#include <vector>
+#include <map>
 
 #define TILE_TYPES_PATH "assets/data/tiles/tile_types.json"
 #define TILE_SETS_PATH "assets/data/tiles/tile_sets.json"
@@ -54,6 +56,52 @@ typedef struct TileType
     float spriteScale;
     CollisionType collision;
 } TileType;
+
+/*
+{
+    "id": 0,
+    "name": "Field",
+    "description": "very green place",
+    "tiles": ["grass", "dirt", "tree", "rock", "poison_flower"],
+    "weights": {
+        "grass": 80,
+        "dirt": 20,
+        "tree": 20,
+        "rock": 5,
+        "poison_flower": 5
+    },
+    "rules": {
+        "tree": {
+            "CANNOT_BE_ADJACENT_TO": ["tree", "rock"],
+            "MUST_BE_ON": ["grass", "dirt"]
+        },
+        "rock": {
+            "CANNOT_BE_ADJACENT_TO": ["rock", "tree"],
+            "MUST_BE_ON": ["grass", "dirt"]
+        }
+    }
+}
+*/
+enum class Rule
+{
+    CANNOT_BE_ADJACENT_TO,
+    MUST_BE_ON
+};
+
+typedef struct TileSet
+{
+    int id;
+    std::string name;
+    std::string description;
+    std::vector<std::string> tiles;
+    std::map<std::string, int> weights;
+    std::map<
+        std::string,
+        std::map<
+            Rule,
+            std::vector<std::string>>>
+        rules;
+} TileSet;
 
 typedef struct Map
 {

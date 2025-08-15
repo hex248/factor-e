@@ -43,6 +43,82 @@ void from_json(const json &j, TileType &t)
     j.at("collision").get_to(t.collision);
 }
 
+void to_json(json &j, const TileSet &t)
+{
+    j = json{{"id", t.id},
+             {"name", t.name},
+             {"description", t.description},
+             {"tiles", t.tiles},
+             {"weights", t.weights},
+             {"rules", t.rules}};
+}
+
+void from_json(const json &j, TileSet &t)
+{
+    j.at("id").get_to(t.id);
+    j.at("name").get_to(t.name);
+    j.at("description").get_to(t.description);
+
+    // loop through tiles array
+    for (const auto &tile : j.at("tiles"))
+    {
+        // add to t.tiles string vector
+        t.tiles.push_back(tile.get<std::string>());
+    }
+    for (const auto &tile : t.tiles)
+    {
+        std::cout << tile << " ";
+    }
+    std::cout << std::endl;
+
+    for (const auto &item : j.at("weights").items())
+    {
+        t.weights[item.key()] = item.value().get<int>();
+    }
+
+    /*
+        "rules": {
+            "tree": {
+                "CANNOT_BE_ADJACENT_TO": ["tree", "rock"],
+                "MUST_BE_ON": ["grass", "dirt"]
+            },
+            "rock": {
+                "CANNOT_BE_ADJACENT_TO": ["rock", "tree"],
+                "MUST_BE_ON": ["grass", "dirt"]
+            }
+        }
+    */
+    for (const auto &rule : j.at("rules").items())
+    {
+        std::string tileName = rule.key();
+
+        for (const auto &ruleType : rule.value().items())
+        {
+            Rule rule;
+            std::string ruleTypeStr = ruleType.key();
+            if (ruleTypeStr == "CANNOT_BE_ADJACENT_TO")
+            {
+                rule = Rule::CANNOT_BE_ADJACENT_TO;
+            }
+            else if (ruleTypeStr == "MUST_BE_ON")
+            {
+                rule = Rule::MUST_BE_ON;
+            }
+            else
+                continue;
+
+            std::vector<std::string> tiles;
+            for (const auto &tile : ruleType.value())
+            {
+                std::string tileStr = tile.get<std::string>();
+                tiles.push_back(tileStr);
+            }
+
+            t.rules[tileName][rule] = tiles;
+        }
+    }
+}
+
 // get tile set data from json file
 std::ifstream tile_sets_json(TILE_SETS_PATH);
 json tile_sets_data = json::parse(tile_sets_json);
@@ -50,35 +126,66 @@ json tile_sets_data = json::parse(tile_sets_json);
 std::ifstream tile_types_json(TILE_TYPES_PATH);
 json tile_types_data = json::parse(tile_types_json);
 
+TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
+{
+    int totalWeight = 0;
+    for (const auto &[key, value] : weights)
+    {
+        totalWeight += value;
+    }
+
+    int randomValue = GetRandomValue(0, totalWeight - 1);
+
+    for (const auto &[key, value] : weights)
+    {
+        if (randomValue < value)
+        {
+            return tile_types_data[key].template get<TileType>();
+        }
+        randomValue -= value;
+    }
+
+    return {};
+}
+
 void InitWorld(Map *map)
 {
-    for (auto &[key, value] : tile_types_data.items())
-    {
-        auto item = value.template get<TileType>();
-        printf("name: %s, description: %s\n", item.name.c_str(), item.description.c_str());
-    }
-    auto rock = tile_types_data["rock"].template get<TileType>();
+    TileSet tile_set = tile_sets_data["field_biome"].template get<TileSet>();
 
     map->tilesX = MAP_SIZE_X;
     map->tilesY = MAP_SIZE_Y;
+    int toGenerate = MAP_SIZE_X * MAP_SIZE_Y;
 
-    map->tileIds = (unsigned char *)calloc(map->tilesX * map->tilesY, sizeof(unsigned char));
-    for (unsigned int i = 0; i < map->tilesY * map->tilesX; i++)
+    map->tileIds = (unsigned char *)calloc(toGenerate, sizeof(unsigned char));
+    for (unsigned int i = 0; i < toGenerate; i++)
         map->tileIds[i] = i;
 
-    map->tiles = (WorldTile *)calloc(map->tilesX * map->tilesY, sizeof(WorldTile));
-    for (unsigned int i = 0; i < map->tilesY * map->tilesX; i++)
+    /* //TODO: implement multiple layers
+        requires multiple layers of "map->tiles" (2d array)
+        multiple passes of the toGenerate loop
+    */
+    std::vector<std::string> layers = {"ground"};
+
+    map->tiles = (WorldTile *)calloc(toGenerate, sizeof(WorldTile));
+    for (unsigned int i = 0; i < toGenerate; i++)
     {
         map->tiles[i].id = i;
-        // snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%d", i + 1);
-        snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", rock.name.c_str());
-        int lightness = GetRandomValue(0, 120);
-        map->tiles[i].color = (Color){lightness, lightness + 80, lightness, 255};
-        Image spriteImage = LoadImage(rock.spritePath.c_str());
+
+        TileType tile = GetRandomWeightedTile(tile_set.weights);
+        // TODO: IMPLEMENT RULES
+        // if the tile's layer is not in the layers vector, get a new tile
+        while (std::find(layers.begin(), layers.end(), tile.layer) == layers.end())
+        {
+            tile = GetRandomWeightedTile(tile_set.weights);
+        }
+        snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", tile.name.c_str());
+        unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
+        map->tiles[i].color = (Color){lightness, (unsigned char)(lightness + 80), lightness, 255};
+        Image spriteImage = LoadImage(tile.spritePath.c_str());
 
         ImageResizeNN(&spriteImage,
-                      (int)(spriteImage.width * rock.spriteScale),
-                      (int)(spriteImage.height * rock.spriteScale));
+                      (int)(spriteImage.width * tile.spriteScale),
+                      (int)(spriteImage.height * tile.spriteScale));
 
         map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
         UnloadImage(spriteImage);
