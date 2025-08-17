@@ -48,7 +48,6 @@ void to_json(json &j, const TileSet &t)
     j = json{{"id", t.id},
              {"name", t.name},
              {"description", t.description},
-             {"tiles", t.tiles},
              {"weights", t.weights},
              {"rules", t.rules}};
 }
@@ -58,18 +57,6 @@ void from_json(const json &j, TileSet &t)
     j.at("id").get_to(t.id);
     j.at("name").get_to(t.name);
     j.at("description").get_to(t.description);
-
-    // loop through tiles array
-    for (const auto &tile : j.at("tiles"))
-    {
-        // add to t.tiles string vector
-        t.tiles.push_back(tile.get<std::string>());
-    }
-    for (const auto &tile : t.tiles)
-    {
-        std::cout << tile << " ";
-    }
-    std::cout << std::endl;
 
     for (const auto &item : j.at("weights").items())
     {

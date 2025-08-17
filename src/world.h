@@ -93,7 +93,6 @@ typedef struct TileSet
     int id;
     std::string name;
     std::string description;
-    std::vector<std::string> tiles;
     std::map<std::string, int> weights;
     std::map<
         std::string,

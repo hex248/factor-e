@@ -3,7 +3,6 @@
         "id": 0,
         "name": "Field",
         "description": "very green place",
-        "tiles": ["grass", "dirt", "tree", "rock", "poison_flower"],
         "weights": {
             "grass": 80,
             "dirt": 20,
