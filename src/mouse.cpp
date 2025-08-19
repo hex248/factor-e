@@ -3,6 +3,7 @@
 
 Texture2D pointerSprite;
 Texture2D handSprite;
+Texture2D currentCursorSprite;
 
 static bool showMouse = false;
 static bool showCustomCursor = false;
@@ -13,6 +14,7 @@ static Vector2 mouseWorldPos = {0};
 
 void InitialiseMouse()
 {
+    SetCurrentCursorSprite("POINTER");
     if (showMouse)
         ShowMouse();
     else
@@ -32,6 +34,8 @@ void InitialiseMouse()
 
     pointerSprite = LoadTextureFromImage(pointerImage);
     UnloadImage(pointerImage);
+    handSprite = LoadTextureFromImage(handImage);
+    UnloadImage(handImage);
 }
 
 void HandleMouse(Camera2D camera)
@@ -50,7 +54,7 @@ void DrawMouse()
         mousePos.x - CURSOR_SPRITE_SCALE,
         mousePos.y - CURSOR_SPRITE_SCALE}; // the cursors have an empty pixel in the top left
 
-    DrawTextureV(pointerSprite, mousePos, WHITE);
+    DrawTextureV(currentCursorSprite, mousePos, WHITE);
 }
 
 void HideMouse()
@@ -69,9 +73,29 @@ void ShowMouse()
     showCustomCursor = false;
 }
 
+void CleanupCursors()
+{
+    UnloadTexture(pointerSprite);
+    UnloadTexture(handSprite);
+}
+
 Vector2 GetMouseWorldPosition()
 {
     return mouseWorldPos;
 }
 
+void SetCurrentCursorSprite(std::string cursor)
+{
+    if (cursor == "POINTER")
+    {
+        currentCursorSprite = pointerSprite;
+    }
+    else if (cursor == "HAND")
+    {
+        currentCursorSprite = handSprite;
+    }
+    else
+    {
+        currentCursorSprite = pointerSprite;
+    }
 }

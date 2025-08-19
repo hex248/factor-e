@@ -1,11 +1,14 @@
 #include "world.h"
 #include "config.h"
 #include "ui.h"
+#include "mouse.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
 #include "include/json.hpp"
 #include <iostream>
+
+static Texture2D tileHoverSprite;
 
 using json = nlohmann::json;
 
@@ -155,6 +158,16 @@ TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
 
 void InitWorld(Map *map)
 {
+
+    Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
+
+    ImageResizeNN(&tileHoverImage,
+                  (int)(tileHoverImage.width * TILE_HOVER_SPRITE_SCALE),
+                  (int)(tileHoverImage.height * TILE_HOVER_SPRITE_SCALE));
+
+    tileHoverSprite = LoadTextureFromImage(tileHoverImage);
+    UnloadImage(tileHoverImage);
+
     TileSet tile_set = tile_sets_data["field_biome"].template get<TileSet>();
 
     map->tilesX = MAP_SIZE_X;
@@ -224,6 +237,7 @@ void DrawWorld(Map *map)
             DrawTextEx(fontSmall, map->tiles[index].name, textPos, (float)fontSmall.baseSize, 2, WHITE);
             Texture2D sprite = map->tiles[index].sprite;
             DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
+            map->tiles[index].bounds = (Rectangle){(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
         }
     }
 
@@ -244,6 +258,25 @@ void DrawWorld(Map *map)
         int lineY = gridStartY + y * MAP_TILE_SIZE;
         DrawLine(gridStartX, lineY, gridEndX, lineY, WHITE);
     }
+}
+
+void CheckHover(Map *map)
+{
+    Vector2 mouseWorldPos = GetMouseWorldPosition();
+    WorldTile hoveredTile;
+    for (unsigned int i = 0; i < map->tilesX * map->tilesY; i++)
+    {
+        if (CheckCollisionPointRec(mouseWorldPos, map->tiles[i].bounds))
+        {
+            hoveredTile = map->tiles[i];
+            map->tiles[i].hovered = true;
+            if (hoveredTile.cursorType == "HAND") // only show the hover overlay for the "HAND" cursor
+                DrawTextureV(tileHoverSprite, (Vector2){map->tiles[i].bounds.x, map->tiles[i].bounds.y}, WHITE);
+            break;
+        }
+        map->tiles[i].hovered = false;
+    }
+    SetCurrentCursorSprite(hoveredTile.cursorType);
 }
 
 void CleanupWorld(Map *map)

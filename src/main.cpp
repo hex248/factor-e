@@ -78,6 +78,7 @@ int main()
 
         BeginMode2D(camera);
         DrawWorld(&map);
+        CheckHover(&map);
         player.Draw();
         EndMode2D();
 
@@ -117,6 +118,8 @@ int main()
     CleanupFonts();
 
     CleanupWorld(&map);
+
+    CleanupCursors();
 
     if (configChanged)
         SaveConfig();

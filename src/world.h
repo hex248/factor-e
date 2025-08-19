@@ -6,6 +6,9 @@
 #include <vector>
 #include <map>
 
+#define TILE_HOVER_SPRITE_PATH "assets/sprites/selection.png"
+#define TILE_HOVER_SPRITE_SCALE 4.0f
+
 #define TILE_TYPES_PATH "assets/data/tiles/tile_types.json"
 #define TILE_SETS_PATH "assets/data/tiles/tile_sets.json"
 
@@ -19,6 +22,8 @@ typedef struct WorldTile
     char name[16];
     Color color;
     Texture2D sprite;
+    Rectangle bounds;
+    bool hovered;
     std::string cursorType;
 } WorldTile;
 
@@ -115,5 +120,6 @@ typedef struct Map
 void InitWorld(Map *map);
 void DrawWorld(Map *map);
 void CleanupWorld(Map *map);
+void CheckHover(Map *map);
 
 #endif

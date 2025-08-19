@@ -2,6 +2,7 @@
 #define MOUSE_H
 
 #include "raylib.h"
+#include <string>
 
 #define POINTER_SPRITE_PATH "assets/sprites/cursors/pointer.png"
 #define HAND_SPRITE_PATH "assets/sprites/cursors/hand.png"
@@ -12,5 +13,8 @@ void HandleMouse(Camera2D camera);
 void DrawMouse();
 void HideMouse();
 void ShowMouse();
+void CleanupCursors();
+Vector2 GetMouseWorldPosition();
+void SetCurrentCursorSprite(std::string cursor);
 
 #endif
