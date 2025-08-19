@@ -14,7 +14,9 @@
         "walkable": true,
         "buildable": true,
         "harvestable": false,
-        "cursorType": "HAND"
+        "cursorType": "HAND",
+        "useShader": true,
+        "largeTexturePath": "assets/sprites/bigdirt.png"
     },
     "grass": {
         "id": 1,
@@ -31,7 +33,9 @@
         "walkable": true,
         "buildable": true,
         "harvestable": false,
-        "cursorType": "POINTER"
+        "cursorType": "POINTER",
+        "useShader": true,
+        "largeTexturePath": "assets/sprites/biggrass.png"
     },
     "rock": {
         "id": 2,
@@ -48,7 +52,9 @@
         "walkable": false,
         "buildable": false,
         "harvestable": true,
-        "cursorType": "HAND"
+        "cursorType": "HAND",
+        "useShader": false,
+        "largeTexturePath": ""
     },
     "tree": {
         "id": 3,
@@ -65,7 +71,9 @@
         "walkable": false,
         "buildable": false,
         "harvestable": true,
-        "cursorType": "HAND"
+        "cursorType": "HAND",
+        "useShader": false,
+        "largeTexturePath": ""
     },
     "poison_flower": {
         "id": 4,
@@ -82,6 +90,8 @@
         "walkable": true,
         "buildable": false,
         "harvestable": true,
-        "cursorType": "HAND"
+        "cursorType": "HAND",
+        "useShader": false,
+        "largeTexturePath": ""
     }
 }

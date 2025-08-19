@@ -25,6 +25,8 @@ typedef struct WorldTile
     Rectangle bounds;
     bool hovered;
     std::string cursorType;
+    bool useShader;
+    char largeTexturePath[256];
 } WorldTile;
 
 typedef struct CollisionType
@@ -62,6 +64,8 @@ typedef struct TileType
     float spriteScale;
     CollisionType collision;
     std::string cursorType;
+    bool useShader;
+    std::string largeTexturePath;
 } TileType;
 
 /*
@@ -117,7 +121,19 @@ typedef struct Map
     WorldTile *tiles;
 } Map;
 
+typedef struct LgTexShaderData
+{
+    Shader shader;
+    std::map<std::string, Texture2D> textures;
+    int tileSizeLoc;
+    int textureSizeLoc;
+    int tilesInTextureLoc;
+    bool initialized;
+} LgTexShaderData;
+
 void InitWorld(Map *map);
+void InitTextureShader();
+void CleanupTextureShader();
 void DrawWorld(Map *map);
 void CleanupWorld(Map *map);
 void CheckHover(Map *map);

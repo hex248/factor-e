@@ -14,7 +14,7 @@
 #include "ui.h"
 #include "mouse.h"
 
-#define DEV_MODE 0
+#define DEV_MODE 1
 
 int main()
 {

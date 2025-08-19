@@ -9,6 +9,7 @@
 #include <iostream>
 
 static Texture2D tileHoverSprite;
+static LgTexShaderData lgTexShader = {0};
 
 using json = nlohmann::json;
 
@@ -33,7 +34,9 @@ void to_json(json &j, const TileType &t)
              {"spritePath", t.spritePath},
              {"spriteScale", t.spriteScale},
              {"collision", t.collision},
-             {"cursorType", t.cursorType}};
+             {"cursorType", t.cursorType},
+             {"useShader", t.useShader},
+             {"largeTexturePath", t.largeTexturePath}};
 }
 
 void from_json(const json &j, TileType &t)
@@ -46,6 +49,16 @@ void from_json(const json &j, TileType &t)
     j.at("spriteScale").get_to(t.spriteScale);
     j.at("collision").get_to(t.collision);
     j.at("cursorType").get_to(t.cursorType);
+
+    if (j.contains("useShader"))
+        j.at("useShader").get_to(t.useShader);
+    else
+        t.useShader = false;
+
+    if (j.contains("largeTexturePath"))
+        j.at("largeTexturePath").get_to(t.largeTexturePath);
+    else
+        t.largeTexturePath = "";
 }
 
 void to_json(json &j, const TileSet &t)
@@ -156,8 +169,54 @@ TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
     return {};
 }
 
+void InitTextureShader()
+{
+    if (lgTexShader.initialized)
+        return;
+
+    lgTexShader.shader = LoadShader("assets/shaders/large_texture.vs", "assets/shaders/large_texture.fs");
+
+    lgTexShader.tileSizeLoc = GetShaderLocation(lgTexShader.shader, "tileSize");
+    lgTexShader.textureSizeLoc = GetShaderLocation(lgTexShader.shader, "textureSize");
+    lgTexShader.tilesInTextureLoc = GetShaderLocation(lgTexShader.shader, "tilesInTexture");
+
+    lgTexShader.initialized = true;
+}
+
+void CleanupTextureShader()
+{
+    if (lgTexShader.initialized)
+    {
+        UnloadShader(lgTexShader.shader);
+
+        // unload all cached textures
+        for (auto &[path, texture] : lgTexShader.textures)
+        {
+            UnloadTexture(texture);
+        }
+        lgTexShader.textures.clear();
+
+        lgTexShader.initialized = false;
+    }
+}
+
+Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
+{
+    auto it = lgTexShader.textures.find(texturePath);
+    if (it != lgTexShader.textures.end())
+    {
+        return it->second;
+    }
+
+    // load and cache texture
+    Texture2D texture = LoadTexture(texturePath.c_str());
+    lgTexShader.textures[texturePath] = texture;
+    return texture;
+}
+
 void InitWorld(Map *map)
 {
+    InitTextureShader();
 
     Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
 
@@ -208,6 +267,8 @@ void InitWorld(Map *map)
         map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
         UnloadImage(spriteImage);
         map->tiles[i].cursorType = tile.cursorType;
+        map->tiles[i].useShader = tile.useShader;
+        snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
     }
 }
 
@@ -235,29 +296,76 @@ void DrawWorld(Map *map)
                 tileX + (MAP_TILE_SIZE - textSize.x) / 2,
                 tileY + (MAP_TILE_SIZE - textSize.y) / 2};
             DrawTextEx(fontSmall, map->tiles[index].name, textPos, (float)fontSmall.baseSize, 2, WHITE);
-            Texture2D sprite = map->tiles[index].sprite;
-            DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
+
+            // if the tile should use a shader and has a largeTexturePath
+            if (map->tiles[index].useShader && strlen(map->tiles[index].largeTexturePath) > 0 && lgTexShader.initialized)
+            {
+                Texture2D lgTex = GetOrLoadShaderTexture(std::string(map->tiles[index].largeTexturePath));
+
+                // if the texture successfully loads
+                if (lgTex.id > 0)
+                {
+                    BeginShaderMode(lgTexShader.shader);
+
+                    // set shader values
+                    float tileSize = (float)MAP_TILE_SIZE;
+                    Vector2 textureSize = {
+                        (float)lgTex.width,
+                        (float)lgTex.height};
+                    Vector2 tilesInTexture = {
+                        textureSize.x / tileSize,
+                        textureSize.y / tileSize};
+
+                    SetShaderValue(lgTexShader.shader, lgTexShader.tileSizeLoc, &tileSize, SHADER_UNIFORM_FLOAT);
+                    SetShaderValue(lgTexShader.shader, lgTexShader.textureSizeLoc, &textureSize, SHADER_UNIFORM_VEC2);
+                    SetShaderValue(lgTexShader.shader, lgTexShader.tilesInTextureLoc, &tilesInTexture, SHADER_UNIFORM_VEC2);
+
+                    // draw using shader
+                    DrawTexturePro(
+                        lgTex,
+                        (Rectangle){0, 0, (float)lgTex.width, (float)lgTex.height},
+                        (Rectangle){(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE},
+                        (Vector2){0, 0},
+                        0.0f,
+                        WHITE);
+
+                    EndShaderMode();
+                }
+                else
+                {
+                    // fallback to regular sprite if shader texture failed to load
+                    Texture2D sprite = map->tiles[index].sprite;
+                    DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
+                }
+            }
+            // no shader
+            else
+            {
+                Texture2D sprite = map->tiles[index].sprite;
+                DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
+            }
+
             map->tiles[index].bounds = (Rectangle){(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
         }
     }
 
     // draw grid lines
-    int gridStartX = (int)offsetX;
-    int gridStartY = (int)offsetY;
-    int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
-    int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
+    // int gridStartX = (int)offsetX;
+    // int gridStartY = (int)offsetY;
+    // int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
+    // int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
 
-    for (unsigned int x = 0; x <= MAP_SIZE_X; x++)
-    {
-        int lineX = gridStartX + x * MAP_TILE_SIZE;
-        DrawLine(lineX, gridStartY, lineX, gridEndY, WHITE);
-    }
+    // for (unsigned int x = 0; x <= MAP_SIZE_X; x++)
+    // {
+    //     int lineX = gridStartX + x * MAP_TILE_SIZE;
+    //     DrawLine(lineX, gridStartY, lineX, gridEndY, WHITE);
+    // }
 
-    for (unsigned int y = 0; y <= MAP_SIZE_Y; y++)
-    {
-        int lineY = gridStartY + y * MAP_TILE_SIZE;
-        DrawLine(gridStartX, lineY, gridEndX, lineY, WHITE);
-    }
+    // for (unsigned int y = 0; y <= MAP_SIZE_Y; y++)
+    // {
+    //     int lineY = gridStartY + y * MAP_TILE_SIZE;
+    //     DrawLine(gridStartX, lineY, gridEndX, lineY, WHITE);
+    // }
 }
 
 void CheckHover(Map *map)
@@ -281,6 +389,8 @@ void CheckHover(Map *map)
 
 void CleanupWorld(Map *map)
 {
+    CleanupTextureShader();
+
     if (map->tileIds)
     {
         free(map->tileIds);
