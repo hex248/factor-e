@@ -209,7 +209,13 @@ Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
     }
 
     // load and cache texture
-    Texture2D texture = LoadTexture(texturePath.c_str());
+    Image image = LoadImage(texturePath.c_str());
+    ImageResizeNN(&image,
+                  (int)(image.width * 4),
+                  (int)(image.height * 4));
+
+    Texture2D texture = LoadTextureFromImage(image);
+    UnloadImage(image);
     lgTexShader.textures[texturePath] = texture;
     return texture;
 }
