@@ -19,6 +19,7 @@ typedef struct WorldTile
     char name[16];
     Color color;
     Texture2D sprite;
+    std::string cursorType;
 } WorldTile;
 
 typedef struct CollisionType
@@ -55,6 +56,7 @@ typedef struct TileType
     std::string spritePath;
     float spriteScale;
     CollisionType collision;
+    std::string cursorType;
 } TileType;
 
 /*

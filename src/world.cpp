@@ -29,7 +29,8 @@ void to_json(json &j, const TileType &t)
              {"layer", t.layer},
              {"spritePath", t.spritePath},
              {"spriteScale", t.spriteScale},
-             {"collision", t.collision}};
+             {"collision", t.collision},
+             {"cursorType", t.cursorType}};
 }
 
 void from_json(const json &j, TileType &t)
@@ -41,6 +42,7 @@ void from_json(const json &j, TileType &t)
     j.at("spritePath").get_to(t.spritePath);
     j.at("spriteScale").get_to(t.spriteScale);
     j.at("collision").get_to(t.collision);
+    j.at("cursorType").get_to(t.cursorType);
 }
 
 void to_json(json &j, const TileSet &t)
@@ -192,6 +194,7 @@ void InitWorld(Map *map)
 
         map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
         UnloadImage(spriteImage);
+        map->tiles[i].cursorType = tile.cursorType;
     }
 }
 

@@ -13,7 +13,8 @@
         },
         "walkable": true,
         "buildable": true,
-        "harvestable": false
+        "harvestable": false,
+        "cursorType": "HAND"
     },
     "grass": {
         "id": 1,
@@ -29,7 +30,8 @@
         },
         "walkable": true,
         "buildable": true,
-        "harvestable": false
+        "harvestable": false,
+        "cursorType": "POINTER"
     },
     "rock": {
         "id": 2,
@@ -45,7 +47,8 @@
         },
         "walkable": false,
         "buildable": false,
-        "harvestable": true
+        "harvestable": true,
+        "cursorType": "HAND"
     },
     "tree": {
         "id": 3,
@@ -61,7 +64,8 @@
         },
         "walkable": false,
         "buildable": false,
-        "harvestable": true
+        "harvestable": true,
+        "cursorType": "HAND"
     },
     "poison_flower": {
         "id": 4,
@@ -77,6 +81,7 @@
         },
         "walkable": true,
         "buildable": false,
-        "harvestable": true
+        "harvestable": true,
+        "cursorType": "HAND"
     }
 }
