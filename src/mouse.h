@@ -8,7 +8,7 @@
 #define CURSOR_SPRITE_SCALE 3.0f
 
 void InitialiseMouse();
-void HandleMouse();
+void HandleMouse(Camera2D camera);
 void DrawMouse();
 void HideMouse();
 void ShowMouse();

@@ -49,7 +49,7 @@ int main()
 
         camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
 
-        HandleMouse();
+        HandleMouse(camera);
         HandleControls();
         player.HandleMovement();
 

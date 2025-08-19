@@ -8,6 +8,9 @@ static bool showMouse = false;
 static bool showCustomCursor = false;
 static bool cursorHasBeenDisabled = false;
 
+static Vector2 mouseScreenPos = {0};
+static Vector2 mouseWorldPos = {0};
+
 void InitialiseMouse()
 {
     if (showMouse)
@@ -31,10 +34,10 @@ void InitialiseMouse()
     UnloadImage(pointerImage);
 }
 
-void HandleMouse()
+void HandleMouse(Camera2D camera)
 {
-    Vector2 mousePos = GetMousePosition();
-    // handle hover stuff
+    mouseScreenPos = GetMousePosition();
+    mouseWorldPos = GetScreenToWorld2D(mouseScreenPos, camera);
 }
 
 void DrawMouse()
@@ -64,4 +67,11 @@ void ShowMouse()
     ShowCursor();
     showMouse = true;
     showCustomCursor = false;
+}
+
+Vector2 GetMouseWorldPosition()
+{
+    return mouseWorldPos;
+}
+
 }
