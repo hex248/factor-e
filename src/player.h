@@ -3,9 +3,9 @@
 
 #include "raylib.h"
 
-#define PLAYER_SPRITE_PATH "assets/sprites/star1.png"
-#define PLAYER_SPRITE_SCALE 2.0f
-#define PLAYER_SPEED 5
+#define PLAYER_SPRITE_PATH "assets/sprites/player.png"
+#define PLAYER_SPRITE_SCALE 3.0f
+#define PLAYER_SPEED 8
 
 class Player
 {

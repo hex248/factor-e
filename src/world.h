@@ -13,7 +13,7 @@
 #define TILE_SETS_PATH "assets/data/tiles/tile_sets.json"
 
 #define MAP_TILE_SIZE 128
-#define MAP_SIZE_X 9
+#define MAP_SIZE_X 16
 #define MAP_SIZE_Y 9
 
 typedef struct WorldTile
