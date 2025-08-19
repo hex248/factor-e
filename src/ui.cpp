@@ -2,6 +2,7 @@
 #include "config.h"
 #include "controls.h"
 #include <stdio.h>
+#include "mouse.h"
 
 static Font fontLarge;
 static Font fontLargeExtraLight;
@@ -81,6 +82,7 @@ void DrawControlsInfo()
 
 void DrawExitConfirmation()
 {
+    ShowMouse();
     DrawRectangle(0, 0, screenWidth, screenHeight, (Color){0, 0, 0, 200});
     const char *closeText = "close the window? (Y/n)";
     int fontSize = fontMedium.baseSize;

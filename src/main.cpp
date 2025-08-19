@@ -12,12 +12,14 @@
 #include "world.h"
 #include "controls.h"
 #include "ui.h"
+#include "mouse.h"
 
-#define DEV_MODE 1
+#define DEV_MODE 0
 
 int main()
 {
     InitDisplaySystem();
+    InitialiseMouse();
 
     SetTargetFPS(144);
 
@@ -47,6 +49,7 @@ int main()
 
         camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
 
+        HandleMouse();
         HandleControls();
         player.HandleMovement();
 
@@ -78,12 +81,15 @@ int main()
         player.Draw();
         EndMode2D();
 
+        DrawMouse();
         DrawDebugInfo();
         DrawControlsInfo();
 
         // exit confirmation prompt
         if (WindowShouldClose() || IsKeyPressed(CLOSE_KEY))
         {
+            if (!IsCursorHidden())
+                HideMouse();
             exitWindowRequested = !exitWindowRequested;
         }
         if (exitWindowRequested)
@@ -93,7 +99,10 @@ int main()
             if (IsKeyPressed(KEY_Y) || IsKeyPressed(KEY_ENTER))
                 exitWindow = true;
             else if (IsKeyPressed(KEY_N))
+            {
+                HideMouse();
                 exitWindowRequested = false;
+            }
         }
 
         if (exitWindowRequested && !DEV_MODE)

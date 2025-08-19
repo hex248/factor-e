@@ -21,6 +21,7 @@ add_executable(${PROJECT_NAME}
     src/world.cpp
     src/controls.cpp
     src/ui.cpp
+    src/mouse.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} raylib)
