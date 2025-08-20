@@ -152,7 +152,7 @@ void DrawDebugInfo()
     {
         float backgroundWidth = maxWidth + (padding * 2);
         float backgroundHeight = (debugLines.size() * lineHeight) + padding;
-        DrawRectangle(0, 0, (int)backgroundWidth, (int)backgroundHeight, (Color){0, 0, 0, 120});
+        DrawRectangle(0, 0, (int)backgroundWidth, (int)backgroundHeight, {0, 0, 0, 120});
     }
 
     // draw text
@@ -161,7 +161,7 @@ void DrawDebugInfo()
         if (!debugLines[i].first.empty())
         {
             const char *text = debugLines[i].first.c_str();
-            DrawTextEx(fontSmallExtraLight, text, (Vector2){padding, (i * lineHeight) + (padding / 2)}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
+            DrawTextEx(fontSmallExtraLight, text, {padding, (i * lineHeight) + (padding / 2)}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
         }
     }
 }
@@ -174,19 +174,19 @@ void DrawControlsInfo()
     const char *controls = "F1: Hide Controls | F3: Debug | F10: Switch Monitor | F11: Borderless";
     Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, (float)fontSmallExtraLight.baseSize, 2);
     DrawTextEx(fontSmallExtraLight, controls,
-               (Vector2){screenWidth - controlsSize.x - 10, screenHeight - controlsSize.y - 10},
+               {screenWidth - controlsSize.x - 10, screenHeight - controlsSize.y - 10},
                (float)fontSmallExtraLight.baseSize, 2, WHITE);
 }
 
 void DrawExitConfirmation()
 {
     ShowMouse();
-    DrawRectangle(0, 0, screenWidth, screenHeight, (Color){0, 0, 0, 200});
+    DrawRectangle(0, 0, screenWidth, screenHeight, {0, 0, 0, 200});
     const char *closeText = "close the window? (Y/n)";
     int fontSize = fontMedium.baseSize;
     Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, 2.0f);
     DrawTextEx(fontMedium, closeText,
-               (Vector2){
+               {
                    screenWidth / 2 - textSize.x / 2,
                    screenHeight / 2 - textSize.y / 2},
                fontSize, 2.0f, WHITE);

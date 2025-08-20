@@ -50,7 +50,7 @@ void DrawMouse()
         return;
     Vector2 mousePos = GetMousePosition();
 
-    mousePos = (Vector2){
+    mousePos = {
         mousePos.x - CURSOR_SPRITE_SCALE,
         mousePos.y - CURSOR_SPRITE_SCALE}; // the cursors have an empty pixel in the top left
 

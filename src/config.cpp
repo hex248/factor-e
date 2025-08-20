@@ -131,7 +131,7 @@ void UpdateScreenDimensions()
         screenHeight = GetRenderHeight();
     }
 
-    screenCenter = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+    screenCenter = {screenWidth / 2.0f, screenHeight / 2.0f};
 }
 
 void InitDisplaySystem()

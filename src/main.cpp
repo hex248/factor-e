@@ -38,8 +38,8 @@ int main()
     Player *player = CreateGlobalPlayer(Vector2{0.0f, 0.0f}, 25.0f, PLAYER_SPEED, WHITE);
 
     Camera2D camera = {0};
-    camera.target = (Vector2){player->position.x, player->position.y};
-    camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+    camera.target = {player->position.x, player->position.y};
+    camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -48,7 +48,7 @@ int main()
         UpdateScreenDimensions();
         UpdateConfig();
 
-        camera.offset = (Vector2){screenWidth / 2.0f, screenHeight / 2.0f};
+        camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
 
         HandleMouse(camera);
         HandleControls();
@@ -71,11 +71,11 @@ int main()
             configSaveTimer = 0.0f;
         }
 
-        camera.target = (Vector2){player->position.x, player->position.y};
+        camera.target = {player->position.x, player->position.y};
 
         // RENDER
         BeginDrawing();
-        ClearBackground((Color){10, 10, 10, 255});
+        ClearBackground({10, 10, 10, 255});
 
         BeginMode2D(camera);
         DrawWorld(&map);

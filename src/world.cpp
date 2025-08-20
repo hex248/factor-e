@@ -301,7 +301,7 @@ void InitWorld(Map *map)
             }
             snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", tile.name.c_str());
             unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
-            map->tiles[i].color = (Color){lightness, (unsigned char)(lightness + 80), lightness, 255};
+            map->tiles[i].color = {lightness, (unsigned char)(lightness + 80), lightness, 255};
             Image spriteImage = LoadImage(tile.spritePath.c_str());
 
             ImageResizeNN(&spriteImage,
@@ -362,9 +362,9 @@ void DrawWorld(Map *map)
                     // draw using shader
                     DrawTexturePro(
                         lgTex,
-                        (Rectangle){0, 0, (float)lgTex.width, (float)lgTex.height},
-                        (Rectangle){(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE},
-                        (Vector2){0, 0},
+                        {0, 0, (float)lgTex.width, (float)lgTex.height},
+                        {(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE},
+                        {0, 0},
                         0.0f,
                         WHITE);
 
@@ -384,7 +384,7 @@ void DrawWorld(Map *map)
                 DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
             }
 
-            map->tiles[index].bounds = (Rectangle){(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
+            map->tiles[index].bounds = {(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
         }
     }
 
@@ -399,13 +399,13 @@ void DrawWorld(Map *map)
         for (unsigned int x = 0; x <= MAP_SIZE_X; x++)
         {
             int lineX = gridStartX + x * MAP_TILE_SIZE;
-            DrawLine(lineX, gridStartY, lineX, gridEndY, (Color){255, 255, 255, 60});
+            DrawLine(lineX, gridStartY, lineX, gridEndY, {255, 255, 255, 60});
         }
 
         for (unsigned int y = 0; y <= MAP_SIZE_Y; y++)
         {
             int lineY = gridStartY + y * MAP_TILE_SIZE;
-            DrawLine(gridStartX, lineY, gridEndX, lineY, (Color){255, 255, 255, 60});
+            DrawLine(gridStartX, lineY, gridEndX, lineY, {255, 255, 255, 60});
         }
 
         // draw noise map
@@ -453,7 +453,7 @@ void CheckHover(Map *map)
             }
 
             if (hoveredTile.cursorType == "HAND") // only show the hover overlay for the "HAND" cursor
-                DrawTextureV(tileHoverSprite, (Vector2){map->tiles[i].bounds.x, map->tiles[i].bounds.y}, WHITE);
+                DrawTextureV(tileHoverSprite, {map->tiles[i].bounds.x, map->tiles[i].bounds.y}, WHITE);
             break;
         }
         map->tiles[i].hovered = false;
