@@ -410,8 +410,10 @@ void DrawWorld(Map *map)
     }
 }
 
-void CheckHover(Map *map, Player *player)
+void CheckHover(Map *map)
 {
+    Player* player = GetGlobalPlayer();
+    
     Vector2 mouseWorldPos = GetMouseWorldPosition();
     Vector2 mouseScreenPos = GetMousePosition();
     WorldTile hoveredTile;

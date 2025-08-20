@@ -1,5 +1,7 @@
 #include "player.h"
 
+static Player *globalPlayer = nullptr;
+
 Player::Player(Vector2 pos, float sz, float sp, Color col) : position(pos), size(sz), speed(sp), color(col), spriteLoaded(false)
 {
     LoadSprite();
@@ -57,4 +59,15 @@ void Player::HandleMovement()
         position.x -= speed * 50.0f * GetFrameTime();
     if (IsKeyDown(KEY_D))
         position.x += speed * 50.0f * GetFrameTime();
+}
+
+Player *CreateGlobalPlayer(Vector2 pos, float sz, float sp, Color col)
+{
+    globalPlayer = new Player(pos, sz, sp, col);
+    return globalPlayer;
+}
+
+Player *GetGlobalPlayer()
+{
+    return globalPlayer;
 }

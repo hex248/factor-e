@@ -138,6 +138,6 @@ void InitTextureShader();
 void CleanupTextureShader();
 void DrawWorld(Map *map);
 void CleanupWorld(Map *map);
-void CheckHover(Map *map, Player *player);
+void CheckHover(Map *map);
 
 #endif

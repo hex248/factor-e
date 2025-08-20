@@ -28,4 +28,7 @@ public:
     void UnloadSprite();
 };
 
+Player *CreateGlobalPlayer(Vector2 pos, float sz, float sp, Color col);
+Player *GetGlobalPlayer();
+
 #endif

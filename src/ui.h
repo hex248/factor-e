@@ -18,7 +18,7 @@ Font GetFontSmallExtraLight();
 
 void InitDebugSystem();
 void SetDebugValue(const std::string &key, const std::string &value);
-void DrawDebugInfo(Player *player);
+void DrawDebugInfo();
 void DrawControlsInfo();
 void DrawExitConfirmation();
 

@@ -91,8 +91,10 @@ void SetDebugValue(const std::string &key, const std::string &value)
     debugValues[key] = value;
 }
 
-void DrawDebugInfo(Player *player)
+void DrawDebugInfo()
 {
+    Player *player = GetGlobalPlayer();
+
     if (!showDebug)
         return;
 
