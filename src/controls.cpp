@@ -1,10 +1,16 @@
 #include "controls.h"
 #include "config.h"
+#include "main.h"
 
 bool showDebug = true;
 
 void HandleControls()
 {
+    if (IsKeyDown(KEY_LEFT_CONTROL) && (IsKeyPressed(KEY_R) || IsKeyPressedRepeat(KEY_R)))
+    {
+        ReloadGame();
+    }
+
     if (IsKeyPressed(KEY_F3))
         showDebug = !showDebug;
     if (IsKeyPressed(KEY_F10))

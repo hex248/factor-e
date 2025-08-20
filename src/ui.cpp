@@ -171,7 +171,7 @@ void DrawControlsInfo()
     if (!showDebug)
         return;
 
-    const char *controls = "F3: Debug | F10: Switch Monitor | F11: Borderless";
+    const char *controls = "CTRL + R: Reload Game | F3: Debug | F10: Switch Monitor | F11: Borderless";
     Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, (float)fontSmallExtraLight.baseSize, 2);
     DrawTextEx(fontSmallExtraLight, controls,
                {screenWidth - controlsSize.x - 10, screenHeight - controlsSize.y - 10},
