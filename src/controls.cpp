@@ -8,7 +8,7 @@ void HandleControls()
 {
     if (IsKeyPressed(KEY_F1))
         showControls = !showControls;
-    if (IsKeyPressed(KEY_F2))
+    if (IsKeyPressed(KEY_F3))
         showDebug = !showDebug;
     if (IsKeyPressed(KEY_F10))
     {
