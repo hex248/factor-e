@@ -1,3 +1,4 @@
+#include "main.h"
 #include "raylib.h"
 #include <iostream>
 #include <stdlib.h>
@@ -16,6 +17,15 @@
 
 #define DEV_MODE 1
 
+Map map = {0};
+void ReloadGame()
+{
+    player.position = {0.0f, 0.0f};
+    player.dir = {0, 0};
+
+    InitWorld(&map);
+}
+
 int main()
 {
     InitDisplaySystem();
@@ -26,7 +36,6 @@ int main()
     InitFonts();
     InitDebugSystem();
 
-    Map map = {0};
     InitWorld(&map);
 
     if (!DEV_MODE)

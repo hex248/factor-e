@@ -1,0 +1,3 @@
+void ReloadGame();
+
+int main();
