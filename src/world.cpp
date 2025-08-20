@@ -407,13 +407,16 @@ void DrawWorld(Map *map)
             int lineY = gridStartY + y * MAP_TILE_SIZE;
             DrawLine(gridStartX, lineY, gridEndX, lineY, (Color){255, 255, 255, 60});
         }
+
+        // draw noise map
+        // DrawTexture(noiseTexture, 0 - noiseTexture.width / 2, 0 - noiseTexture.height / 2, WHITE);
     }
 }
 
 void CheckHover(Map *map)
 {
-    Player* player = GetGlobalPlayer();
-    
+    Player *player = GetGlobalPlayer();
+
     Vector2 mouseWorldPos = GetMouseWorldPosition();
     Vector2 mouseScreenPos = GetMousePosition();
     WorldTile hoveredTile;
@@ -462,16 +465,12 @@ void CheckHover(Map *map)
     {
         // debug
         char mouseScreenPosBuffer[64];
-        snprintf(mouseScreenPosBuffer, sizeof(mouseScreenPosBuffer), "Mouse Position (Screen): (%.1f, %.1f)", mouseScreenPos.x, mouseScreenPos.y);
+        snprintf(mouseScreenPosBuffer, sizeof(mouseScreenPosBuffer), "Mouse Position (Screen): X:%.1f Y:%.1f", mouseScreenPos.x, mouseScreenPos.y);
         SetDebugValue("mouse_position_screen", mouseScreenPosBuffer);
 
         char mouseWorldPosBuffer[64];
-        snprintf(mouseWorldPosBuffer, sizeof(mouseWorldPosBuffer), "Mouse Position (World): (%.1f, %.1f)", mouseWorldPos.x, mouseWorldPos.y);
+        snprintf(mouseWorldPosBuffer, sizeof(mouseWorldPosBuffer), "Mouse Position (World): X:%.1f Y:%.1f", mouseWorldPos.x, mouseWorldPos.y);
         SetDebugValue("mouse_position_world", mouseWorldPosBuffer);
-
-        char distanceBuffer[64];
-        snprintf(distanceBuffer, sizeof(distanceBuffer), "Mouse Distance (Squared): %.1f", distanceSquared);
-        SetDebugValue("mouse_distance", distanceBuffer);
 
         distance = sqrtf(distanceSquared);
         char distanceTilesBuffer[64];

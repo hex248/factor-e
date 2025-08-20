@@ -117,19 +117,22 @@ void DrawDebugInfo()
     snprintf(buffer, sizeof(buffer), "Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y);
     debugValues["screen_center"] = buffer;
 
-    snprintf(buffer, sizeof(buffer), "Player Position: %.1fx%.1f", player->position.x, player->position.y);
+    snprintf(buffer, sizeof(buffer), "Player Position: X:%.1f Y:%.1f", player->position.x, player->position.y);
     debugValues["player_position"] = buffer;
 
     snprintf(buffer, sizeof(buffer), "Player Reach: %d Tiles", PLAYER_REACH);
     debugValues["player_reach"] = buffer;
 
-    int lineIndex = 0;
+    std::vector<std::pair<std::string, Vector2>> debugLines;
+    float maxWidth = 0.0f;
+    const float lineHeight = 25.0f;
+    const float padding = 10.0f;
+
     for (const std::string &key : debugOrder)
     {
-        printf("%s\n", key.c_str());
         if (key == "SPACER")
         {
-            lineIndex++;
+            debugLines.push_back({"", Vector2{0, 0}});
             continue;
         }
 
@@ -137,8 +140,28 @@ void DrawDebugInfo()
         if (it != debugValues.end() && !it->second.empty())
         {
             const char *text = it->second.c_str();
-            DrawTextEx(fontSmallExtraLight, text, (Vector2){0, lineIndex * 25.0f}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
-            lineIndex++;
+            Vector2 textSize = MeasureTextEx(fontSmallExtraLight, text, (float)fontSmallExtraLight.baseSize, 2);
+            debugLines.push_back({it->second, textSize});
+            if (textSize.x > maxWidth)
+                maxWidth = textSize.x;
+        }
+    }
+
+    // draw debug background
+    if (!debugLines.empty())
+    {
+        float backgroundWidth = maxWidth + (padding * 2);
+        float backgroundHeight = (debugLines.size() * lineHeight) + padding;
+        DrawRectangle(0, 0, (int)backgroundWidth, (int)backgroundHeight, (Color){0, 0, 0, 120});
+    }
+
+    // draw text
+    for (size_t i = 0; i < debugLines.size(); i++)
+    {
+        if (!debugLines[i].first.empty())
+        {
+            const char *text = debugLines[i].first.c_str();
+            DrawTextEx(fontSmallExtraLight, text, (Vector2){padding, (i * lineHeight) + (padding / 2)}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
         }
     }
 }
