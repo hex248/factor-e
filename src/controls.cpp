@@ -2,11 +2,11 @@
 #include "config.h"
 #include "main.h"
 
-bool showDebug = DEV_MODE;
+bool showDebug = DEV;
 
 void HandleControls()
 {
-    if (DEV_MODE)
+    if (DEV)
     {
         if (IsKeyDown(KEY_LEFT_CONTROL) && (IsKeyPressed(KEY_R) || IsKeyPressedRepeat(KEY_R)))
         {

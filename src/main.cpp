@@ -15,7 +15,6 @@
 #include "ui.h"
 #include "mouse.h"
 
-
 Map map = {0};
 void ReloadGame()
 {
@@ -37,7 +36,7 @@ int main()
 
     InitWorld(&map);
 
-    if (!DEV_MODE)
+    if (!DEV)
         SetExitKey(KEY_NULL);
     bool exitWindowRequested = false;
     bool exitWindow = false;
@@ -103,7 +102,7 @@ int main()
         }
         if (exitWindowRequested)
         {
-            if (DEV_MODE)
+            if (DEV)
                 exitWindow = true;
             if (IsKeyPressed(KEY_Y) || IsKeyPressed(KEY_ENTER))
                 exitWindow = true;
@@ -114,7 +113,7 @@ int main()
             }
         }
 
-        if (exitWindowRequested && !DEV_MODE)
+        if (exitWindowRequested && !DEV)
         {
             DrawExitConfirmation();
         }

@@ -1,4 +1,4 @@
-#define DEV_MODE 1
+#define DEV 1
 
 void ReloadGame();
 
