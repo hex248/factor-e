@@ -79,7 +79,7 @@ int main()
 
         BeginMode2D(camera);
         DrawWorld(&map);
-        CheckHover(&map);
+        CheckHover(&map, &player);
         player.Draw();
         EndMode2D();
 

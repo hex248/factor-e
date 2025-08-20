@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 
+class Player;
+
 #define TILE_HOVER_SPRITE_PATH "assets/sprites/selection.png"
 #define TILE_HOVER_SPRITE_SCALE 4.0f
 
@@ -136,6 +138,6 @@ void InitTextureShader();
 void CleanupTextureShader();
 void DrawWorld(Map *map);
 void CleanupWorld(Map *map);
-void CheckHover(Map *map);
+void CheckHover(Map *map, Player *player);
 
 #endif

@@ -33,7 +33,7 @@
         "walkable": true,
         "buildable": true,
         "harvestable": false,
-        "cursorType": "POINTER",
+        "cursorType": "HAND",
         "useShader": true,
         "largeTexturePath": "assets/sprites/biggrass.png"
     },
@@ -52,7 +52,7 @@
         "walkable": false,
         "buildable": false,
         "harvestable": true,
-        "cursorType": "HAND",
+        "cursorType": "POINTER",
         "useShader": false,
         "largeTexturePath": ""
     },

@@ -2,11 +2,14 @@
 #include "config.h"
 #include "ui.h"
 #include "mouse.h"
+#include "player.h"
+#include "controls.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
 #include "include/json.hpp"
 #include <iostream>
+#include <cmath>
 
 Image noise;
 Texture2D noiseTexture;
@@ -407,23 +410,114 @@ void DrawWorld(Map *map)
     }
 }
 
-void CheckHover(Map *map)
+void CheckHover(Map *map, Player *player)
 {
     Vector2 mouseWorldPos = GetMouseWorldPosition();
+    Vector2 mouseScreenPos = GetMousePosition();
     WorldTile hoveredTile;
+    bool tileFound = false;
+
+    float diffX = mouseWorldPos.x - player->position.x;
+    float diffY = mouseWorldPos.y - player->position.y;
+    float distanceSquared = diffX * diffX + diffY * diffY;
+
     for (unsigned int i = 0; i < map->tilesX * map->tilesY; i++)
     {
         if (CheckCollisionPointRec(mouseWorldPos, map->tiles[i].bounds))
         {
-            hoveredTile = map->tiles[i];
-            map->tiles[i].hovered = true;
+            // find the closest point in the tile bounds to the player
+            Vector2 closestPoint;
+            closestPoint.x = fmaxf(map->tiles[i].bounds.x,
+                                   fminf(player->position.x,
+                                         map->tiles[i].bounds.x + map->tiles[i].bounds.width));
+            closestPoint.y = fmaxf(map->tiles[i].bounds.y,
+                                   fminf(player->position.y,
+                                         map->tiles[i].bounds.y + map->tiles[i].bounds.height));
+
+            float tileDiffX = closestPoint.x - player->position.x;
+            float tileDiffY = closestPoint.y - player->position.y;
+            float tileDistanceSquared = tileDiffX * tileDiffX + tileDiffY * tileDiffY;
+
+            float reach = PLAYER_REACH * MAP_TILE_SIZE;
+
+            if (tileDistanceSquared < reach * reach)
+            {
+                hoveredTile = map->tiles[i];
+                map->tiles[i].hovered = true;
+                tileFound = true;
+            }
+
             if (hoveredTile.cursorType == "HAND") // only show the hover overlay for the "HAND" cursor
                 DrawTextureV(tileHoverSprite, (Vector2){map->tiles[i].bounds.x, map->tiles[i].bounds.y}, WHITE);
             break;
         }
         map->tiles[i].hovered = false;
     }
-    SetCurrentCursorSprite(hoveredTile.cursorType);
+
+    float distance = 0.0f;
+
+    if (showDebug)
+    {
+        // debug
+        char mouseScreenPosBuffer[64];
+        snprintf(mouseScreenPosBuffer, sizeof(mouseScreenPosBuffer), "Mouse Position (Screen): (%.1f, %.1f)", mouseScreenPos.x, mouseScreenPos.y);
+        SetDebugValue("mouse_position_screen", mouseScreenPosBuffer);
+
+        char mouseWorldPosBuffer[64];
+        snprintf(mouseWorldPosBuffer, sizeof(mouseWorldPosBuffer), "Mouse Position (World): (%.1f, %.1f)", mouseWorldPos.x, mouseWorldPos.y);
+        SetDebugValue("mouse_position_world", mouseWorldPosBuffer);
+
+        char distanceBuffer[64];
+        snprintf(distanceBuffer, sizeof(distanceBuffer), "Mouse Distance (Squared): %.1f", distanceSquared);
+        SetDebugValue("mouse_distance", distanceBuffer);
+
+        distance = sqrtf(distanceSquared);
+        char distanceTilesBuffer[64];
+        float distanceInTiles = distance / MAP_TILE_SIZE;
+        snprintf(distanceTilesBuffer, sizeof(distanceTilesBuffer), "Mouse Distance (Tiles): %.2f", distanceInTiles);
+        SetDebugValue("mouse_distance_tiles", distanceTilesBuffer);
+    }
+
+    if (tileFound)
+    {
+        char tileInfo[64];
+        snprintf(tileInfo, sizeof(tileInfo), "Hovered Tile: %s", hoveredTile.name);
+        SetDebugValue("hovered_tile", tileInfo);
+        SetCurrentCursorSprite(hoveredTile.cursorType);
+    }
+    else
+    {
+        SetDebugValue("hovered_tile", "Hovered Tile: None");
+        SetCurrentCursorSprite("");
+    }
+
+    // draw debug line between player and mouse position
+    if (showDebug)
+    {
+        // blue line: player's maximum reach in the direction of the mouse
+        float reach = PLAYER_REACH * MAP_TILE_SIZE;
+        float reachSquared = reach * reach;
+        Vector2 direction = {diffX, diffY};
+
+        Vector2 reachEndPoint;
+        // only calculate reachEndPoint if mouse is outside player's reach (sqrt scary)
+        if (distanceSquared > reachSquared)
+        {
+            // only draw red line if mouse is out of player reach
+            // red line: full distance to mouse
+            DrawLineEx(player->position, mouseWorldPos, 2.0f, RED);
+
+            // normalize direction and scale to reach distance
+            float scaleFactor = reach / distance;
+            reachEndPoint = {
+                player->position.x + direction.x * scaleFactor,
+                player->position.y + direction.y * scaleFactor};
+        }
+        else
+            reachEndPoint = mouseWorldPos;
+
+        DrawLineEx(player->position, reachEndPoint, 2.0f, BLUE);
+    }
 }
 
 void CleanupWorld(Map *map)
