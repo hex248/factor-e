@@ -84,13 +84,14 @@ Vector2 GetMouseWorldPosition()
     return mouseWorldPos;
 }
 
-void SetCurrentCursorSprite(std::string cursor)
+void SetCurrentCursorSprite(const char *cursor)
 {
-    if (cursor == "POINTER")
+    printf("cursor: %s\n", cursor);
+    if (strcmp(cursor, "POINTER") == 0)
     {
         currentCursorSprite = pointerSprite;
     }
-    else if (cursor == "HAND")
+    else if (strcmp(cursor, "HAND") == 0)
     {
         currentCursorSprite = handSprite;
     }

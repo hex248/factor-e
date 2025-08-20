@@ -15,6 +15,6 @@ void HideMouse();
 void ShowMouse();
 void CleanupCursors();
 Vector2 GetMouseWorldPosition();
-void SetCurrentCursorSprite(std::string cursor);
+void SetCurrentCursorSprite(const char *cursor);
 
 #endif

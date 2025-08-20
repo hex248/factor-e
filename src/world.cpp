@@ -40,7 +40,7 @@ void to_json(json &j, const TileType &t)
              {"spritePath", t.spritePath},
              {"spriteScale", t.spriteScale},
              {"collision", t.collision},
-             {"cursorType", t.cursorType},
+             {"cursorType", std::string(t.cursorType)},
              {"useShader", t.useShader},
              {"largeTexturePath", t.largeTexturePath}};
 }
@@ -54,7 +54,10 @@ void from_json(const json &j, TileType &t)
     j.at("spritePath").get_to(t.spritePath);
     j.at("spriteScale").get_to(t.spriteScale);
     j.at("collision").get_to(t.collision);
-    j.at("cursorType").get_to(t.cursorType);
+    std::string cursorTypeStr;
+    j.at("cursorType").get_to(cursorTypeStr);
+    strncpy(t.cursorType, cursorTypeStr.c_str(), sizeof(t.cursorType) - 1);
+    t.cursorType[sizeof(t.cursorType) - 1] = '\0';
 
     if (j.contains("useShader"))
         j.at("useShader").get_to(t.useShader);
@@ -312,7 +315,8 @@ void InitWorld(Map *map)
                 map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
                 UnloadImage(spriteImage);
             }
-            map->tiles[i].cursorType = tile.cursorType;
+            strncpy(map->tiles[i].cursorType, tile.cursorType, sizeof(map->tiles[i].cursorType) - 1);
+            map->tiles[i].cursorType[sizeof(map->tiles[i].cursorType) - 1] = '\0';
             map->tiles[i].useShader = tile.useShader;
             snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
         }
@@ -454,7 +458,7 @@ void CheckHover(Map *map)
                 tileFound = true;
             }
 
-            if (hoveredTile.cursorType == "HAND") // only show the hover overlay for the "HAND" cursor
+            if (strcmp(hoveredTile.cursorType, "HAND") == 0) // only show the hover overlay for the "HAND" cursor
                 DrawTextureV(tileHoverSprite, {map->tiles[i].bounds.x, map->tiles[i].bounds.y}, WHITE);
             break;
         }
@@ -484,14 +488,14 @@ void CheckHover(Map *map)
     if (tileFound)
     {
         char tileInfo[64];
-        snprintf(tileInfo, sizeof(tileInfo), "Hovered Tile: %s", hoveredTile.name);
+        snprintf(tileInfo, sizeof(tileInfo), "Hovered Tile: %s (%s)", hoveredTile.name, hoveredTile.cursorType);
         SetDebugValue("hovered_tile", tileInfo);
         SetCurrentCursorSprite(hoveredTile.cursorType);
     }
     else
     {
-        SetDebugValue("hovered_tile", "Hovered Tile: None");
-        SetCurrentCursorSprite("");
+        SetDebugValue("hovered_tile", "Hovered Tile: None (POINTER)");
+        SetCurrentCursorSprite("POINTER");
     }
 
     // draw debug line between player and mouse position

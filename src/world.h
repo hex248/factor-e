@@ -26,7 +26,7 @@ typedef struct WorldTile
     Texture2D sprite;
     Rectangle bounds;
     bool hovered;
-    std::string cursorType;
+    char cursorType[8];
     bool useShader;
     char largeTexturePath[256];
 } WorldTile;
@@ -65,7 +65,7 @@ typedef struct TileType
     std::string spritePath;
     float spriteScale;
     CollisionType collision;
-    std::string cursorType;
+    char cursorType[8];
     bool useShader;
     std::string largeTexturePath;
 } TileType;
