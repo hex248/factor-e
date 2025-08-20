@@ -24,12 +24,19 @@ add_executable(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
-# copy assets to the output directory after building
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${CMAKE_SOURCE_DIR}/assets $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+# asset dependencies
+file(GLOB_RECURSE ASSET_FILES "${CMAKE_SOURCE_DIR}/assets/*")
+
+# copy assets when newer than stamp file
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/assets_copied.stamp
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/assets ${CMAKE_CURRENT_BINARY_DIR}/assets
+    COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/assets_copied.stamp # create stamp file to mark that assets have been copied
+    DEPENDS ${ASSET_FILES}
     COMMENT "copying assets to output directory"
 )
+
+add_custom_target(copy_assets ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/assets_copied.stamp)
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE winmm)
