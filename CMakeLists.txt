@@ -3,14 +3,18 @@ project(factor-e)
 
 set(CMAKE_CXX_STANDARD 17)
 
-find_package(raylib CONFIG REQUIRED)
+# use FetchContent to download and build raylib
+include(FetchContent)
+FetchContent_Declare(
+    raylib
+    GIT_REPOSITORY https://github.com/raysan5/raylib.git
+    GIT_TAG 5.5
+)
+FetchContent_MakeAvailable(raylib)
 
-if (raylib_FOUND)
-    message(STATUS "raylib found: ${raylib_VERSION}")
-endif()
+message(STATUS "raylib found: 5.5")
 
 include_directories(include)
-
 
 add_executable(${PROJECT_NAME}
     src/main.cpp

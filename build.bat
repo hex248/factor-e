@@ -1,14 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
 
-set VCPKG_PATH=%USERPROFILE%/vcpkg
-
-if not exist "%USERPROFILE%\vcpkg\scripts\buildsystems\vcpkg.cmake" (
-    echo error: vcpkg not found at %USERPROFILE%\vcpkg
-    echo please make sure vcpkg is installed in your user directory.
-    exit /b 1
-)
-
 if "%1"=="clean" (
     call :cleanup_build
     echo build directory cleaned.
@@ -22,7 +14,7 @@ if not exist "build" (
 cd build
 
 echo running CMake...
-cmake -A x64 -DCMAKE_TOOLCHAIN_FILE=%VCPKG_PATH%/scripts/buildsystems/vcpkg.cmake ..
+cmake -A x64 ..
 if %errorlevel% neq 0 (
     echo CMAKE failed
     exit /b 1
@@ -40,7 +32,7 @@ if %errorlevel% neq 0 (
 )
 
 echo.
-echo executable is in: build\Release\factor-e.exe
+echo executable in: build\Release\factor-e.exe
 goto :eof
 
 :cleanup_build
