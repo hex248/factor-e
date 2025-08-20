@@ -15,7 +15,6 @@
 #include "ui.h"
 #include "mouse.h"
 
-#define DEV_MODE 1
 
 Map map = {0};
 void ReloadGame()

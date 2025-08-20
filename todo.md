@@ -5,7 +5,11 @@
 -   inventory
 -   tools
 -   save world
--   keybind/dev UI to regenerate world or load existing
+-   load world from save on start
+    -   # CODE (DEV MODE):
+    -   ctrl + r will now reload the world rather than regenerating
+    -   ctrl + shift + r will regenerate the world, but will prompt the user to confirm their action before doing so
+-
 
 # ART:
 

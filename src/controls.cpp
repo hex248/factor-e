@@ -2,17 +2,20 @@
 #include "config.h"
 #include "main.h"
 
-bool showDebug = true;
+bool showDebug = DEV_MODE;
 
 void HandleControls()
 {
-    if (IsKeyDown(KEY_LEFT_CONTROL) && (IsKeyPressed(KEY_R) || IsKeyPressedRepeat(KEY_R)))
+    if (DEV_MODE)
     {
-        ReloadGame();
-    }
+        if (IsKeyDown(KEY_LEFT_CONTROL) && (IsKeyPressed(KEY_R) || IsKeyPressedRepeat(KEY_R)))
+        {
+            ReloadGame();
+        }
 
-    if (IsKeyPressed(KEY_F3))
-        showDebug = !showDebug;
+        if (IsKeyPressed(KEY_F3))
+            showDebug = !showDebug;
+    }
     if (IsKeyPressed(KEY_F10))
     {
         int monitorCount = GetMonitorCount();
