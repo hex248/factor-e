@@ -2,6 +2,9 @@
 #define UI_H
 
 #include "raylib.h"
+#include <string>
+
+class Player;
 
 void InitFonts();
 void CleanupFonts();
@@ -13,7 +16,9 @@ Font GetFontMediumExtraLight();
 Font GetFontSmall();
 Font GetFontSmallExtraLight();
 
-void DrawDebugInfo();
+void InitDebugSystem();
+void SetDebugValue(const std::string &key, const std::string &value);
+void DrawDebugInfo(Player *player);
 void DrawControlsInfo();
 void DrawExitConfirmation();
 

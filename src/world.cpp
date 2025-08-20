@@ -386,22 +386,25 @@ void DrawWorld(Map *map)
     }
 
     // draw grid lines
-    // int gridStartX = (int)offsetX;
-    // int gridStartY = (int)offsetY;
-    // int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
-    // int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
+    if (showDebug)
+    {
+        int gridStartX = (int)offsetX;
+        int gridStartY = (int)offsetY;
+        int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
+        int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
 
-    // for (unsigned int x = 0; x <= MAP_SIZE_X; x++)
-    // {
-    //     int lineX = gridStartX + x * MAP_TILE_SIZE;
-    //     DrawLine(lineX, gridStartY, lineX, gridEndY, WHITE);
-    // }
+        for (unsigned int x = 0; x <= MAP_SIZE_X; x++)
+        {
+            int lineX = gridStartX + x * MAP_TILE_SIZE;
+            DrawLine(lineX, gridStartY, lineX, gridEndY, (Color){255, 255, 255, 60});
+        }
 
-    // for (unsigned int y = 0; y <= MAP_SIZE_Y; y++)
-    // {
-    //     int lineY = gridStartY + y * MAP_TILE_SIZE;
-    //     DrawLine(gridStartX, lineY, gridEndX, lineY, WHITE);
-    // }
+        for (unsigned int y = 0; y <= MAP_SIZE_Y; y++)
+        {
+            int lineY = gridStartY + y * MAP_TILE_SIZE;
+            DrawLine(gridStartX, lineY, gridEndX, lineY, (Color){255, 255, 255, 60});
+        }
+    }
 }
 
 void CheckHover(Map *map)

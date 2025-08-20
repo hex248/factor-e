@@ -1,8 +1,11 @@
 #include "ui.h"
 #include "config.h"
 #include "controls.h"
+#include "player.h"
 #include <stdio.h>
 #include "mouse.h"
+#include <map>
+#include <vector>
 
 static Font fontLarge;
 static Font fontLargeExtraLight;
@@ -11,6 +14,24 @@ static Font fontMediumExtraLight;
 static Font fontSmall;
 static Font fontSmallExtraLight;
 static bool fontsLoaded = false;
+
+static std::map<std::string, std::string> debugValues;
+static std::vector<std::string> debugOrder = {
+    "monitor_count",
+    "current_monitor",
+    "screen_size",
+    "display_size",
+    "screen_center",
+    "SPACER",
+    "player_position",
+    "SPACER",
+    "mouse_position_screen",
+    "mouse_position_world",
+    "mouse_distance",
+    "mouse_distance_tiles",
+    "player_reach",
+    "hovered_tile"};
+static bool debugSystemInitialized = false;
 
 void InitFonts()
 {
@@ -49,22 +70,74 @@ Font GetFontMediumExtraLight() { return fontMediumExtraLight; }
 Font GetFontSmall() { return fontSmall; }
 Font GetFontSmallExtraLight() { return fontSmallExtraLight; }
 
-void DrawDebugInfo()
+void InitDebugSystem()
+{
+    if (debugSystemInitialized)
+        return;
+
+    for (const std::string &key : debugOrder)
+    {
+        debugValues[key] = "";
+    }
+
+    debugSystemInitialized = true;
+}
+
+void SetDebugValue(const std::string &key, const std::string &value)
+{
+    if (!debugSystemInitialized)
+        InitDebugSystem();
+
+    debugValues[key] = value;
+}
+
+void DrawDebugInfo(Player *player)
 {
     if (!showDebug)
         return;
 
-    static char debugText[5][64];
+    if (!debugSystemInitialized)
+        InitDebugSystem();
 
-    snprintf(debugText[0], sizeof(debugText[1]), "Monitor Count: %d", GetMonitorCount());
-    snprintf(debugText[1], sizeof(debugText[2]), "Current Monitor: %d", GetCurrentMonitor());
-    snprintf(debugText[2], sizeof(debugText[3]), "Screen: %dx%d", screenWidth, screenHeight);
-    snprintf(debugText[3], sizeof(debugText[4]), "Display Size: %dx%d", displayWidth, displayHeight);
-    snprintf(debugText[4], sizeof(debugText[4]), "Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y);
+    char buffer[64];
+    snprintf(buffer, sizeof(buffer), "Monitor Count: %d", GetMonitorCount());
+    debugValues["monitor_count"] = buffer;
 
-    for (int i = 0; i < 5; i++)
+    snprintf(buffer, sizeof(buffer), "Current Monitor: %d", GetCurrentMonitor());
+    debugValues["current_monitor"] = buffer;
+
+    snprintf(buffer, sizeof(buffer), "Screen: %dx%d", screenWidth, screenHeight);
+    debugValues["screen_size"] = buffer;
+
+    snprintf(buffer, sizeof(buffer), "Display Size: %dx%d", displayWidth, displayHeight);
+    debugValues["display_size"] = buffer;
+
+    snprintf(buffer, sizeof(buffer), "Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y);
+    debugValues["screen_center"] = buffer;
+
+    snprintf(buffer, sizeof(buffer), "Player Position: %.1fx%.1f", player->position.x, player->position.y);
+    debugValues["player_position"] = buffer;
+
+    snprintf(buffer, sizeof(buffer), "Player Reach: %d Tiles", PLAYER_REACH);
+    debugValues["player_reach"] = buffer;
+
+    int lineIndex = 0;
+    for (const std::string &key : debugOrder)
     {
-        DrawTextEx(fontSmallExtraLight, debugText[i], (Vector2){0, i * 25.0f}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
+        printf("%s\n", key.c_str());
+        if (key == "SPACER")
+        {
+            lineIndex++;
+            continue;
+        }
+
+        auto it = debugValues.find(key);
+        if (it != debugValues.end() && !it->second.empty())
+        {
+            const char *text = it->second.c_str();
+            DrawTextEx(fontSmallExtraLight, text, (Vector2){0, lineIndex * 25.0f}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
+            lineIndex++;
+        }
     }
 }
 

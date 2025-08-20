@@ -24,6 +24,7 @@ int main()
     SetTargetFPS(144);
 
     InitFonts();
+    InitDebugSystem();
 
     Map map = {0};
     InitWorld(&map);
@@ -83,7 +84,7 @@ int main()
         EndMode2D();
 
         DrawMouse();
-        DrawDebugInfo();
+        DrawDebugInfo(&player);
         DrawControlsInfo();
 
         // exit confirmation prompt
