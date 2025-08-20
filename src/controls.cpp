@@ -2,12 +2,9 @@
 #include "config.h"
 
 bool showDebug = true;
-bool showControls = false;
 
 void HandleControls()
 {
-    if (IsKeyPressed(KEY_F1))
-        showControls = !showControls;
     if (IsKeyPressed(KEY_F3))
         showDebug = !showDebug;
     if (IsKeyPressed(KEY_F10))

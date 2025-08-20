@@ -4,7 +4,6 @@
 #include "raylib.h"
 
 extern bool showDebug;
-extern bool showControls;
 
 void HandleControls();
 

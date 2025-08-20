@@ -87,7 +87,6 @@ int main()
 
         DrawMouse();
         DrawDebugInfo();
-        DrawControlsInfo();
 
         // exit confirmation prompt
         if (WindowShouldClose() || IsKeyPressed(CLOSE_KEY))

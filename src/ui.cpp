@@ -168,10 +168,10 @@ void DrawDebugInfo()
 
 void DrawControlsInfo()
 {
-    if (!showControls)
+    if (!showDebug)
         return;
 
-    const char *controls = "F1: Hide Controls | F3: Debug | F10: Switch Monitor | F11: Borderless";
+    const char *controls = "F3: Debug | F10: Switch Monitor | F11: Borderless";
     Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, (float)fontSmallExtraLight.baseSize, 2);
     DrawTextEx(fontSmallExtraLight, controls,
                {screenWidth - controlsSize.x - 10, screenHeight - controlsSize.y - 10},
@@ -186,8 +186,7 @@ void DrawExitConfirmation()
     int fontSize = fontMedium.baseSize;
     Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, 2.0f);
     DrawTextEx(fontMedium, closeText,
-               {
-                   screenWidth / 2 - textSize.x / 2,
-                   screenHeight / 2 - textSize.y / 2},
+               {screenWidth / 2 - textSize.x / 2,
+                screenHeight / 2 - textSize.y / 2},
                fontSize, 2.0f, WHITE);
 }
