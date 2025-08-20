@@ -2,7 +2,7 @@
 
 call build.bat
 if %errorlevel% neq 0 (
-    echo Build failed, aborting run
+    echo build failed, aborting run
     exit /b %errorlevel%
 )
 
