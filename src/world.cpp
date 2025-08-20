@@ -421,15 +421,13 @@ void DrawWorld(Map *map)
 
 void CheckHover(Map *map)
 {
-    Player *player = GetGlobalPlayer();
-
     Vector2 mouseWorldPos = GetMouseWorldPosition();
     Vector2 mouseScreenPos = GetMousePosition();
     WorldTile hoveredTile;
     bool tileFound = false;
 
-    float diffX = mouseWorldPos.x - player->position.x;
-    float diffY = mouseWorldPos.y - player->position.y;
+    float diffX = mouseWorldPos.x - player.position.x;
+    float diffY = mouseWorldPos.y - player.position.y;
     float distanceSquared = diffX * diffX + diffY * diffY;
 
     for (unsigned int i = 0; i < map->tilesX * map->tilesY; i++)
@@ -439,14 +437,14 @@ void CheckHover(Map *map)
             // find the closest point in the tile bounds to the player
             Vector2 closestPoint;
             closestPoint.x = fmaxf(map->tiles[i].bounds.x,
-                                   fminf(player->position.x,
+                                   fminf(player.position.x,
                                          map->tiles[i].bounds.x + map->tiles[i].bounds.width));
             closestPoint.y = fmaxf(map->tiles[i].bounds.y,
-                                   fminf(player->position.y,
+                                   fminf(player.position.y,
                                          map->tiles[i].bounds.y + map->tiles[i].bounds.height));
 
-            float tileDiffX = closestPoint.x - player->position.x;
-            float tileDiffY = closestPoint.y - player->position.y;
+            float tileDiffX = closestPoint.x - player.position.x;
+            float tileDiffY = closestPoint.y - player.position.y;
             float tileDistanceSquared = tileDiffX * tileDiffX + tileDiffY * tileDiffY;
 
             float reach = PLAYER_REACH * MAP_TILE_SIZE;
@@ -512,18 +510,18 @@ void CheckHover(Map *map)
         {
             // only draw red line if mouse is out of player reach
             // red line: full distance to mouse
-            DrawLineEx(player->position, mouseWorldPos, 2.0f, RED);
+            DrawLineEx(player.position, mouseWorldPos, 2.0f, RED);
 
             // normalize direction and scale to reach distance
             float scaleFactor = reach / distance;
             reachEndPoint = {
-                player->position.x + direction.x * scaleFactor,
-                player->position.y + direction.y * scaleFactor};
+                player.position.x + direction.x * scaleFactor,
+                player.position.y + direction.y * scaleFactor};
         }
         else
             reachEndPoint = mouseWorldPos;
 
-        DrawLineEx(player->position, reachEndPoint, 2.0f, BLUE);
+        DrawLineEx(player.position, reachEndPoint, 2.0f, BLUE);
     }
 }
 

@@ -35,10 +35,10 @@ int main()
     bool exitWindow = false;
     const int CLOSE_KEY = KEY_ESCAPE;
 
-    Player *player = CreateGlobalPlayer(Vector2{0.0f, 0.0f}, 25.0f, PLAYER_SPEED, WHITE);
+    player.Initialize({0.0f, 0.0f}, 25.0f, PLAYER_SPEED, WHITE);
 
     Camera2D camera = {0};
-    camera.target = {player->position.x, player->position.y};
+    camera.target = {player.position.x, player.position.y};
     camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
@@ -52,7 +52,7 @@ int main()
 
         HandleMouse(camera);
         HandleControls();
-        player->HandleMovement();
+        player.HandleMovement();
 
         // save config if it changed
         static float configSaveTimer = 0.0f;
@@ -71,7 +71,7 @@ int main()
             configSaveTimer = 0.0f;
         }
 
-        camera.target = {player->position.x, player->position.y};
+        camera.target = {player.position.x, player.position.y};
 
         // RENDER
         BeginDrawing();
@@ -80,9 +80,7 @@ int main()
         BeginMode2D(camera);
         DrawWorld(&map);
         CheckHover(&map);
-        Player *player = GetGlobalPlayer();
-        if (player)
-            player->Draw();
+        player.Draw();
         EndMode2D();
 
         DrawMouse();

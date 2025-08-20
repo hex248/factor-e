@@ -93,8 +93,6 @@ void SetDebugValue(const std::string &key, const std::string &value)
 
 void DrawDebugInfo()
 {
-    Player *player = GetGlobalPlayer();
-
     if (!showDebug)
         return;
 
@@ -117,7 +115,7 @@ void DrawDebugInfo()
     snprintf(buffer, sizeof(buffer), "Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y);
     debugValues["screen_center"] = buffer;
 
-    snprintf(buffer, sizeof(buffer), "Player Position: X:%.1f Y:%.1f", player->position.x, player->position.y);
+    snprintf(buffer, sizeof(buffer), "Player Position: X:%.1f Y:%.1f", player.position.x, player.position.y);
     debugValues["player_position"] = buffer;
 
     snprintf(buffer, sizeof(buffer), "Player Reach: %d Tiles", PLAYER_REACH);
@@ -132,7 +130,7 @@ void DrawDebugInfo()
     {
         if (key == "SPACER")
         {
-            debugLines.push_back({"", Vector2{0, 0}});
+            debugLines.push_back({"", {0, 0}});
             continue;
         }
 
@@ -164,6 +162,8 @@ void DrawDebugInfo()
             DrawTextEx(fontSmallExtraLight, text, {padding, (i * lineHeight) + (padding / 2)}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
         }
     }
+
+    DrawControlsInfo();
 }
 
 void DrawControlsInfo()

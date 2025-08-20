@@ -16,20 +16,21 @@ private:
 
 public:
     Vector2 position;
-    Vector2 dir =  {0,0};
+    Vector2 dir = {0, 0};
     float size;
     float speed = 20.0f;
     Color color;
 
+    Player();
     Player(Vector2 pos, float sz, float sp, Color col);
     ~Player();
+    void Initialize(Vector2 pos, float sz, float sp, Color col);
     void Draw();
     void HandleMovement();
     void LoadSprite();
     void UnloadSprite();
 };
 
-Player *CreateGlobalPlayer(Vector2 pos, float sz, float sp, Color col);
-Player *GetGlobalPlayer();
+extern Player player;
 
 #endif
