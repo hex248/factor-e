@@ -9,8 +9,6 @@ if (raylib_FOUND)
     message(STATUS "raylib found: ${raylib_VERSION}")
 endif()
 
-
-
 include_directories(include)
 
 
@@ -30,13 +28,4 @@ file(COPY assets DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PRIVATE winmm)
-elseif (UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} PRIVATE m pthread dl)
-    find_package(PkgConfig REQUIRED)
-    pkg_check_modules(X11 REQUIRED x11)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${X11_LIBRARIES})
-elseif (APPLE)
-    find_library(COCOA_LIBRARY Cocoa)
-    find_library(IOKIT_LIBRARY IOKit)
-    target_link_libraries(${PROJECT_NAME} PRIVATE ${COCOA_LIBRARY} ${IOKIT_LIBRARY})
 endif()
