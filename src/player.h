@@ -5,7 +5,7 @@
 
 #define PLAYER_SPRITE_PATH "assets/sprites/player.png"
 #define PLAYER_SPRITE_SCALE 3.0f
-#define PLAYER_SPEED 8
+#define PLAYER_SPEED 25
 #define PLAYER_REACH 3 // player reach (in tiles)
 
 class Player
@@ -16,8 +16,9 @@ private:
 
 public:
     Vector2 position;
+    Vector2 dir =  {0,0};
     float size;
-    float speed = 5.0f;
+    float speed = 20.0f;
     Color color;
 
     Player(Vector2 pos, float sz, float sp, Color col);
