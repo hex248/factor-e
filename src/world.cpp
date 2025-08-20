@@ -279,10 +279,8 @@ void InitWorld(Map *map)
     map->tilesX = MAP_SIZE_X;
     map->tilesY = MAP_SIZE_Y;
 
-    /* //TODO: implement multiple layers
-        requires multiple layers of "map->tiles" (2d array)
-        multiple passes of the toGenerate loop
-    */
+    // TODO: implement multiple layers
+
     std::vector<std::string> layers = {"ground"};
 
     map->tiles = (WorldTile *)calloc(MAP_SIZE_X * MAP_SIZE_Y, sizeof(WorldTile));
@@ -302,14 +300,18 @@ void InitWorld(Map *map)
             snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", tile.name.c_str());
             unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
             map->tiles[i].color = {lightness, (unsigned char)(lightness + 80), lightness, 255};
-            Image spriteImage = LoadImage(tile.spritePath.c_str());
 
-            ImageResizeNN(&spriteImage,
-                          (int)(spriteImage.width * tile.spriteScale),
-                          (int)(spriteImage.height * tile.spriteScale));
+            if (!tile.useShader)
+            {
+                Image spriteImage = LoadImage(tile.spritePath.c_str());
 
-            map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
-            UnloadImage(spriteImage);
+                ImageResizeNN(&spriteImage,
+                              (int)(spriteImage.width * tile.spriteScale),
+                              (int)(spriteImage.height * tile.spriteScale));
+
+                map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
+                UnloadImage(spriteImage);
+            }
             map->tiles[i].cursorType = tile.cursorType;
             map->tiles[i].useShader = tile.useShader;
             snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
