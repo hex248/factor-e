@@ -1,4 +1,5 @@
 #include "mouse.h"
+#include <cstring>
 #include <stdio.h>
 
 Texture2D pointerSprite;
@@ -86,7 +87,6 @@ Vector2 GetMouseWorldPosition()
 
 void SetCurrentCursorSprite(const char *cursor)
 {
-    printf("cursor: %s\n", cursor);
     if (strcmp(cursor, "POINTER") == 0)
     {
         currentCursorSprite = pointerSprite;
