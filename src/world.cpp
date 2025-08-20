@@ -8,6 +8,9 @@
 #include "include/json.hpp"
 #include <iostream>
 
+Image noise;
+Texture2D noiseTexture;
+
 static Texture2D tileHoverSprite;
 static LgTexShaderData lgTexShader = {0};
 
@@ -169,6 +172,33 @@ TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
     return {};
 }
 
+TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map<std::string, int> &weights)
+{
+    int totalWeight = 0;
+    for (const auto &[key, value] : weights)
+    {
+        totalWeight += value;
+    }
+
+    // get pixel color from noise image
+    Color pixelColor = GetImageColor(noiseImage, x * MAP_TILE_SIZE, y * MAP_TILE_SIZE);
+
+    // normalize lightness to totalWeight
+    float lightness = ((float)pixelColor.r / 255) * totalWeight;
+
+    // use weight to choose a tile based on lightness
+    for (const auto &[key, value] : weights)
+    {
+        if (lightness < value)
+        {
+            return tile_types_data[key].template get<TileType>();
+        }
+        lightness -= value;
+    }
+
+    return GetRandomWeightedTile(weights);
+}
+
 void InitTextureShader()
 {
     if (lgTexShader.initialized)
@@ -222,6 +252,14 @@ Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
 
 void InitWorld(Map *map)
 {
+    float seedX = GetRandomValue(0, 10000000);
+    float seedY = GetRandomValue(0, 10000000);
+
+    // generate a tiny perlin noise image (using map size, so that it is 1 pixel per tile)
+    noise = GenImagePerlinNoise(MAP_SIZE_X, MAP_SIZE_Y, seedX, seedY, 1.5);
+    ImageResizeNN(&noise, MAP_SIZE_X * MAP_TILE_SIZE, MAP_SIZE_Y * MAP_TILE_SIZE);
+    noiseTexture = LoadTextureFromImage(noise);
+
     InitTextureShader();
 
     Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
@@ -237,11 +275,6 @@ void InitWorld(Map *map)
 
     map->tilesX = MAP_SIZE_X;
     map->tilesY = MAP_SIZE_Y;
-    int toGenerate = MAP_SIZE_X * MAP_SIZE_Y;
-
-    map->tileIds = (unsigned char *)calloc(toGenerate, sizeof(unsigned char));
-    for (unsigned int i = 0; i < toGenerate; i++)
-        map->tileIds[i] = i;
 
     /* //TODO: implement multiple layers
         requires multiple layers of "map->tiles" (2d array)
@@ -249,32 +282,35 @@ void InitWorld(Map *map)
     */
     std::vector<std::string> layers = {"ground"};
 
-    map->tiles = (WorldTile *)calloc(toGenerate, sizeof(WorldTile));
-    for (unsigned int i = 0; i < toGenerate; i++)
+    map->tiles = (WorldTile *)calloc(MAP_SIZE_X * MAP_SIZE_Y, sizeof(WorldTile));
+    for (unsigned int y = 0; y < MAP_SIZE_Y; y++)
     {
-        map->tiles[i].id = i;
-
-        TileType tile = GetRandomWeightedTile(tile_set.weights);
-        // TODO: IMPLEMENT RULES
-        // if the tile's layer is not in the layers vector, get a new tile
-        while (std::find(layers.begin(), layers.end(), tile.layer) == layers.end())
+        for (unsigned int x = 0; x < MAP_SIZE_X; x++)
         {
-            tile = GetRandomWeightedTile(tile_set.weights);
+            unsigned int i = y * MAP_SIZE_X + x;
+
+            TileType tile = GetTileFromNoiseWeighted(x, y, noise, tile_set.weights);
+            // TODO: IMPLEMENT RULES
+            // if the tile's layer is not in the layers vector, get a new tile
+            while (std::find(layers.begin(), layers.end(), tile.layer) == layers.end())
+            {
+                tile = GetTileFromNoiseWeighted(x, y, noise, tile_set.weights);
+            }
+            snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", tile.name.c_str());
+            unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
+            map->tiles[i].color = (Color){lightness, (unsigned char)(lightness + 80), lightness, 255};
+            Image spriteImage = LoadImage(tile.spritePath.c_str());
+
+            ImageResizeNN(&spriteImage,
+                          (int)(spriteImage.width * tile.spriteScale),
+                          (int)(spriteImage.height * tile.spriteScale));
+
+            map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
+            UnloadImage(spriteImage);
+            map->tiles[i].cursorType = tile.cursorType;
+            map->tiles[i].useShader = tile.useShader;
+            snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
         }
-        snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", tile.name.c_str());
-        unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
-        map->tiles[i].color = (Color){lightness, (unsigned char)(lightness + 80), lightness, 255};
-        Image spriteImage = LoadImage(tile.spritePath.c_str());
-
-        ImageResizeNN(&spriteImage,
-                      (int)(spriteImage.width * tile.spriteScale),
-                      (int)(spriteImage.height * tile.spriteScale));
-
-        map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
-        UnloadImage(spriteImage);
-        map->tiles[i].cursorType = tile.cursorType;
-        map->tiles[i].useShader = tile.useShader;
-        snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
     }
 }
 
@@ -296,12 +332,6 @@ void DrawWorld(Map *map)
             int index = y * map->tilesX + x;
 
             DrawRectangle(tileX, tileY, MAP_TILE_SIZE, MAP_TILE_SIZE, map->tiles[index].color);
-
-            Vector2 textSize = MeasureTextEx(fontSmall, map->tiles[index].name, (float)fontSmall.baseSize, 2);
-            Vector2 textPos = {
-                tileX + (MAP_TILE_SIZE - textSize.x) / 2,
-                tileY + (MAP_TILE_SIZE - textSize.y) / 2};
-            DrawTextEx(fontSmall, map->tiles[index].name, textPos, (float)fontSmall.baseSize, 2, WHITE);
 
             // if the tile should use a shader and has a largeTexturePath
             if (map->tiles[index].useShader && strlen(map->tiles[index].largeTexturePath) > 0 && lgTexShader.initialized)
@@ -397,11 +427,6 @@ void CleanupWorld(Map *map)
 {
     CleanupTextureShader();
 
-    if (map->tileIds)
-    {
-        free(map->tileIds);
-        map->tileIds = NULL;
-    }
     if (map->tiles)
     {
         free(map->tiles);

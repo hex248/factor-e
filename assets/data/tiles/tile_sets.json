@@ -4,11 +4,11 @@
         "name": "Field",
         "description": "very green place",
         "weights": {
-            "grass": 80,
-            "dirt": 20,
-            "tree": 20,
-            "rock": 5,
-            "poison_flower": 5
+            "grass": 50,
+            "dirt": 25,
+            "tree": 0,
+            "rock": 0,
+            "poison_flower": 0
         },
         "rules": {
             "tree": {
