@@ -20,8 +20,13 @@ void ReloadGame()
 {
     player.position = {0.0f, 0.0f};
     player.dir = {0, 0};
+}
 
+void RegenerateWorld()
+{
     GenerateWorld(&world);
+
+    ReloadGame();
 }
 
 int main()

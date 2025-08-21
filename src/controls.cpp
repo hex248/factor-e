@@ -12,6 +12,10 @@ void HandleControls()
         {
             ReloadGame();
         }
+        if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyDown(KEY_LEFT_SHIFT) && (IsKeyPressed(KEY_R) || IsKeyPressedRepeat(KEY_R)))
+        {
+            RegenerateWorld();
+        }
 
         if (IsKeyPressed(KEY_F3))
             showDebug = !showDebug;
