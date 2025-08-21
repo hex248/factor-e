@@ -15,7 +15,7 @@ Image noise;
 Texture2D noiseTexture;
 
 static Texture2D tileHoverSprite;
-static LgTexShaderData lgTexShader = {0};
+static LgTexShaderData lgTexShader;
 
 using json = nlohmann::json;
 
@@ -87,7 +87,7 @@ void from_json(const json &j, TileSet &t)
 
     for (const auto &item : j.at("weights").items())
     {
-        t.weights[item.key()] = item.value().get<int>();
+        t.weights[item.key()] = item.value().get<float>();
     }
 
     /*
@@ -102,11 +102,11 @@ void from_json(const json &j, TileSet &t)
             }
         }
     */
-    for (const auto &rule : j.at("rules").items())
+    for (const auto &ruleItem : j.at("rules").items())
     {
-        std::string tileName = rule.key();
+        std::string tileName = ruleItem.key();
 
-        for (const auto &ruleType : rule.value().items())
+        for (const auto &ruleType : ruleItem.value().items())
         {
             Rule rule;
             std::string ruleTypeStr = ruleType.key();
@@ -140,15 +140,15 @@ json tile_sets_data = json::parse(tile_sets_json);
 std::ifstream tile_types_json(TILE_TYPES_PATH);
 json tile_types_data = json::parse(tile_types_json);
 
-TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
+TileType GetRandomWeightedTile(const std::map<std::string, float> &weights)
 {
-    int totalWeight = 0;
+    float totalWeight = 0;
     for (const auto &[key, value] : weights)
     {
         totalWeight += value;
     }
 
-    int randomValue = GetRandomValue(0, totalWeight - 1);
+    float randomValue = (float)GetRandomValue(0, (int)totalWeight - 1);
 
     // ?sort weights descending
     // this ensures that all weights are accounted for, even if the second weight is greater than the first
@@ -157,7 +157,7 @@ TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
     //     dirt: 40
     // dirt has 40/60 chance and grass has 20/60
     // without sorting, grass would have been chosen much more frequently as it comes first.
-    std::vector<std::pair<std::string, int>> sortedWeights;
+    std::vector<std::pair<std::string, float>> sortedWeights;
     for (const auto &[key, value] : weights)
     {
         sortedWeights.emplace_back(key, value);
@@ -178,9 +178,9 @@ TileType GetRandomWeightedTile(const std::map<std::string, int> &weights)
     return {};
 }
 
-TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map<std::string, int> &weights)
+TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map<std::string, float> &weights)
 {
-    int totalWeight = 0;
+    float totalWeight = 0;
     for (const auto &[key, value] : weights)
     {
         totalWeight += value;
@@ -258,8 +258,8 @@ Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
 
 void InitWorld(Map *map)
 {
-    float seedX = GetRandomValue(0, 10000000);
-    float seedY = GetRandomValue(0, 10000000);
+    int seedX = GetRandomValue(0, 10000000);
+    int seedY = GetRandomValue(0, 10000000);
 
     // generate a tiny perlin noise image (using map size, so that it is 1 pixel per tile)
     noise = GenImagePerlinNoise(MAP_SIZE_X, MAP_SIZE_Y, seedX, seedY, 1.5);
@@ -271,8 +271,8 @@ void InitWorld(Map *map)
     Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
 
     ImageResizeNN(&tileHoverImage,
-                  (int)(tileHoverImage.width * TILE_HOVER_SPRITE_SCALE),
-                  (int)(tileHoverImage.height * TILE_HOVER_SPRITE_SCALE));
+                  (int)((float)tileHoverImage.width * TILE_HOVER_SPRITE_SCALE),
+                  (int)((float)tileHoverImage.height * TILE_HOVER_SPRITE_SCALE));
 
     tileHoverSprite = LoadTextureFromImage(tileHoverImage);
     UnloadImage(tileHoverImage);
@@ -287,11 +287,11 @@ void InitWorld(Map *map)
     std::vector<std::string> layers = {"ground"};
 
     map->tiles = (WorldTile *)calloc(MAP_SIZE_X * MAP_SIZE_Y, sizeof(WorldTile));
-    for (unsigned int y = 0; y < MAP_SIZE_Y; y++)
+    for (int y = 0; y < MAP_SIZE_Y; y++)
     {
-        for (unsigned int x = 0; x < MAP_SIZE_X; x++)
+        for (int x = 0; x < MAP_SIZE_X; x++)
         {
-            unsigned int i = y * MAP_SIZE_X + x;
+            int i = y * MAP_SIZE_X + x;
 
             TileType tile = GetTileFromNoiseWeighted(x, y, noise, tile_set.weights);
             // TODO: IMPLEMENT RULES
@@ -309,14 +309,13 @@ void InitWorld(Map *map)
                 Image spriteImage = LoadImage(tile.spritePath.c_str());
 
                 ImageResizeNN(&spriteImage,
-                              (int)(spriteImage.width * tile.spriteScale),
-                              (int)(spriteImage.height * tile.spriteScale));
+                              (int)((float)spriteImage.width * tile.spriteScale),
+                              (int)((float)spriteImage.height * tile.spriteScale));
 
                 map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
                 UnloadImage(spriteImage);
             }
-            strncpy(map->tiles[i].cursorType, tile.cursorType, sizeof(map->tiles[i].cursorType) - 1);
-            map->tiles[i].cursorType[sizeof(map->tiles[i].cursorType) - 1] = '\0';
+            snprintf(map->tiles[i].cursorType, sizeof(map->tiles[i].cursorType), "%s", tile.cursorType);
             map->tiles[i].useShader = tile.useShader;
             snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
         }
@@ -329,15 +328,13 @@ void DrawWorld(Map *map)
     float offsetX = -(MAP_TILE_SIZE * MAP_SIZE_X) / 2.0f;
     float offsetY = -(MAP_TILE_SIZE * MAP_SIZE_Y) / 2.0f;
 
-    Font fontSmall = GetFontSmall();
-
     // draw tiles
-    for (unsigned int y = 0; y < map->tilesY; y++)
+    for (int y = 0; y < map->tilesY; y++)
     {
-        for (unsigned int x = 0; x < map->tilesX; x++)
+        for (int x = 0; x < map->tilesX; x++)
         {
-            int tileX = (int)(offsetX + x * MAP_TILE_SIZE);
-            int tileY = (int)(offsetY + y * MAP_TILE_SIZE);
+            int tileX = (int)(offsetX + (float)x * MAP_TILE_SIZE);
+            int tileY = (int)(offsetY + (float)y * MAP_TILE_SIZE);
             int index = y * map->tilesX + x;
 
             DrawRectangle(tileX, tileY, MAP_TILE_SIZE, MAP_TILE_SIZE, map->tiles[index].color);
@@ -402,13 +399,13 @@ void DrawWorld(Map *map)
         int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
         int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
 
-        for (unsigned int x = 0; x <= MAP_SIZE_X; x++)
+        for (int x = 0; x <= MAP_SIZE_X; x++)
         {
             int lineX = gridStartX + x * MAP_TILE_SIZE;
             DrawLine(lineX, gridStartY, lineX, gridEndY, {255, 255, 255, 60});
         }
 
-        for (unsigned int y = 0; y <= MAP_SIZE_Y; y++)
+        for (int y = 0; y <= MAP_SIZE_Y; y++)
         {
             int lineY = gridStartY + y * MAP_TILE_SIZE;
             DrawLine(gridStartX, lineY, gridEndX, lineY, {255, 255, 255, 60});
@@ -430,7 +427,7 @@ void CheckHover(Map *map)
     float diffY = mouseWorldPos.y - player.position.y;
     float distanceSquared = diffX * diffX + diffY * diffY;
 
-    for (unsigned int i = 0; i < map->tilesX * map->tilesY; i++)
+    for (int i = 0; i < map->tilesX * map->tilesY; i++)
     {
         if (CheckCollisionPointRec(mouseWorldPos, map->tiles[i].bounds))
         {

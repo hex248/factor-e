@@ -8,10 +8,9 @@ Texture2D currentCursorSprite;
 
 static bool showMouse = false;
 static bool showCustomCursor = false;
-static bool cursorHasBeenDisabled = false;
 
-static Vector2 mouseScreenPos = {0};
-static Vector2 mouseWorldPos = {0};
+static Vector2 mouseScreenPos = {0, 0};
+static Vector2 mouseWorldPos = {0, 0};
 
 void InitialiseMouse()
 {
@@ -27,11 +26,11 @@ void InitialiseMouse()
     Image handImage = LoadImage(HAND_SPRITE_PATH);
 
     ImageResizeNN(&pointerImage,
-                  (int)(pointerImage.width * CURSOR_SPRITE_SCALE),
-                  (int)(pointerImage.height * CURSOR_SPRITE_SCALE));
+                  (int)((float)pointerImage.width * CURSOR_SPRITE_SCALE),
+                  (int)((float)pointerImage.height * CURSOR_SPRITE_SCALE));
     ImageResizeNN(&handImage,
-                  (int)(handImage.width * CURSOR_SPRITE_SCALE),
-                  (int)(handImage.height * CURSOR_SPRITE_SCALE));
+                  (int)((float)handImage.width * CURSOR_SPRITE_SCALE),
+                  (int)((float)handImage.height * CURSOR_SPRITE_SCALE));
 
     pointerSprite = LoadTextureFromImage(pointerImage);
     UnloadImage(pointerImage);

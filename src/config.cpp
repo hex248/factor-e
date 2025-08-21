@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-Config config = {0};
+Config config;
 bool configChanged = false;
 
 int screenWidth = DEFAULT_WINDOW_WIDTH;
@@ -131,7 +131,7 @@ void UpdateScreenDimensions()
         screenHeight = GetRenderHeight();
     }
 
-    screenCenter = {screenWidth / 2.0f, screenHeight / 2.0f};
+    screenCenter = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
 }
 
 void InitDisplaySystem()
@@ -157,8 +157,8 @@ void InitDisplaySystem()
     if (config.windowPosX == -1 || config.windowPosY == -1)
     {
         // center on preferred monitor
-        int monitorX = GetMonitorPosition(monitor).x;
-        int monitorY = GetMonitorPosition(monitor).y;
+        int monitorX = (int)GetMonitorPosition(monitor).x;
+        int monitorY = (int)GetMonitorPosition(monitor).y;
         SetWindowPosition(
             monitorX + (trueMonitorWidth - config.windowWidth) / 2,
             monitorY + (trueMonitorHeight - config.windowHeight) / 2);

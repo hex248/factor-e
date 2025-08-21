@@ -106,7 +106,7 @@ typedef struct TileSet
     int id;
     std::string name;
     std::string description;
-    std::map<std::string, int> weights;
+    std::map<std::string, float> weights;
     std::map<
         std::string,
         std::map<
@@ -117,8 +117,8 @@ typedef struct TileSet
 
 typedef struct Map
 {
-    unsigned int tilesX;
-    unsigned int tilesY;
+    int tilesX;
+    int tilesY;
     unsigned char *tileIds;
     WorldTile *tiles;
 } Map;

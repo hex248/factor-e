@@ -24,7 +24,7 @@ mkdir -p build
 cd build
 
 if is_wayland; then
-    if cmake -DGLFW_BUILD_WAYLAND=ON ..; then
+    if cmake ..; then
         echo "CMAKE successful"
     else
         echo "CMAKE failed"

@@ -12,14 +12,14 @@ class Player
 {
 private:
     Texture2D sprite;
-    bool spriteLoaded;
 
 public:
-    Vector2 position;
+    Vector2 position = {0, 0};
     Vector2 dir = {0, 0};
-    float size;
+    float size = 1.0f;
     float speed = 20.0f;
-    Color color;
+    Color color = WHITE;
+    bool spriteLoaded = false;
 
     Player();
     Player(Vector2 pos, float sz, float sp, Color col);

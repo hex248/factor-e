@@ -15,7 +15,7 @@
 #include "ui.h"
 #include "mouse.h"
 
-Map map = {0};
+Map map;
 void ReloadGame()
 {
     player.position = {0.0f, 0.0f};
@@ -44,9 +44,9 @@ int main()
 
     player.Initialize({0.0f, 0.0f}, 25.0f, PLAYER_SPEED, WHITE);
 
-    Camera2D camera = {0};
+    Camera2D camera;
     camera.target = {player.position.x, player.position.y};
-    camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
+    camera.offset = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -55,7 +55,7 @@ int main()
         UpdateScreenDimensions();
         UpdateConfig();
 
-        camera.offset = {screenWidth / 2.0f, screenHeight / 2.0f};
+        camera.offset = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
 
         HandleMouse(camera);
         HandleControls();

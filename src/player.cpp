@@ -34,8 +34,8 @@ void Player::LoadSprite()
 
     // nearest neighbour resize sprite
     ImageResizeNN(&playerImage,
-                  (int)(playerImage.width * PLAYER_SPRITE_SCALE),
-                  (int)(playerImage.height * PLAYER_SPRITE_SCALE));
+                  (int)((float)(playerImage.width) * PLAYER_SPRITE_SCALE),
+                  (int)((float)(playerImage.height) * PLAYER_SPRITE_SCALE));
 
     sprite = LoadTextureFromImage(playerImage);
     UnloadImage(playerImage);
@@ -50,7 +50,7 @@ void Player::UnloadSprite()
         spriteLoaded = false;
     }
 }
-int angleOff = 0;
+float angleOff = 0;
 bool stationary = true;
 void Player::Draw()
 {
@@ -59,9 +59,9 @@ void Player::Draw()
         return;
     float angle = std::atan2(dir.x, dir.y) * 180 / PI;
 
-    Rectangle source = {0.0f, 0.0f, (float)sprite.width, float(sprite.height)};
+    Rectangle source = {0.0f, 0.0f, (float)(sprite.width), (float)(sprite.height)};
 
-    Rectangle pos = {position.x, position.y, sprite.width * 1.0f, sprite.height * 1.0f};
+    Rectangle pos = {position.x, position.y, (float)(sprite.width), (float)(sprite.height)};
 
     Vector2 origin = {pos.width / 2.0f, pos.height / 2.0f};
 
