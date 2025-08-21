@@ -8,6 +8,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
+LINUX_BUILD_DIR="build-linux"
 WINDOWS_BUILD_DIR="build-windows"
 
 LINUX_SUCCESS=0
@@ -40,14 +41,12 @@ cleanup_builds() {
     echo "build directories cleaned"
 }
 
-build_linux() {
-    print_header "building for linux"
-    
+build_linux() {    
     if ./build.sh; then
         LINUX_SUCCESS=1
         # extract warning count from build.sh output
-        if [ -f "build-linux/build_linux.log" ]; then
-            TOTAL_WARNINGS_LINUX=$(grep "warning:" build-linux/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
+        if [ -f "$LINUX_BUILD_DIR/build_linux.log" ]; then
+            TOTAL_WARNINGS_LINUX=$(grep "warning:" $LINUX_BUILD_DIR/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
         else
             TOTAL_WARNINGS_LINUX=0
         fi
@@ -129,18 +128,18 @@ show_summary() {
     
     echo ""
     echo "build artifacts:"
-    [ -f "build-linux/factor-e" ] && echo "  linux executable: build-linux/factor-e"
+    [ -f "$LINUX_BUILD_DIR/factor-e" ] && echo "  linux executable: $LINUX_BUILD_DIR/factor-e"
     [ -f "$WINDOWS_BUILD_DIR/factor-e.exe" ] && echo "  windows executable: $WINDOWS_BUILD_DIR/factor-e.exe"
     
     echo ""
     echo "build logs:"
-    [ -f "build-linux/build_linux.log" ] && echo "  linux build log: build-linux/build_linux.log"
+    [ -f "$LINUX_BUILD_DIR/build_linux.log" ] && echo "  linux build log: $LINUX_BUILD_DIR/build_linux.log"
     [ -f "$WINDOWS_BUILD_DIR/build_windows.log" ] && echo "  windows build log: $WINDOWS_BUILD_DIR/build_windows.log"
     
     if [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] || [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ]; then
         echo ""
         print_warning "to view warnings in detail:"
-        [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] && echo "  linux warnings: grep 'warning:' build-linux/build_linux.log | grep -v '_deps/'"
+        [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] && echo "  linux warnings: grep 'warning:' $LINUX_BUILD_DIR/build_linux.log | grep -v '_deps/'"
         [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ] && echo "  windows warnings: grep 'warning:' $WINDOWS_BUILD_DIR/build_windows.log | grep -v '_deps/'"
     fi
 }
