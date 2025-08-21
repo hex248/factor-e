@@ -256,12 +256,12 @@ Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
     return texture;
 }
 
-void InitWorld(Map *map)
+void InitWorld(World *world)
 {
     int seedX = GetRandomValue(0, 10000000);
     int seedY = GetRandomValue(0, 10000000);
 
-    // generate a tiny perlin noise image (using map size, so that it is 1 pixel per tile)
+    // generate a tiny perlin noise image (using world size, so that it is 1 pixel per tile)
     noise = GenImagePerlinNoise(MAP_SIZE_X, MAP_SIZE_Y, seedX, seedY, 1.5);
     ImageResizeNN(&noise, MAP_SIZE_X * MAP_TILE_SIZE, MAP_SIZE_Y * MAP_TILE_SIZE);
     noiseTexture = LoadTextureFromImage(noise);
@@ -279,14 +279,14 @@ void InitWorld(Map *map)
 
     TileSet tile_set = tile_sets_data["field_biome"].template get<TileSet>();
 
-    map->tilesX = MAP_SIZE_X;
-    map->tilesY = MAP_SIZE_Y;
+    world->tilesX = MAP_SIZE_X;
+    world->tilesY = MAP_SIZE_Y;
 
     // TODO: implement multiple layers
 
     std::vector<std::string> layers = {"ground"};
 
-    map->tiles = (WorldTile *)calloc(MAP_SIZE_X * MAP_SIZE_Y, sizeof(WorldTile));
+    world->tiles = (WorldTile *)calloc(MAP_SIZE_X * MAP_SIZE_Y, sizeof(WorldTile));
     for (int y = 0; y < MAP_SIZE_Y; y++)
     {
         for (int x = 0; x < MAP_SIZE_X; x++)
@@ -300,9 +300,9 @@ void InitWorld(Map *map)
             {
                 tile = GetTileFromNoiseWeighted(x, y, noise, tile_set.weights);
             }
-            snprintf(map->tiles[i].name, sizeof(map->tiles[i].name), "%s", tile.name.c_str());
+            snprintf(world->tiles[i].name, sizeof(world->tiles[i].name), "%s", tile.name.c_str());
             unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
-            map->tiles[i].color = {lightness, (unsigned char)(lightness + 80), lightness, 255};
+            world->tiles[i].color = {lightness, (unsigned char)(lightness + 80), lightness, 255};
 
             if (!tile.useShader)
             {
@@ -312,37 +312,37 @@ void InitWorld(Map *map)
                               (int)((float)spriteImage.width * tile.spriteScale),
                               (int)((float)spriteImage.height * tile.spriteScale));
 
-                map->tiles[i].sprite = LoadTextureFromImage(spriteImage);
+                world->tiles[i].sprite = LoadTextureFromImage(spriteImage);
                 UnloadImage(spriteImage);
             }
-            snprintf(map->tiles[i].cursorType, sizeof(map->tiles[i].cursorType), "%s", tile.cursorType);
-            map->tiles[i].useShader = tile.useShader;
-            snprintf(map->tiles[i].largeTexturePath, sizeof(map->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
+            snprintf(world->tiles[i].cursorType, sizeof(world->tiles[i].cursorType), "%s", tile.cursorType);
+            world->tiles[i].useShader = tile.useShader;
+            snprintf(world->tiles[i].largeTexturePath, sizeof(world->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
         }
     }
 }
 
-void DrawWorld(Map *map)
+void DrawWorld(World *world)
 {
     // position grid at a fixed world coordinate (centered around 0,0)
     float offsetX = -(MAP_TILE_SIZE * MAP_SIZE_X) / 2.0f;
     float offsetY = -(MAP_TILE_SIZE * MAP_SIZE_Y) / 2.0f;
 
     // draw tiles
-    for (int y = 0; y < map->tilesY; y++)
+    for (int y = 0; y < world->tilesY; y++)
     {
-        for (int x = 0; x < map->tilesX; x++)
+        for (int x = 0; x < world->tilesX; x++)
         {
             int tileX = (int)(offsetX + (float)x * MAP_TILE_SIZE);
             int tileY = (int)(offsetY + (float)y * MAP_TILE_SIZE);
-            int index = y * map->tilesX + x;
+            int index = y * world->tilesX + x;
 
-            DrawRectangle(tileX, tileY, MAP_TILE_SIZE, MAP_TILE_SIZE, map->tiles[index].color);
+            DrawRectangle(tileX, tileY, MAP_TILE_SIZE, MAP_TILE_SIZE, world->tiles[index].color);
 
             // if the tile should use a shader and has a largeTexturePath
-            if (map->tiles[index].useShader && strlen(map->tiles[index].largeTexturePath) > 0 && lgTexShader.initialized)
+            if (world->tiles[index].useShader && strlen(world->tiles[index].largeTexturePath) > 0 && lgTexShader.initialized)
             {
-                Texture2D lgTex = GetOrLoadShaderTexture(std::string(map->tiles[index].largeTexturePath));
+                Texture2D lgTex = GetOrLoadShaderTexture(std::string(world->tiles[index].largeTexturePath));
 
                 // if the texture successfully loads
                 if (lgTex.id > 0)
@@ -376,18 +376,18 @@ void DrawWorld(Map *map)
                 else
                 {
                     // fallback to regular sprite if shader texture failed to load
-                    Texture2D sprite = map->tiles[index].sprite;
+                    Texture2D sprite = world->tiles[index].sprite;
                     DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
                 }
             }
             // no shader
             else
             {
-                Texture2D sprite = map->tiles[index].sprite;
+                Texture2D sprite = world->tiles[index].sprite;
                 DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
             }
 
-            map->tiles[index].bounds = {(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
+            world->tiles[index].bounds = {(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
         }
     }
 
@@ -416,7 +416,7 @@ void DrawWorld(Map *map)
     }
 }
 
-void CheckHover(Map *map)
+void CheckHover(World *world)
 {
     Vector2 mouseWorldPos = GetMouseWorldPosition();
     Vector2 mouseScreenPos = GetMousePosition();
@@ -427,18 +427,18 @@ void CheckHover(Map *map)
     float diffY = mouseWorldPos.y - player.position.y;
     float distanceSquared = diffX * diffX + diffY * diffY;
 
-    for (int i = 0; i < map->tilesX * map->tilesY; i++)
+    for (int i = 0; i < world->tilesX * world->tilesY; i++)
     {
-        if (CheckCollisionPointRec(mouseWorldPos, map->tiles[i].bounds))
+        if (CheckCollisionPointRec(mouseWorldPos, world->tiles[i].bounds))
         {
             // find the closest point in the tile bounds to the player
             Vector2 closestPoint;
-            closestPoint.x = fmaxf(map->tiles[i].bounds.x,
+            closestPoint.x = fmaxf(world->tiles[i].bounds.x,
                                    fminf(player.position.x,
-                                         map->tiles[i].bounds.x + map->tiles[i].bounds.width));
-            closestPoint.y = fmaxf(map->tiles[i].bounds.y,
+                                         world->tiles[i].bounds.x + world->tiles[i].bounds.width));
+            closestPoint.y = fmaxf(world->tiles[i].bounds.y,
                                    fminf(player.position.y,
-                                         map->tiles[i].bounds.y + map->tiles[i].bounds.height));
+                                         world->tiles[i].bounds.y + world->tiles[i].bounds.height));
 
             float tileDiffX = closestPoint.x - player.position.x;
             float tileDiffY = closestPoint.y - player.position.y;
@@ -448,16 +448,16 @@ void CheckHover(Map *map)
 
             if (tileDistanceSquared < reach * reach)
             {
-                hoveredTile = map->tiles[i];
-                map->tiles[i].hovered = true;
+                hoveredTile = world->tiles[i];
+                world->tiles[i].hovered = true;
                 tileFound = true;
             }
 
             if (strcmp(hoveredTile.cursorType, "HAND") == 0) // only show the hover overlay for the "HAND" cursor
-                DrawTextureV(tileHoverSprite, {map->tiles[i].bounds.x, map->tiles[i].bounds.y}, WHITE);
+                DrawTextureV(tileHoverSprite, {world->tiles[i].bounds.x, world->tiles[i].bounds.y}, WHITE);
             break;
         }
-        map->tiles[i].hovered = false;
+        world->tiles[i].hovered = false;
     }
 
     float distance = 0.0f;
@@ -522,13 +522,13 @@ void CheckHover(Map *map)
     }
 }
 
-void CleanupWorld(Map *map)
+void CleanupWorld(World *world)
 {
     CleanupTextureShader();
 
-    if (map->tiles)
+    if (world->tiles)
     {
-        free(map->tiles);
-        map->tiles = NULL;
+        free(world->tiles);
+        world->tiles = NULL;
     }
 }

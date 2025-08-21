@@ -115,13 +115,13 @@ typedef struct TileSet
         rules;
 } TileSet;
 
-typedef struct Map
+typedef struct World
 {
     int tilesX;
     int tilesY;
     unsigned char *tileIds;
     WorldTile *tiles;
-} Map;
+} World;
 
 typedef struct LgTexShaderData
 {
@@ -133,11 +133,11 @@ typedef struct LgTexShaderData
     bool initialized;
 } LgTexShaderData;
 
-void InitWorld(Map *map);
+void InitWorld(World *world);
 void InitTextureShader();
 void CleanupTextureShader();
-void DrawWorld(Map *map);
-void CleanupWorld(Map *map);
-void CheckHover(Map *map);
+void DrawWorld(World *world);
+void CleanupWorld(World *world);
+void CheckHover(World *world);
 
 #endif

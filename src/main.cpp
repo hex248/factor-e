@@ -15,13 +15,13 @@
 #include "ui.h"
 #include "mouse.h"
 
-Map map;
+World world;
 void ReloadGame()
 {
     player.position = {0.0f, 0.0f};
     player.dir = {0, 0};
 
-    InitWorld(&map);
+    InitWorld(&world);
 }
 
 int main()
@@ -34,7 +34,7 @@ int main()
     InitFonts();
     InitDebugSystem();
 
-    InitWorld(&map);
+    InitWorld(&world);
 
     if (!DEV)
         SetExitKey(KEY_NULL);
@@ -85,8 +85,8 @@ int main()
         ClearBackground({10, 10, 10, 255});
 
         BeginMode2D(camera);
-        DrawWorld(&map);
-        CheckHover(&map);
+        DrawWorld(&world);
+        CheckHover(&world);
         player.Draw();
         EndMode2D();
 
@@ -124,7 +124,7 @@ int main()
     // CLEAN UP
     CleanupFonts();
 
-    CleanupWorld(&map);
+    CleanupWorld(&world);
 
     CleanupCursors();
 
