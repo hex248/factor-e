@@ -28,8 +28,6 @@ else()
     message(STATUS "raylib found as system package")
 endif()
 
-include_directories(include)
-
 add_executable(${PROJECT_NAME}
     src/main.cpp
     src/config.cpp
