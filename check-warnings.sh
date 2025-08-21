@@ -48,33 +48,37 @@ fi
 
 # compare warnings
 if [ -f "$LINUX_BUILD_DIR/build_linux.log" ] && [ -f "$WINDOWS_BUILD_DIR/build_windows.log" ]; then
-    print_header "platform-specific warnings"
-    
     grep "warning:" "$LINUX_BUILD_DIR/build_linux.log" | sed 's/.*warning: //' | sort -u > /tmp/linux_warnings.tmp
     grep "warning:" "$WINDOWS_BUILD_DIR/build_windows.log" | sed 's/.*warning: //' | sort -u > /tmp/windows_warnings.tmp
     
     # warnings only in Linux
     LINUX_ONLY=$(comm -23 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | wc -l)
-    if [ "$LINUX_ONLY" -gt 0 ]; then
-        echo -e "${YELLOW}warnings only in linux build ($LINUX_ONLY):${NC}"
-        comm -23 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | sed 's/^/  /'
-        echo ""
-    fi
-    
     # warnings only in Windows
     WINDOWS_ONLY=$(comm -13 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | wc -l)
-    if [ "$WINDOWS_ONLY" -gt 0 ]; then
-        echo -e "${YELLOW}warnings only in windows build ($WINDOWS_ONLY):${NC}"
-        comm -13 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | sed 's/^/  /'
-        echo ""
-    fi
-    
     # common warnings
     COMMON=$(comm -12 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | wc -l)
-    if [ "$COMMON" -gt 0 ]; then
-        echo -e "${GREEN}common warnings in both builds ($COMMON):${NC}"
-        comm -12 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | sed 's/^/  /'
-        echo ""
+    
+    # only show header if there are platform-specific warnings to display
+    if [ "$LINUX_ONLY" -gt 0 ] || [ "$WINDOWS_ONLY" -gt 0 ] || [ "$COMMON" -gt 0 ]; then
+        print_header "platform-specific warnings"
+        
+        if [ "$LINUX_ONLY" -gt 0 ]; then
+            echo -e "${YELLOW}warnings only in linux build ($LINUX_ONLY):${NC}"
+            comm -23 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | sed 's/^/  /'
+            echo ""
+        fi
+        
+        if [ "$WINDOWS_ONLY" -gt 0 ]; then
+            echo -e "${YELLOW}warnings only in windows build ($WINDOWS_ONLY):${NC}"
+            comm -13 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | sed 's/^/  /'
+            echo ""
+        fi
+        
+        if [ "$COMMON" -gt 0 ]; then
+            echo -e "${GREEN}common warnings in both builds ($COMMON):${NC}"
+            comm -12 /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp | sed 's/^/  /'
+            echo ""
+        fi
     fi
     
     rm -f /tmp/linux_warnings.tmp /tmp/windows_warnings.tmp
