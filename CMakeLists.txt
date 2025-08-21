@@ -10,9 +10,12 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 # attempt to find raylib
-find_package(raylib 5.5.0 QUIET)
+# skip finding system raylib when cross-compiling for Windows
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    find_package(raylib 5.5.0 QUIET)
+endif()
 
-# if raylib wasn't found
+# if raylib wasn't found or we're cross-compiling for Windows
 if(NOT raylib_FOUND)
     message(STATUS "raylib not found as system package, fetching from github")
     # use FetchContent to download and build raylib as fallback

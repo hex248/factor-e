@@ -75,7 +75,16 @@ build_windows() {
     cd "$WINDOWS_BUILD_DIR"
     
     echo "running cmake for windows..."
-    if cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee cmake_windows.log; then
+    if cmake .. -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+        -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
+        -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres \
+        -DCMAKE_FIND_ROOT_PATH=/usr/x86_64-w64-mingw32 \
+        -DCMAKE_FIND_ROOT_PATH_MODE_PROGRAM=NEVER \
+        -DCMAKE_FIND_ROOT_PATH_MODE_LIBRARY=ONLY \
+        -DCMAKE_FIND_ROOT_PATH_MODE_INCLUDE=ONLY \
+        2>&1 | tee cmake_windows.log; then
         print_success "cmake configuration successful for windows"
     else
         print_error "cmake configuration failed for windows"
