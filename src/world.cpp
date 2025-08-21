@@ -10,6 +10,11 @@
 #include "include/json.hpp"
 #include <iostream>
 #include <cmath>
+#include <algorithm>
+
+#include <stdint.h>
+#include <memory.h>
+#include <string.h>
 
 Image noise;
 Texture2D noiseTexture;
@@ -140,6 +145,157 @@ json tile_sets_data = json::parse(tile_sets_json);
 std::ifstream tile_types_json(TILE_TYPES_PATH);
 json tile_types_data = json::parse(tile_types_json);
 
+void RegenerateTexturesForLoadedWorld(World *world)
+{
+    for (int i = 0; i < world->tilesX * world->tilesY; i++)
+    {
+        if (!world->tiles[i].useShader && strlen(world->tiles[i].name) > 0)
+        {
+            std::string tileName = world->tiles[i].name;
+
+            // convert to lowercase
+            std::transform(tileName.begin(), tileName.end(), tileName.begin(), ::tolower);
+
+            bool tileTypeFound = false;
+            for (auto &[key, value] : tile_types_data.items())
+            {
+                if (key == tileName)
+                {
+                    TileType tileType = value.template get<TileType>();
+
+                    Image spriteImage = LoadImage(tileType.spritePath.c_str());
+                    if (spriteImage.data != NULL)
+                    {
+                        ImageResizeNN(&spriteImage,
+                                      (int)((float)spriteImage.width * tileType.spriteScale),
+                                      (int)((float)spriteImage.height * tileType.spriteScale));
+
+                        world->tiles[i].sprite = LoadTextureFromImage(spriteImage);
+                        UnloadImage(spriteImage);
+                    }
+
+                    tileTypeFound = true;
+                    break;
+                }
+            }
+
+            if (!tileTypeFound)
+            {
+                printf("WARNING: could not find tile type for '%s' during texture regeneration\n", world->tiles[i].name);
+                // invalid texture as fallback
+                world->tiles[i].sprite.id = 0;
+                world->tiles[i].sprite.width = 0;
+                world->tiles[i].sprite.height = 0;
+                world->tiles[i].sprite.mipmaps = 0;
+                world->tiles[i].sprite.format = 0;
+            }
+        }
+    }
+}
+
+int World_Save(const char *path, struct World *world)
+{
+    FILE *fp;
+    size_t written;
+
+    fp = fopen(path, "wb");
+    if (fp == NULL)
+    {
+        printf("WORLD SAVE: failed to fopen file \"%s\"", path);
+        return 0;
+    }
+
+    // save the world struct (tilesX, tilesY, but tiles pointer will be recreated)
+    written = fwrite(&world->tilesX, sizeof(world->tilesX), 1, fp);
+    if (written != 1)
+    {
+        printf("WORLD SAVE: failed to write tilesX to \"%s\"", path);
+        fclose(fp);
+        return 0;
+    }
+
+    written = fwrite(&world->tilesY, sizeof(world->tilesY), 1, fp);
+    if (written != 1)
+    {
+        printf("WORLD SAVE: failed to write tilesY to \"%s\"", path);
+        fclose(fp);
+        return 0;
+    }
+
+    // save the tiles array data
+    if (world->tiles != NULL)
+    {
+        size_t tilesCount = world->tilesX * world->tilesY;
+        written = fwrite(world->tiles, sizeof(WorldTile), tilesCount, fp);
+        if (written != tilesCount)
+        {
+            printf("WORLD SAVE: failed to write tiles data to \"%s\"", path);
+            fclose(fp);
+            return 0;
+        }
+    }
+
+    fflush(fp);
+    fclose(fp);
+    return 1;
+}
+
+int World_Load(const char *path, World *world)
+{
+    FILE *fp;
+    size_t num_read;
+
+    fp = fopen(path, "rb");
+    if (fp == NULL)
+    {
+        printf("WORLD LOAD: failed to fopen file \"%s\"", path);
+        return 0;
+    }
+
+    num_read = fread(&world->tilesX, sizeof(world->tilesX), 1, fp);
+    if (num_read != 1)
+    {
+        printf("WORLD LOAD: failed to read tilesX from \"%s\"", path);
+        fclose(fp);
+        return 0;
+    }
+
+    num_read = fread(&world->tilesY, sizeof(world->tilesY), 1, fp);
+    if (num_read != 1)
+    {
+        printf("WORLD LOAD: failed to read tilesY from \"%s\"", path);
+        fclose(fp);
+        return 0;
+    }
+
+    size_t tilesCount = world->tilesX * world->tilesY;
+    world->tiles = (WorldTile *)calloc(tilesCount, sizeof(WorldTile));
+    if (world->tiles == NULL)
+    {
+        printf("WORLD LOAD: failed to allocate memory for tiles");
+        fclose(fp);
+        return 0;
+    }
+
+    num_read = fread(world->tiles, sizeof(WorldTile), tilesCount, fp);
+    if (num_read != tilesCount)
+    {
+        printf("WORLD LOAD: failed to read tiles data from \"%s\"", path);
+        free(world->tiles);
+        world->tiles = NULL;
+        fclose(fp);
+        return 0;
+    }
+
+    fclose(fp);
+
+    InitTextureShader();
+
+    RegenerateTexturesForLoadedWorld(world);
+
+    return 1;
+}
+
 TileType GetRandomWeightedTile(const std::map<std::string, float> &weights)
 {
     float totalWeight = 0;
@@ -187,7 +343,7 @@ TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map
     }
 
     // get pixel color from noise image
-    Color pixelColor = GetImageColor(noiseImage, x * MAP_TILE_SIZE, y * MAP_TILE_SIZE);
+    Color pixelColor = GetImageColor(noiseImage, x * WORLD_TILE_SIZE, y * WORLD_TILE_SIZE);
 
     // normalize lightness to totalWeight
     float lightness = ((float)pixelColor.r / 255) * totalWeight;
@@ -256,42 +412,32 @@ Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
     return texture;
 }
 
-void InitWorld(World *world)
+void GenerateWorld(World *world)
 {
+    // generate a tiny perlin noise image (using world size, so that it is 1 pixel per tile)
     int seedX = GetRandomValue(0, 10000000);
     int seedY = GetRandomValue(0, 10000000);
-
-    // generate a tiny perlin noise image (using world size, so that it is 1 pixel per tile)
-    noise = GenImagePerlinNoise(MAP_SIZE_X, MAP_SIZE_Y, seedX, seedY, 1.5);
-    ImageResizeNN(&noise, MAP_SIZE_X * MAP_TILE_SIZE, MAP_SIZE_Y * MAP_TILE_SIZE);
+    noise = GenImagePerlinNoise(WORLD_SIZE_X, WORLD_SIZE_Y, seedX, seedY, 1.5);
+    ImageResizeNN(&noise, WORLD_SIZE_X * WORLD_TILE_SIZE, WORLD_SIZE_Y * WORLD_TILE_SIZE);
     noiseTexture = LoadTextureFromImage(noise);
 
     InitTextureShader();
 
-    Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
-
-    ImageResizeNN(&tileHoverImage,
-                  (int)((float)tileHoverImage.width * TILE_HOVER_SPRITE_SCALE),
-                  (int)((float)tileHoverImage.height * TILE_HOVER_SPRITE_SCALE));
-
-    tileHoverSprite = LoadTextureFromImage(tileHoverImage);
-    UnloadImage(tileHoverImage);
-
     TileSet tile_set = tile_sets_data["field_biome"].template get<TileSet>();
 
-    world->tilesX = MAP_SIZE_X;
-    world->tilesY = MAP_SIZE_Y;
+    world->tilesX = WORLD_SIZE_X;
+    world->tilesY = WORLD_SIZE_Y;
 
     // TODO: implement multiple layers
 
     std::vector<std::string> layers = {"ground"};
 
-    world->tiles = (WorldTile *)calloc(MAP_SIZE_X * MAP_SIZE_Y, sizeof(WorldTile));
-    for (int y = 0; y < MAP_SIZE_Y; y++)
+    world->tiles = (WorldTile *)calloc(WORLD_SIZE_X * WORLD_SIZE_Y, sizeof(WorldTile));
+    for (int y = 0; y < WORLD_SIZE_Y; y++)
     {
-        for (int x = 0; x < MAP_SIZE_X; x++)
+        for (int x = 0; x < WORLD_SIZE_X; x++)
         {
-            int i = y * MAP_SIZE_X + x;
+            int i = y * WORLD_SIZE_X + x;
 
             TileType tile = GetTileFromNoiseWeighted(x, y, noise, tile_set.weights);
             // TODO: IMPLEMENT RULES
@@ -320,24 +466,51 @@ void InitWorld(World *world)
             snprintf(world->tiles[i].largeTexturePath, sizeof(world->tiles[i].largeTexturePath), "%s", tile.largeTexturePath.c_str());
         }
     }
+
+    World_Save(WORLD_FILE_NAME, world);
+}
+
+void InitWorld(World *world)
+{
+    Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
+
+    ImageResizeNN(&tileHoverImage,
+                  (int)((float)tileHoverImage.width * TILE_HOVER_SPRITE_SCALE),
+                  (int)((float)tileHoverImage.height * TILE_HOVER_SPRITE_SCALE));
+
+    tileHoverSprite = LoadTextureFromImage(tileHoverImage);
+    UnloadImage(tileHoverImage);
+
+    if (FileExists(WORLD_FILE_NAME))
+    {
+        if (World_Load(WORLD_FILE_NAME, world) != 1)
+        {
+            printf("Failed to load world, generating new one\n");
+            GenerateWorld(world);
+        }
+    }
+    else
+    {
+        GenerateWorld(world);
+    }
 }
 
 void DrawWorld(World *world)
 {
     // position grid at a fixed world coordinate (centered around 0,0)
-    float offsetX = -(MAP_TILE_SIZE * MAP_SIZE_X) / 2.0f;
-    float offsetY = -(MAP_TILE_SIZE * MAP_SIZE_Y) / 2.0f;
+    float offsetX = -(WORLD_TILE_SIZE * WORLD_SIZE_X) / 2.0f;
+    float offsetY = -(WORLD_TILE_SIZE * WORLD_SIZE_Y) / 2.0f;
 
     // draw tiles
     for (int y = 0; y < world->tilesY; y++)
     {
         for (int x = 0; x < world->tilesX; x++)
         {
-            int tileX = (int)(offsetX + (float)x * MAP_TILE_SIZE);
-            int tileY = (int)(offsetY + (float)y * MAP_TILE_SIZE);
+            int tileX = (int)(offsetX + (float)x * WORLD_TILE_SIZE);
+            int tileY = (int)(offsetY + (float)y * WORLD_TILE_SIZE);
             int index = y * world->tilesX + x;
 
-            DrawRectangle(tileX, tileY, MAP_TILE_SIZE, MAP_TILE_SIZE, world->tiles[index].color);
+            DrawRectangle(tileX, tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE, world->tiles[index].color);
 
             // if the tile should use a shader and has a largeTexturePath
             if (world->tiles[index].useShader && strlen(world->tiles[index].largeTexturePath) > 0 && lgTexShader.initialized)
@@ -350,7 +523,7 @@ void DrawWorld(World *world)
                     BeginShaderMode(lgTexShader.shader);
 
                     // set shader values
-                    float tileSize = (float)MAP_TILE_SIZE;
+                    float tileSize = (float)WORLD_TILE_SIZE;
                     Vector2 textureSize = {
                         (float)lgTex.width,
                         (float)lgTex.height};
@@ -366,7 +539,7 @@ void DrawWorld(World *world)
                     DrawTexturePro(
                         lgTex,
                         {0, 0, (float)lgTex.width, (float)lgTex.height},
-                        {(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE},
+                        {(float)tileX, (float)tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE},
                         {0, 0},
                         0.0f,
                         WHITE);
@@ -377,17 +550,17 @@ void DrawWorld(World *world)
                 {
                     // fallback to regular sprite if shader texture failed to load
                     Texture2D sprite = world->tiles[index].sprite;
-                    DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
+                    DrawTexture(sprite, tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
                 }
             }
             // no shader
             else
             {
                 Texture2D sprite = world->tiles[index].sprite;
-                DrawTexture(sprite, tileX - (sprite.width / 2) + MAP_TILE_SIZE / 2, tileY - (sprite.height / 2) + MAP_TILE_SIZE / 2, WHITE);
+                DrawTexture(sprite, tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
             }
 
-            world->tiles[index].bounds = {(float)tileX, (float)tileY, MAP_TILE_SIZE, MAP_TILE_SIZE};
+            world->tiles[index].bounds = {(float)tileX, (float)tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE};
         }
     }
 
@@ -396,23 +569,20 @@ void DrawWorld(World *world)
     {
         int gridStartX = (int)offsetX;
         int gridStartY = (int)offsetY;
-        int gridEndX = gridStartX + MAP_SIZE_X * MAP_TILE_SIZE;
-        int gridEndY = gridStartY + MAP_SIZE_Y * MAP_TILE_SIZE;
+        int gridEndX = gridStartX + WORLD_SIZE_X * WORLD_TILE_SIZE;
+        int gridEndY = gridStartY + WORLD_SIZE_Y * WORLD_TILE_SIZE;
 
-        for (int x = 0; x <= MAP_SIZE_X; x++)
+        for (int x = 0; x <= WORLD_SIZE_X; x++)
         {
-            int lineX = gridStartX + x * MAP_TILE_SIZE;
+            int lineX = gridStartX + x * WORLD_TILE_SIZE;
             DrawLine(lineX, gridStartY, lineX, gridEndY, {255, 255, 255, 60});
         }
 
-        for (int y = 0; y <= MAP_SIZE_Y; y++)
+        for (int y = 0; y <= WORLD_SIZE_Y; y++)
         {
-            int lineY = gridStartY + y * MAP_TILE_SIZE;
+            int lineY = gridStartY + y * WORLD_TILE_SIZE;
             DrawLine(gridStartX, lineY, gridEndX, lineY, {255, 255, 255, 60});
         }
-
-        // draw noise map
-        // DrawTexture(noiseTexture, 0 - noiseTexture.width / 2, 0 - noiseTexture.height / 2, WHITE);
     }
 }
 
@@ -444,7 +614,7 @@ void CheckHover(World *world)
             float tileDiffY = closestPoint.y - player.position.y;
             float tileDistanceSquared = tileDiffX * tileDiffX + tileDiffY * tileDiffY;
 
-            float reach = PLAYER_REACH * MAP_TILE_SIZE;
+            float reach = PLAYER_REACH * WORLD_TILE_SIZE;
 
             if (tileDistanceSquared < reach * reach)
             {
@@ -475,7 +645,7 @@ void CheckHover(World *world)
 
         distance = sqrtf(distanceSquared);
         char distanceTilesBuffer[64];
-        float distanceInTiles = distance / MAP_TILE_SIZE;
+        float distanceInTiles = distance / WORLD_TILE_SIZE;
         snprintf(distanceTilesBuffer, sizeof(distanceTilesBuffer), "Mouse Distance (Tiles): %.2f", distanceInTiles);
         SetDebugValue("mouse_distance_tiles", distanceTilesBuffer);
     }
@@ -497,7 +667,7 @@ void CheckHover(World *world)
     if (showDebug)
     {
         // blue line: player's maximum reach in the direction of the mouse
-        float reach = PLAYER_REACH * MAP_TILE_SIZE;
+        float reach = PLAYER_REACH * WORLD_TILE_SIZE;
         float reachSquared = reach * reach;
         Vector2 direction = {diffX, diffY};
 
@@ -524,10 +694,21 @@ void CheckHover(World *world)
 
 void CleanupWorld(World *world)
 {
+    World_Save(WORLD_FILE_NAME, world);
+
     CleanupTextureShader();
 
     if (world->tiles)
     {
+        // clean up individual tile textures before freeing the array
+        for (int i = 0; i < world->tilesX * world->tilesY; i++)
+        {
+            if (world->tiles[i].sprite.id > 0)
+            {
+                UnloadTexture(world->tiles[i].sprite);
+            }
+        }
+
         free(world->tiles);
         world->tiles = NULL;
     }

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "include/json.hpp"
 
 class Player;
 
@@ -14,9 +15,10 @@ class Player;
 #define TILE_TYPES_PATH "assets/data/tiles/tile_types.json"
 #define TILE_SETS_PATH "assets/data/tiles/tile_sets.json"
 
-#define MAP_TILE_SIZE 128
-#define MAP_SIZE_X 16
-#define MAP_SIZE_Y 9
+#define WORLD_FILE_NAME "world.bin"
+#define WORLD_TILE_SIZE 128
+#define WORLD_SIZE_X 9
+#define WORLD_SIZE_Y 9
 
 typedef struct WorldTile
 {
@@ -119,7 +121,6 @@ typedef struct World
 {
     int tilesX;
     int tilesY;
-    unsigned char *tileIds;
     WorldTile *tiles;
 } World;
 
@@ -133,6 +134,24 @@ typedef struct LgTexShaderData
     bool initialized;
 } LgTexShaderData;
 
+void to_json(nlohmann::json &j, const CollisionType &c);
+void from_json(const nlohmann::json &j, CollisionType &c);
+void to_json(nlohmann::json &j, const TileType &t);
+void from_json(const nlohmann::json &j, TileType &t);
+void to_json(nlohmann::json &j, const TileSet &t);
+void from_json(const nlohmann::json &j, TileSet &t);
+
+// World save/load functions
+int World_Save(const char *path, struct World *world);
+int World_Load(const char *path, struct World *world);
+void RegenerateTexturesForLoadedWorld(World *world);
+
+TileType GetRandomWeightedTile(const std::map<std::string, float> &weights);
+TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map<std::string, float> &weights);
+
+Texture2D GetOrLoadShaderTexture(const std::string &texturePath);
+
+void GenerateWorld(World *world);
 void InitWorld(World *world);
 void InitTextureShader();
 void CleanupTextureShader();

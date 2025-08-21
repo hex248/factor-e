@@ -21,7 +21,7 @@ void ReloadGame()
     player.position = {0.0f, 0.0f};
     player.dir = {0, 0};
 
-    InitWorld(&world);
+    GenerateWorld(&world);
 }
 
 int main()
