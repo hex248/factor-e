@@ -8,7 +8,6 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-LINUX_BUILD_DIR="build-linux"
 WINDOWS_BUILD_DIR="build-windows"
 
 LINUX_SUCCESS=0
@@ -44,51 +43,20 @@ cleanup_builds() {
 build_linux() {
     print_header "building for linux"
     
-    mkdir -p "$LINUX_BUILD_DIR"
-    cd "$LINUX_BUILD_DIR"
-    
-    echo "running cmake for linux..."
-    if cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee cmake_linux.log; then
-        print_success "cmake configuration successful for linux"
-    else
-        print_error "cmake configuration failed for linux"
-        cd ..
-        return 1
-    fi
-    
-    echo "building for linux..."
-    if make -j$(nproc) 2>&1 | awk '
-        /_deps/ { skip_mode = 1; next }
-        /Building.*_deps/ { next }
-        /^\[.*%\].*_deps/ { next }
-        /^In file included.*_deps/ { skip_mode = 1; next }
-        /^In file included/ && skip_mode { next }
-        skip_mode && /^\/.*\.(c|cpp|h|hpp):/ { skip_mode = 0; next }
-        skip_mode && /^\s*\|\s*\^/ { next }
-        skip_mode && /note:/ { next }
-        skip_mode && /warning:/ { next }
-        skip_mode && /error:/ { next }
-        skip_mode && /^\s*[0-9]+\s*\|/ { next }
-        skip_mode && /^\s*\|\s*/ { next }
-        skip_mode { next }
-        /^\s*[0-9]+\s*\|/ { next }
-        /^\s*\|\s*\^/ { next }
-        { print; skip_mode = 0 }
-    ' | tee build_linux.log; then
-        print_success "linux build successful"
+    if ./build.sh; then
         LINUX_SUCCESS=1
+        # extract warning count from build.sh output
+        if [ -f "build-linux/build_linux.log" ]; then
+            TOTAL_WARNINGS_LINUX=$(grep "warning:" build-linux/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
+        else
+            TOTAL_WARNINGS_LINUX=0
+        fi
     else
-        print_error "linux build failed"
-        cd ..
+        LINUX_SUCCESS=0
+        TOTAL_WARNINGS_LINUX=0
         return 1
     fi
     
-    TOTAL_WARNINGS_LINUX=$(grep "warning:" build_linux.log | grep -v "_deps/" | wc -l || echo "0")
-    if [ "$TOTAL_WARNINGS_LINUX" -gt 0 ]; then
-        print_warning "linux build completed with $TOTAL_WARNINGS_LINUX warnings"
-    fi
-    
-    cd ..
     return 0
 }
 
@@ -161,18 +129,18 @@ show_summary() {
     
     echo ""
     echo "build artifacts:"
-    [ -f "$LINUX_BUILD_DIR/factor-e" ] && echo "  linux executable: $LINUX_BUILD_DIR/factor-e"
+    [ -f "build-linux/factor-e" ] && echo "  linux executable: build-linux/factor-e"
     [ -f "$WINDOWS_BUILD_DIR/factor-e.exe" ] && echo "  windows executable: $WINDOWS_BUILD_DIR/factor-e.exe"
     
     echo ""
     echo "build logs:"
-    [ -f "$LINUX_BUILD_DIR/build_linux.log" ] && echo "  linux build log: $LINUX_BUILD_DIR/build_linux.log"
+    [ -f "build-linux/build_linux.log" ] && echo "  linux build log: build-linux/build_linux.log"
     [ -f "$WINDOWS_BUILD_DIR/build_windows.log" ] && echo "  windows build log: $WINDOWS_BUILD_DIR/build_windows.log"
     
     if [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] || [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ]; then
         echo ""
         print_warning "to view warnings in detail:"
-        [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] && echo "  linux warnings: grep 'warning:' $LINUX_BUILD_DIR/build_linux.log | grep -v '_deps/'"
+        [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] && echo "  linux warnings: grep 'warning:' build-linux/build_linux.log | grep -v '_deps/'"
         [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ] && echo "  windows warnings: grep 'warning:' $WINDOWS_BUILD_DIR/build_windows.log | grep -v '_deps/'"
     fi
 }
