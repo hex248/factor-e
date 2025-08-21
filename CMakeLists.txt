@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.11)
 project(factor-e)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# enable comprehensive warnings to catch cross-platform issues
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 # attempt to find raylib
 find_package(raylib 5.5.0 QUIET)
@@ -33,6 +39,44 @@ add_executable(${PROJECT_NAME}
     src/ui.cpp
     src/mouse.cpp
 )
+
+# platform-specific compiler flags
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    # gcc and clang warnings
+    set(WARNING_FLAGS 
+        -Wall -Wextra -Wpedantic
+        -Wformat-security
+        -Wunused
+        -Wshadow
+        -Wcast-align
+        -Wpointer-arith
+        -Wwrite-strings
+        -Wredundant-decls
+        -Winit-self
+        -Wconversion
+        -Wsign-conversion
+    )
+    
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+        # gcc specific warnings
+        list(APPEND WARNING_FLAGS -Wlogical-op -Wduplicated-cond)
+    endif()
+    
+    target_compile_options(${PROJECT_NAME} PRIVATE ${WARNING_FLAGS})
+elseif(MSVC)
+    # msvc warnings
+    target_compile_options(${PROJECT_NAME} PRIVATE /W4 /permissive-)
+endif()
+
+# enable debug symbols in release builds for better error reporting
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(${PROJECT_NAME} PRIVATE -g)
+    elseif(MSVC)
+        target_compile_options(${PROJECT_NAME} PRIVATE /Zi)
+        target_link_options(${PROJECT_NAME} PRIVATE /DEBUG)
+    endif()
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE raylib)
 
