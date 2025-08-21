@@ -99,7 +99,7 @@ build_windows() {
     cd "$WINDOWS_BUILD_DIR"
     
     echo "running cmake for windows..."
-    if cmake .. -DCMAKE_TOOLCHAIN_FILE=../cmake/windows-toolchain.cmake -DCMAKE_BUILD_TYPE=Release 2>&1 | tee cmake_windows.log; then
+    if cmake .. -DCMAKE_BUILD_TYPE=Release 2>&1 | tee cmake_windows.log; then
         print_success "cmake configuration successful for windows"
     else
         print_error "cmake configuration failed for windows"
