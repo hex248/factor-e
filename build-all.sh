@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -13,6 +11,8 @@ WINDOWS_BUILD_DIR="build-windows"
 
 LINUX_SUCCESS=0
 WINDOWS_SUCCESS=0
+TOTAL_ERRORS_LINUX=0
+TOTAL_ERRORS_WINDOWS=0
 TOTAL_WARNINGS_LINUX=0
 TOTAL_WARNINGS_WINDOWS=0
 
@@ -46,13 +46,22 @@ build_linux() {
         LINUX_SUCCESS=1
         # extract warning count from build.sh output
         if [ -f "$LINUX_BUILD_DIR/build_linux.log" ]; then
+            TOTAL_ERRORS_LINUX=$(grep "error:" $LINUX_BUILD_DIR/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
             TOTAL_WARNINGS_LINUX=$(grep "warning:" $LINUX_BUILD_DIR/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
         else
+            TOTAL_ERRORS_LINUX=0
             TOTAL_WARNINGS_LINUX=0
         fi
     else
         LINUX_SUCCESS=0
-        TOTAL_WARNINGS_LINUX=0
+        # even on failure, count warnings and errors
+        if [ -f "$LINUX_BUILD_DIR/build_linux.log" ]; then
+            TOTAL_ERRORS_LINUX=$(grep "error:" $LINUX_BUILD_DIR/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
+            TOTAL_WARNINGS_LINUX=$(grep "warning:" $LINUX_BUILD_DIR/build_linux.log | grep -v "_deps/" | wc -l || echo "0")
+        else
+            TOTAL_ERRORS_LINUX=0
+            TOTAL_WARNINGS_LINUX=0
+        fi
         return 1
     fi
     
@@ -93,7 +102,6 @@ build_windows() {
         /^\s*\|\s*\^/ { next }
         { print; skip_mode = 0 }
     ' | tee build_windows.log; then
-        print_success "windows build successful"
         WINDOWS_SUCCESS=1
     else
         print_error "windows build failed"
@@ -101,7 +109,18 @@ build_windows() {
         return 1
     fi
     
+    TOTAL_ERRORS_WINDOWS=$(grep "error:" build_windows.log | grep -v "_deps/" | wc -l || echo "0")
     TOTAL_WARNINGS_WINDOWS=$(grep "warning:" build_windows.log | grep -v "_deps/" | wc -l || echo "0")
+    
+    if [ "$TOTAL_ERRORS_WINDOWS" -gt 0 ]; then
+        print_error "windows build failed with $TOTAL_ERRORS_WINDOWS errors"
+        WINDOWS_SUCCESS=0
+        cd ..
+        return 1
+    elif [ "$WINDOWS_SUCCESS" -eq 1 ]; then
+        print_success "windows build successful"
+    fi
+
     if [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ]; then
         print_warning "windows build completed with $TOTAL_WARNINGS_WINDOWS warnings"
     fi
@@ -115,15 +134,23 @@ show_summary() {
     
     echo "platform results:"
     if [ "$LINUX_SUCCESS" -eq 1 ]; then
-        print_success "linux: success ($TOTAL_WARNINGS_LINUX warnings)"
+        if [ "$TOTAL_ERRORS_LINUX" -gt 0 ] || [ "$TOTAL_WARNINGS_LINUX" -gt 0 ]; then
+            print_success "linux: success ($TOTAL_ERRORS_LINUX errors, $TOTAL_WARNINGS_LINUX warnings)"
+        else
+            print_success "linux: success (0 errors, 0 warnings)"
+        fi
     else
-        print_error "linux: failed"
+        print_error "linux: failed ($TOTAL_ERRORS_LINUX errors, $TOTAL_WARNINGS_LINUX warnings)"
     fi
     
     if [ "$WINDOWS_SUCCESS" -eq 1 ]; then
-        print_success "windows: success ($TOTAL_WARNINGS_WINDOWS warnings)"
+        if [ "$TOTAL_ERRORS_WINDOWS" -gt 0 ] || [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ]; then
+            print_success "windows: success ($TOTAL_ERRORS_WINDOWS errors, $TOTAL_WARNINGS_WINDOWS warnings)"
+        else
+            print_success "windows: success (0 errors, 0 warnings)"
+        fi
     else
-        print_error "windows: failed"
+        print_error "windows: failed ($TOTAL_ERRORS_WINDOWS errors, $TOTAL_WARNINGS_WINDOWS warnings)"
     fi
     
     echo ""
@@ -136,9 +163,11 @@ show_summary() {
     [ -f "$LINUX_BUILD_DIR/build_linux.log" ] && echo "  linux build log: $LINUX_BUILD_DIR/build_linux.log"
     [ -f "$WINDOWS_BUILD_DIR/build_windows.log" ] && echo "  windows build log: $WINDOWS_BUILD_DIR/build_windows.log"
     
-    if [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] || [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ]; then
+    if  [ "$TOTAL_ERRORS_LINUX" -gt 0 ] || [ "$TOTAL_ERRORS_WINDOWS" -gt 0 ] || [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] || [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ]; then
         echo ""
-        print_warning "to view warnings in detail:"
+        print_warning "to view details:"
+        [ "$TOTAL_ERRORS_LINUX" -gt 0 ] && echo "  linux errors: grep 'error:' $LINUX_BUILD_DIR/build_linux.log | grep -v '_deps/'"
+        [ "$TOTAL_ERRORS_WINDOWS" -gt 0 ] && echo "  windows errors: grep 'error:' $WINDOWS_BUILD_DIR/build_windows.log | grep -v '_deps/'"
         [ "$TOTAL_WARNINGS_LINUX" -gt 0 ] && echo "  linux warnings: grep 'warning:' $LINUX_BUILD_DIR/build_linux.log | grep -v '_deps/'"
         [ "$TOTAL_WARNINGS_WINDOWS" -gt 0 ] && echo "  windows warnings: grep 'warning:' $WINDOWS_BUILD_DIR/build_windows.log | grep -v '_deps/'"
     fi

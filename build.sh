@@ -1,7 +1,5 @@
 #!/bin/bash
 
-set -e
-
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -11,6 +9,7 @@ NC='\033[0m'
 BUILD_DIR="build-linux"
 BUILD_SUCCESS=0
 TOTAL_WARNINGS=0
+TOTAL_ERRORS=0
 
 print_header() {
     echo -e "${BLUE}========================================${NC}"
@@ -76,15 +75,22 @@ if make -j$(nproc) 2>&1 | awk '
     /^\s*\|\s*\^/ { next }
     { print; skip_mode = 0 }
 ' | tee build_linux.log; then
-    print_success "linux build successful"
     BUILD_SUCCESS=1
 else
     print_error "linux build failed"
-    cd ..
-    exit 1
+    BUILD_SUCCESS=0
 fi
 
 TOTAL_WARNINGS=$(grep "warning:" build_linux.log | grep -v "_deps/" | wc -l || echo "0")
+TOTAL_ERRORS=$(grep "error:" build_linux.log | grep -v "_deps/" | wc -l || echo "0")
+
+if [ "$TOTAL_ERRORS" -gt 0 ]; then
+    print_error "linux build failed with $TOTAL_ERRORS errors"
+    BUILD_SUCCESS=0
+elif [ "$BUILD_SUCCESS" -eq 1 ]; then
+    print_success "linux build successful"
+fi
+
 if [ "$TOTAL_WARNINGS" -gt 0 ]; then
     print_warning "linux build completed with $TOTAL_WARNINGS warnings"
 fi
@@ -94,9 +100,13 @@ cd ..
 print_header "build summary"
 echo "platform results:"
 if [ "$BUILD_SUCCESS" -eq 1 ]; then
-    print_success "linux: success ($TOTAL_WARNINGS warnings)"
+    if [ "$TOTAL_ERRORS" -gt 0 ] || [ "$TOTAL_WARNINGS" -gt 0 ]; then
+        print_success "linux: success ($TOTAL_ERRORS errors, $TOTAL_WARNINGS warnings)"
+    else
+        print_success "linux: success (0 errors, 0 warnings)"
+    fi
 else
-    print_error "linux: failed"
+    print_error "linux: failed ($TOTAL_ERRORS errors, $TOTAL_WARNINGS warnings)"
 fi
 
 echo ""
@@ -108,13 +118,14 @@ echo "build logs:"
 echo "  linux build log: $BUILD_DIR/build_linux.log"
 echo "  linux cmake log: $BUILD_DIR/cmake_linux.log"
 
-if [ "$TOTAL_WARNINGS" -gt 0 ]; then
+if [ "$TOTAL_WARNINGS" -gt 0 ] || [ "$TOTAL_ERRORS" -gt 0 ]; then
     echo ""
-    print_warning "to view warnings in detail:"
-    echo "  linux warnings: grep 'warning:' $BUILD_DIR/build_linux.log | grep -v '_deps/'"
+    print_warning "to view details:"
+    [ "$TOTAL_ERRORS" -gt 0 ] && echo "  linux errors: grep 'error:' $BUILD_DIR/build_linux.log | grep -v '_deps/'"
+    [ "$TOTAL_WARNINGS" -gt 0 ] && echo "  linux warnings: grep 'warning:' $BUILD_DIR/build_linux.log | grep -v '_deps/'"
 fi
 
-if [ "$BUILD_SUCCESS" -eq 1 ]; then
+if [ "$BUILD_SUCCESS" -eq 1 ] && [ "$TOTAL_ERRORS" -eq 0 ]; then
     print_success "build completed successfully"
     exit 0
 else
