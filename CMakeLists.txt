@@ -22,7 +22,19 @@ if(NOT raylib_FOUND)
         GIT_REPOSITORY https://github.com/raysan5/raylib.git
         GIT_TAG 5.5
     )
+    
+    # disable warnings for external dependencies
+    set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+    set(BUILD_EXAMPLES OFF)
+    set(BUILD_GAMES OFF)
+    
     FetchContent_MakeAvailable(raylib)
+    
+    # disable warnings for raylib target if it exists
+    if(TARGET raylib)
+        target_compile_options(raylib PRIVATE -w)
+    endif()
+    
     message(STATUS "raylib fetched and built: 5.5")
 else()
     message(STATUS "raylib found as system package")
