@@ -1,7 +1,8 @@
 # PERFORMANCE
 -   find a way to keep track of all loaded sprites, and only unload at the end (at the moment, the sprites are loaded + unloaded every single time they are drawn)
 # VISUAL
--   fade between tiles on ground
+- make it **isometric**
+- fade between tiles on ground
 # GAMEPLAY
 -   inventory
 -   "spawn in" menu (debug mode)
