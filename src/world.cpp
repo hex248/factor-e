@@ -403,8 +403,8 @@ Texture2D GetOrLoadShaderTexture(const std::string &texturePath)
     // load and cache texture
     Image image = LoadImage(texturePath.c_str());
     ImageResizeNN(&image,
-                  (int)(image.width * 4),
-                  (int)(image.height * 4));
+                  (int)(image.width * 8),
+                  (int)(image.height * 8));
 
     Texture2D texture = LoadTextureFromImage(image);
     UnloadImage(image);
@@ -493,19 +493,42 @@ void InitWorld(World *world)
     }
 }
 
+Vector2 GetIsometricTilePosition(Vector2 in)
+{
+    Vector2 out;
+    out.x = (in.x - in.y) / 2;
+    out.y = (in.x + in.y) / 4;
+
+    return out;
+}
+
 void DrawWorld(World *world)
 {
     // position grid at a fixed world coordinate (centered around 0,0)
-    float offsetX = -(WORLD_TILE_SIZE * WORLD_SIZE_X) / 2.0f;
-    float offsetY = -(WORLD_TILE_SIZE * WORLD_SIZE_Y) / 2.0f;
+    float centerGridX = (WORLD_SIZE_X - 1) / 2.0f;
+    float centerGridY = (WORLD_SIZE_Y - 1) / 2.0f;
+    Vector2 centerIsoPos = GetIsometricTilePosition({centerGridX, centerGridY});
+
+    float centerTileX = centerIsoPos.x * WORLD_TILE_SIZE;
+    float centerTileY = centerIsoPos.y * WORLD_TILE_SIZE;
+
+    float diamondOffsetY = WORLD_TILE_SIZE * 0.25f;
+    float tileCenterX = centerTileX + WORLD_TILE_SIZE / 2.0f;
+    float tileCenterY = centerTileY + WORLD_TILE_SIZE / 2.0f - diamondOffsetY;
+
+    float offsetX = -tileCenterX;
+    float offsetY = -tileCenterY;
 
     // draw tiles
     for (int y = 0; y < world->tilesY; y++)
     {
         for (int x = 0; x < world->tilesX; x++)
         {
-            int tileX = (int)(offsetX + (float)x * WORLD_TILE_SIZE);
-            int tileY = (int)(offsetY + (float)y * WORLD_TILE_SIZE);
+            Vector2 isoPos = GetIsometricTilePosition({(float)x, (float)y});
+
+            float tileX = (offsetX + isoPos.x * WORLD_TILE_SIZE);
+            float tileY = (offsetY + isoPos.y * WORLD_TILE_SIZE);
+
             int index = y * world->tilesX + x;
 
             // if the tile should use a shader and has a largeTexturePath
@@ -535,7 +558,7 @@ void DrawWorld(World *world)
                     DrawTexturePro(
                         lgTex,
                         {0, 0, (float)lgTex.width, (float)lgTex.height},
-                        {(float)tileX, (float)tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE},
+                        {tileX, tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE},
                         {0, 0},
                         0.0f,
                         WHITE);
@@ -556,30 +579,40 @@ void DrawWorld(World *world)
                 DrawTexture(sprite, tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
             }
 
-            world->tiles[index].bounds = {(float)tileX, (float)tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE};
+            // set diamond bounds for isometric tile collision (top face)
+            float diamondOffsetY = WORLD_TILE_SIZE * 0.25f;
+            world->tiles[index].bounds.center = {tileX + WORLD_TILE_SIZE / 2.0f, tileY + WORLD_TILE_SIZE / 2.0f - diamondOffsetY};
+            world->tiles[index].bounds.width = WORLD_TILE_SIZE;
+            world->tiles[index].bounds.height = WORLD_TILE_SIZE * 0.5f;
+
+            // debug: draw tile bounds
+            if (showDebug)
+            {
+                Vector2 center = world->tiles[index].bounds.center;
+                float hw = world->tiles[index].bounds.width / 2.0f;
+                float hh = world->tiles[index].bounds.height / 2.0f;
+
+                DrawLineEx({center.x - hw, center.y}, {center.x, center.y - hh}, 2, {255, 255, 255, 60});
+                DrawLineEx({center.x, center.y - hh}, {center.x + hw, center.y}, 2, {255, 255, 255, 60});
+                DrawLineEx({center.x + hw, center.y}, {center.x, center.y + hh}, 2, {255, 255, 255, 60});
+                DrawLineEx({center.x, center.y + hh}, {center.x - hw, center.y}, 2, {255, 255, 255, 60});
+            }
         }
     }
+}
 
-    // draw grid lines
-    if (showDebug)
-    {
-        int gridStartX = (int)offsetX;
-        int gridStartY = (int)offsetY;
-        int gridEndX = gridStartX + WORLD_SIZE_X * WORLD_TILE_SIZE;
-        int gridEndY = gridStartY + WORLD_SIZE_Y * WORLD_TILE_SIZE;
+bool CheckPointInDiamond(Vector2 point, Diamond diamond)
+{
+    float relativeX = point.x - diamond.center.x;
+    float relativeY = point.y - diamond.center.y;
 
-        for (int x = 0; x <= WORLD_SIZE_X; x++)
-        {
-            int lineX = gridStartX + x * WORLD_TILE_SIZE;
-            DrawLine(lineX, gridStartY, lineX, gridEndY, {255, 255, 255, 60});
-        }
+    float halfWidth = diamond.width / 2.0f;
+    float halfHeight = diamond.height / 2.0f;
 
-        for (int y = 0; y <= WORLD_SIZE_Y; y++)
-        {
-            int lineY = gridStartY + y * WORLD_TILE_SIZE;
-            DrawLine(gridStartX, lineY, gridEndX, lineY, {255, 255, 255, 60});
-        }
-    }
+    float normalisedX = fabs(relativeX) / halfWidth;
+    float normalisedY = fabs(relativeY) / halfHeight;
+
+    return (normalisedX + normalisedY) <= 1.0f;
 }
 
 void CheckHover(World *world)
@@ -595,36 +628,45 @@ void CheckHover(World *world)
 
     for (int i = 0; i < world->tilesX * world->tilesY; i++)
     {
-        if (CheckCollisionPointRec(mouseWorldPos, world->tiles[i].bounds))
-        {
-            // find the closest point in the tile bounds to the player
-            Vector2 closestPoint;
-            closestPoint.x = fmaxf(world->tiles[i].bounds.x,
-                                   fminf(player.position.x,
-                                         world->tiles[i].bounds.x + world->tiles[i].bounds.width));
-            closestPoint.y = fmaxf(world->tiles[i].bounds.y,
-                                   fminf(player.position.y,
-                                         world->tiles[i].bounds.y + world->tiles[i].bounds.height));
-
-            float tileDiffX = closestPoint.x - player.position.x;
-            float tileDiffY = closestPoint.y - player.position.y;
-            float tileDistanceSquared = tileDiffX * tileDiffX + tileDiffY * tileDiffY;
-
-            float reach = PLAYER_REACH * WORLD_TILE_SIZE;
-
-            if (tileDistanceSquared < reach * reach)
-            {
-                hoveredTile = world->tiles[i];
-                world->tiles[i].hovered = true;
-                tileFound = true;
-            }
-
-            if (strcmp(hoveredTile.cursorType, "HAND") == 0) // only show the hover overlay for the "HAND" cursor
-                DrawTextureV(tileHoverSprite, {world->tiles[i].bounds.x, world->tiles[i].bounds.y}, WHITE);
-            break;
-        }
         world->tiles[i].hovered = false;
     }
+
+    // check tiles from back to front (for isometric)
+    for (int y = world->tilesY - 1; y >= 0; y--)
+    {
+        for (int x = world->tilesX - 1; x >= 0; x--)
+        {
+            int i = y * world->tilesX + x;
+
+            if (CheckPointInDiamond(mouseWorldPos, world->tiles[i].bounds))
+            {
+                Vector2 tileCenter = world->tiles[i].bounds.center;
+
+                float tileDiffX = tileCenter.x - player.position.x;
+                float tileDiffY = tileCenter.y - player.position.y;
+                float tileDistanceSquared = tileDiffX * tileDiffX + tileDiffY * tileDiffY;
+
+                float reach = PLAYER_REACH * WORLD_TILE_SIZE;
+
+                if (tileDistanceSquared < reach * reach)
+                {
+                    hoveredTile = world->tiles[i];
+                    world->tiles[i].hovered = true;
+                    tileFound = true;
+                }
+
+                // only show the hover overlay for the "HAND" cursor
+                if (strcmp(hoveredTile.cursorType, "HAND") == 0)
+                {
+                    DrawTextureV(tileHoverSprite, {world->tiles[i].bounds.center.x - WORLD_TILE_SIZE / 2, world->tiles[i].bounds.center.y - WORLD_TILE_SIZE / 4}, WHITE);
+                }
+
+                goto tile_check_done;
+            }
+        }
+    }
+
+tile_check_done:
 
     float distance = 0.0f;
 

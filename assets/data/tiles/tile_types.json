@@ -4,8 +4,8 @@
         "name": "Dirt",
         "description": "dirt",
         "layer": "ground",
-        "spritePath": "assets/sprites/dirt.png",
-        "spriteScale": 4.0,
+        "spritePath": "assets/sprites/tiles/dirt.png",
+        "spriteScale": 8.0,
         "collision": {
             "solid": false,
             "width": 1,
@@ -15,7 +15,7 @@
         "buildable": true,
         "harvestable": false,
         "cursorType": "HAND",
-        "useShader": true,
+        "useShader": false,
         "largeTexturePath": "assets/sprites/bigdirt.png"
     },
     "grass": {
@@ -23,8 +23,8 @@
         "name": "Grass",
         "description": "green green grass",
         "layer": "ground",
-        "spritePath": "assets/sprites/grass.png",
-        "spriteScale": 4.0,
+        "spritePath": "assets/sprites/tiles/grass.png",
+        "spriteScale": 8.0,
         "collision": {
             "solid": false,
             "width": 1,
@@ -34,7 +34,7 @@
         "buildable": true,
         "harvestable": false,
         "cursorType": "HAND",
-        "useShader": true,
+        "useShader": false,
         "largeTexturePath": "assets/sprites/biggrass.png"
     },
     "rock": {
@@ -43,7 +43,7 @@
         "description": "a grey rock",
         "layer": "object",
         "spritePath": "assets/sprites/rock.png",
-        "spriteScale": 4.0,
+        "spriteScale": 8.0,
         "collision": {
             "solid": true,
             "width": 0.75,
@@ -62,7 +62,7 @@
         "description": "stump",
         "layer": "object",
         "spritePath": "assets/sprites/tree.png",
-        "spriteScale": 4.0,
+        "spriteScale": 8.0,
         "collision": {
             "solid": true,
             "width": 0.8,
@@ -81,7 +81,7 @@
         "description": "scary flower causes long lasting pain",
         "layer": "object",
         "spritePath": "assets/sprites/poison-flower.png",
-        "spriteScale": 4.0,
+        "spriteScale": 8.0,
         "collision": {
             "solid": false,
             "width": 0.3,

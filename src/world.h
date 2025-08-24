@@ -9,23 +9,30 @@
 
 class Player;
 
-#define TILE_HOVER_SPRITE_PATH "assets/sprites/selection.png"
-#define TILE_HOVER_SPRITE_SCALE 4.0f
+typedef struct Diamond
+{
+    Vector2 center;
+    float width;
+    float height;
+} Diamond;
+
+#define TILE_HOVER_SPRITE_PATH "assets/sprites/tiles/selection.png"
+#define TILE_HOVER_SPRITE_SCALE 8.0f
 
 #define TILE_TYPES_PATH "assets/data/tiles/tile_types.json"
 #define TILE_SETS_PATH "assets/data/tiles/tile_sets.json"
 
 #define WORLD_FILE_NAME "world.bin"
-#define WORLD_TILE_SIZE 128
-#define WORLD_SIZE_X 9
-#define WORLD_SIZE_Y 9
+#define WORLD_TILE_SIZE 256
+#define WORLD_SIZE_X 15
+#define WORLD_SIZE_Y 15
 
 typedef struct WorldTile
 {
     unsigned char id;
     char name[16];
     Texture2D sprite;
-    Rectangle bounds;
+    Diamond bounds;
     bool hovered;
     char cursorType[8];
     bool useShader;
@@ -157,5 +164,6 @@ void CleanupTextureShader();
 void DrawWorld(World *world);
 void CleanupWorld(World *world);
 void CheckHover(World *world);
+bool CheckPointInDiamond(Vector2 point, Diamond diamond);
 
 #endif
