@@ -225,7 +225,7 @@ int World_Save(const char *path, struct World *world)
     // save the tiles array data
     if (world->tiles != NULL)
     {
-        size_t tilesCount = world->tilesX * world->tilesY;
+        size_t tilesCount = (size_t)(world->tilesX * world->tilesY);
         written = fwrite(world->tiles, sizeof(WorldTile), tilesCount, fp);
         if (written != tilesCount)
         {
@@ -268,7 +268,7 @@ int World_Load(const char *path, World *world)
         return 0;
     }
 
-    size_t tilesCount = world->tilesX * world->tilesY;
+    size_t tilesCount = (size_t)(world->tilesX * world->tilesY);
     world->tiles = (WorldTile *)calloc(tilesCount, sizeof(WorldTile));
     if (world->tiles == NULL)
     {
@@ -512,9 +512,8 @@ void DrawWorld(World *world)
     float centerTileX = centerIsoPos.x * WORLD_TILE_SIZE;
     float centerTileY = centerIsoPos.y * WORLD_TILE_SIZE;
 
-    float diamondOffsetY = WORLD_TILE_SIZE * 0.25f;
     float tileCenterX = centerTileX + WORLD_TILE_SIZE / 2.0f;
-    float tileCenterY = centerTileY + WORLD_TILE_SIZE / 2.0f - diamondOffsetY;
+    float tileCenterY = centerTileY + WORLD_TILE_SIZE / 2.0f - WORLD_TILE_SIZE * 0.25f;
 
     float offsetX = -tileCenterX;
     float offsetY = -tileCenterY;
@@ -569,19 +568,18 @@ void DrawWorld(World *world)
                 {
                     // fallback to regular sprite if shader texture failed to load
                     Texture2D sprite = world->tiles[index].sprite;
-                    DrawTexture(sprite, tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
+                    DrawTexture(sprite, (int)tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
                 }
             }
             // no shader
             else
             {
                 Texture2D sprite = world->tiles[index].sprite;
-                DrawTexture(sprite, tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
+                DrawTexture(sprite, (int)tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
             }
 
             // set diamond bounds for isometric tile collision (top face)
-            float diamondOffsetY = WORLD_TILE_SIZE * 0.25f;
-            world->tiles[index].bounds.center = {tileX + WORLD_TILE_SIZE / 2.0f, tileY + WORLD_TILE_SIZE / 2.0f - diamondOffsetY};
+            world->tiles[index].bounds.center = {(int)tileX + WORLD_TILE_SIZE / 2.0f, (int)tileY + WORLD_TILE_SIZE / 2.0f - WORLD_TILE_SIZE * 0.25f};
             world->tiles[index].bounds.width = WORLD_TILE_SIZE;
             world->tiles[index].bounds.height = WORLD_TILE_SIZE * 0.5f;
 
@@ -592,10 +590,10 @@ void DrawWorld(World *world)
                 float hw = world->tiles[index].bounds.width / 2.0f;
                 float hh = world->tiles[index].bounds.height / 2.0f;
 
-                DrawLineEx({center.x - hw, center.y}, {center.x, center.y - hh}, 2, {255, 255, 255, 60});
-                DrawLineEx({center.x, center.y - hh}, {center.x + hw, center.y}, 2, {255, 255, 255, 60});
-                DrawLineEx({center.x + hw, center.y}, {center.x, center.y + hh}, 2, {255, 255, 255, 60});
-                DrawLineEx({center.x, center.y + hh}, {center.x - hw, center.y}, 2, {255, 255, 255, 60});
+                DrawLineEx({center.x - hw, center.y}, {center.x, center.y - hh}, 5, {255, 255, 255, 60});
+                DrawLineEx({center.x, center.y - hh}, {center.x + hw, center.y}, 5, {255, 255, 255, 60});
+                DrawLineEx({center.x + hw, center.y}, {center.x, center.y + hh}, 5, {255, 255, 255, 60});
+                DrawLineEx({center.x, center.y + hh}, {center.x - hw, center.y}, 5, {255, 255, 255, 60});
             }
         }
     }
@@ -609,8 +607,8 @@ bool CheckPointInDiamond(Vector2 point, Diamond diamond)
     float halfWidth = diamond.width / 2.0f;
     float halfHeight = diamond.height / 2.0f;
 
-    float normalisedX = fabs(relativeX) / halfWidth;
-    float normalisedY = fabs(relativeY) / halfHeight;
+    float normalisedX = (float)fabs((double)relativeX) / halfWidth;
+    float normalisedY = (float)fabs((double)relativeY) / halfHeight;
 
     return (normalisedX + normalisedY) <= 1.0f;
 }
@@ -647,8 +645,8 @@ void CheckHover(World *world)
                 float halfWidth = world->tiles[i].bounds.width / 2.0f;
                 float halfHeight = world->tiles[i].bounds.height / 2.0f;
 
-                float normalisedX = fabs(relativeX) / halfWidth;
-                float normalisedY = fabs(relativeY) / halfHeight;
+                float normalisedX = (float)fabs((double)relativeX) / halfWidth;
+                float normalisedY = (float)fabs((double)relativeY) / halfHeight;
 
                 if ((normalisedX + normalisedY) <= 1.0f)
                 {
@@ -688,16 +686,14 @@ void CheckHover(World *world)
                 // find the closest point in the tile diamond to the player
                 Vector2 closestPoint;
 
-                // Calculate relative position from diamond center
                 float relativeX = player.position.x - world->tiles[i].bounds.center.x;
                 float relativeY = player.position.y - world->tiles[i].bounds.center.y;
 
                 float halfWidth = world->tiles[i].bounds.width / 2.0f;
                 float halfHeight = world->tiles[i].bounds.height / 2.0f;
 
-                // If player is inside the diamond, closest point is the player position
-                float normalisedX = fabs(relativeX) / halfWidth;
-                float normalisedY = fabs(relativeY) / halfHeight;
+                float normalisedX = (float)fabs((double)relativeX) / halfWidth;
+                float normalisedY = (float)fabs((double)relativeY) / halfHeight;
 
                 if ((normalisedX + normalisedY) <= 1.0f)
                 {
@@ -705,8 +701,6 @@ void CheckHover(World *world)
                 }
                 else
                 {
-                    // Player is outside diamond, find closest point on diamond edge
-                    // Normalize the relative position to find intersection with diamond boundary
                     float scale = 1.0f / (normalisedX + normalisedY);
                     closestPoint.x = world->tiles[i].bounds.center.x + relativeX * scale;
                     closestPoint.y = world->tiles[i].bounds.center.y + relativeY * scale;
@@ -715,7 +709,6 @@ void CheckHover(World *world)
                 float tileDiffX = closestPoint.x - player.position.x;
                 float tileDiffY = closestPoint.y - player.position.y;
 
-                // Adjust for isometric space - scale up vertical distances to match visual perception
                 float isometricTileDiffY = tileDiffY * 2.0f;
                 float tileDistanceSquared = tileDiffX * tileDiffX + isometricTileDiffY * isometricTileDiffY;
 
