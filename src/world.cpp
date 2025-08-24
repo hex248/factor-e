@@ -447,8 +447,6 @@ void GenerateWorld(World *world)
                 tile = GetTileFromNoiseWeighted(x, y, noise, tile_set.weights);
             }
             snprintf(world->tiles[i].name, sizeof(world->tiles[i].name), "%s", tile.name.c_str());
-            unsigned char lightness = (unsigned char)GetRandomValue(0, 120);
-            world->tiles[i].color = {lightness, (unsigned char)(lightness + 80), lightness, 255};
 
             if (!tile.useShader)
             {
@@ -509,8 +507,6 @@ void DrawWorld(World *world)
             int tileX = (int)(offsetX + (float)x * WORLD_TILE_SIZE);
             int tileY = (int)(offsetY + (float)y * WORLD_TILE_SIZE);
             int index = y * world->tilesX + x;
-
-            DrawRectangle(tileX, tileY, WORLD_TILE_SIZE, WORLD_TILE_SIZE, world->tiles[index].color);
 
             // if the tile should use a shader and has a largeTexturePath
             if (world->tiles[index].useShader && strlen(world->tiles[index].largeTexturePath) > 0 && lgTexShader.initialized)

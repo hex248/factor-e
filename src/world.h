@@ -24,7 +24,6 @@ typedef struct WorldTile
 {
     unsigned char id;
     char name[16];
-    Color color;
     Texture2D sprite;
     Rectangle bounds;
     bool hovered;
