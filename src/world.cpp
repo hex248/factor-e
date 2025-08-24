@@ -631,6 +631,51 @@ void CheckHover(World *world)
         world->tiles[i].hovered = false;
     }
 
+    // debug: draw small circles on tiles within reach
+    if (showDebug)
+    {
+        for (int y = 0; y < world->tilesY; y++)
+        {
+            for (int x = 0; x < world->tilesX; x++)
+            {
+                int i = y * world->tilesX + x;
+
+                Vector2 closestPoint;
+                float relativeX = player.position.x - world->tiles[i].bounds.center.x;
+                float relativeY = player.position.y - world->tiles[i].bounds.center.y;
+
+                float halfWidth = world->tiles[i].bounds.width / 2.0f;
+                float halfHeight = world->tiles[i].bounds.height / 2.0f;
+
+                float normalisedX = fabs(relativeX) / halfWidth;
+                float normalisedY = fabs(relativeY) / halfHeight;
+
+                if ((normalisedX + normalisedY) <= 1.0f)
+                {
+                    closestPoint = player.position;
+                }
+                else
+                {
+                    float scale = 1.0f / (normalisedX + normalisedY);
+                    closestPoint.x = world->tiles[i].bounds.center.x + relativeX * scale;
+                    closestPoint.y = world->tiles[i].bounds.center.y + relativeY * scale;
+                }
+
+                float tileDiffX = closestPoint.x - player.position.x;
+                float tileDiffY = closestPoint.y - player.position.y;
+                float isometricTileDiffY = tileDiffY * 2.0f;
+                float tileDistanceSquared = tileDiffX * tileDiffX + isometricTileDiffY * isometricTileDiffY;
+
+                float reach = PLAYER_REACH * WORLD_TILE_SIZE / 2;
+
+                if (tileDistanceSquared < reach * reach)
+                {
+                    DrawCircleV(world->tiles[i].bounds.center, 8.0f, LIME);
+                }
+            }
+        }
+    }
+
     // check tiles from back to front (for isometric)
     for (int y = world->tilesY - 1; y >= 0; y--)
     {
@@ -640,13 +685,41 @@ void CheckHover(World *world)
 
             if (CheckPointInDiamond(mouseWorldPos, world->tiles[i].bounds))
             {
-                Vector2 tileCenter = world->tiles[i].bounds.center;
+                // find the closest point in the tile diamond to the player
+                Vector2 closestPoint;
 
-                float tileDiffX = tileCenter.x - player.position.x;
-                float tileDiffY = tileCenter.y - player.position.y;
-                float tileDistanceSquared = tileDiffX * tileDiffX + tileDiffY * tileDiffY;
+                // Calculate relative position from diamond center
+                float relativeX = player.position.x - world->tiles[i].bounds.center.x;
+                float relativeY = player.position.y - world->tiles[i].bounds.center.y;
 
-                float reach = PLAYER_REACH * WORLD_TILE_SIZE;
+                float halfWidth = world->tiles[i].bounds.width / 2.0f;
+                float halfHeight = world->tiles[i].bounds.height / 2.0f;
+
+                // If player is inside the diamond, closest point is the player position
+                float normalisedX = fabs(relativeX) / halfWidth;
+                float normalisedY = fabs(relativeY) / halfHeight;
+
+                if ((normalisedX + normalisedY) <= 1.0f)
+                {
+                    closestPoint = player.position;
+                }
+                else
+                {
+                    // Player is outside diamond, find closest point on diamond edge
+                    // Normalize the relative position to find intersection with diamond boundary
+                    float scale = 1.0f / (normalisedX + normalisedY);
+                    closestPoint.x = world->tiles[i].bounds.center.x + relativeX * scale;
+                    closestPoint.y = world->tiles[i].bounds.center.y + relativeY * scale;
+                }
+
+                float tileDiffX = closestPoint.x - player.position.x;
+                float tileDiffY = closestPoint.y - player.position.y;
+
+                // Adjust for isometric space - scale up vertical distances to match visual perception
+                float isometricTileDiffY = tileDiffY * 2.0f;
+                float tileDistanceSquared = tileDiffX * tileDiffX + isometricTileDiffY * isometricTileDiffY;
+
+                float reach = PLAYER_REACH * WORLD_TILE_SIZE / 2;
 
                 if (tileDistanceSquared < reach * reach)
                 {
@@ -699,34 +772,6 @@ tile_check_done:
     {
         SetDebugValue("hovered_tile", "Hovered Tile: None (POINTER)");
         SetCurrentCursorSprite("POINTER");
-    }
-
-    // draw debug line between player and mouse position
-    if (showDebug)
-    {
-        // blue line: player's maximum reach in the direction of the mouse
-        float reach = PLAYER_REACH * WORLD_TILE_SIZE;
-        float reachSquared = reach * reach;
-        Vector2 direction = {diffX, diffY};
-
-        Vector2 reachEndPoint;
-        // only calculate reachEndPoint if mouse is outside player's reach (sqrt scary)
-        if (distanceSquared > reachSquared)
-        {
-            // only draw red line if mouse is out of player reach
-            // red line: full distance to mouse
-            DrawLineEx(player.position, mouseWorldPos, 2.0f, RED);
-
-            // normalize direction and scale to reach distance
-            float scaleFactor = reach / distance;
-            reachEndPoint = {
-                player.position.x + direction.x * scaleFactor,
-                player.position.y + direction.y * scaleFactor};
-        }
-        else
-            reachEndPoint = mouseWorldPos;
-
-        DrawLineEx(player.position, reachEndPoint, 2.0f, BLUE);
     }
 }
 
