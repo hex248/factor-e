@@ -12,8 +12,6 @@
 -   load world from save on start
 -   multiple layers (object layer)
 # DEV MODE:
--   ctrl + r will now reload the world rather than regenerating
--   ctrl + shift + r will regenerate the world, but will prompt the user to confirm their action before doing so
 # ART:
 -   basic player animation
 -   better grass texture
