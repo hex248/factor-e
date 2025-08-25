@@ -70,6 +70,21 @@ Font GetFontMediumExtraLight() { return fontMediumExtraLight; }
 Font GetFontSmall() { return fontSmall; }
 Font GetFontSmallExtraLight() { return fontSmallExtraLight; }
 
+float GetScaledFontSize(float baseFontSize)
+{
+    return baseFontSize * uiScale;
+}
+
+float GetScaledLineHeight(float baseLineHeight)
+{
+    return baseLineHeight * uiScale;
+}
+
+float GetScaledPadding(float basePadding)
+{
+    return basePadding * uiScale;
+}
+
 void InitDebugSystem()
 {
     if (debugSystemInitialized)
@@ -123,8 +138,10 @@ void DrawDebugInfo()
 
     std::vector<std::pair<std::string, Vector2>> debugLines;
     float maxWidth = 0.0f;
-    const float lineHeight = 25.0f;
-    const float padding = 10.0f;
+    const float lineHeight = GetScaledLineHeight(25.0f);
+    const float padding = GetScaledPadding(10.0f);
+    const float fontSize = GetScaledFontSize((float)fontSmallExtraLight.baseSize);
+    const float spacing = GetScaledPadding(2.0f);
 
     for (const std::string &key : debugOrder)
     {
@@ -138,7 +155,7 @@ void DrawDebugInfo()
         if (it != debugValues.end() && !it->second.empty())
         {
             const char *text = it->second.c_str();
-            Vector2 textSize = MeasureTextEx(fontSmallExtraLight, text, (float)fontSmallExtraLight.baseSize, 2);
+            Vector2 textSize = MeasureTextEx(fontSmallExtraLight, text, fontSize, spacing);
             debugLines.push_back({it->second, textSize});
             if (textSize.x > maxWidth)
                 maxWidth = textSize.x;
@@ -159,7 +176,7 @@ void DrawDebugInfo()
         if (!debugLines[i].first.empty())
         {
             const char *text = debugLines[i].first.c_str();
-            DrawTextEx(fontSmallExtraLight, text, {padding, ((float)i * lineHeight) + (padding / 2)}, (float)fontSmallExtraLight.baseSize, 2, WHITE);
+            DrawTextEx(fontSmallExtraLight, text, {padding, ((float)i * lineHeight) + (padding / 2)}, fontSize, spacing, WHITE);
         }
     }
 
@@ -172,10 +189,14 @@ void DrawControlsInfo()
         return;
 
     const char *controls = "CTRL + R: Reload World | CTRL + SHIFT + R: Regenerate World | F3: Debug | F10: Switch Monitor | F11: Borderless";
-    Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, (float)fontSmallExtraLight.baseSize, 2);
+    const float fontSize = GetScaledFontSize((float)fontSmallExtraLight.baseSize);
+    const float spacing = GetScaledPadding(2.0f);
+    const float padding = GetScaledPadding(10.0f);
+
+    Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, fontSize, spacing);
     DrawTextEx(fontSmallExtraLight, controls,
-               {(float)screenWidth - controlsSize.x - 10, (float)screenHeight - controlsSize.y - 10},
-               (float)fontSmallExtraLight.baseSize, 2, WHITE);
+               {(float)screenWidth - controlsSize.x - padding, (float)screenHeight - controlsSize.y - padding},
+               fontSize, spacing, WHITE);
 }
 
 void DrawExitConfirmation()
@@ -183,10 +204,12 @@ void DrawExitConfirmation()
     ShowMouse();
     DrawRectangle(0, 0, screenWidth, screenHeight, {0, 0, 0, 200});
     const char *closeText = "close the window? (Y/n)";
-    int fontSize = fontMedium.baseSize;
-    Vector2 textSize = MeasureTextEx(fontMedium, closeText, (float)fontSize, 2.0f);
+    const float fontSize = GetScaledFontSize((float)fontMedium.baseSize);
+    const float spacing = GetScaledPadding(2.0f);
+
+    Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, spacing);
     DrawTextEx(fontMedium, closeText,
                {(float)screenWidth / 2 - textSize.x / 2,
                 (float)screenHeight / 2 - textSize.y / 2},
-               (float)fontSize, 2.0f, WHITE);
+               fontSize, spacing, WHITE);
 }

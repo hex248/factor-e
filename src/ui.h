@@ -16,6 +16,10 @@ Font GetFontMediumExtraLight();
 Font GetFontSmall();
 Font GetFontSmallExtraLight();
 
+float GetScaledFontSize(float baseFontSize);
+float GetScaledLineHeight(float baseLineHeight);
+float GetScaledPadding(float basePadding);
+
 void InitDebugSystem();
 void SetDebugValue(const std::string &key, const std::string &value);
 void DrawDebugInfo();

@@ -1,4 +1,5 @@
 #include "mouse.h"
+#include "config.h"
 #include <cstring>
 #include <stdio.h>
 
@@ -48,7 +49,7 @@ void DrawMouse()
 {
     if (!showCustomCursor)
         return;
-    Vector2 mousePos = GetMousePosition();
+    Vector2 mousePos = GetMouseVirtualPosition();
 
     mousePos = {
         mousePos.x - CURSOR_SPRITE_SCALE,
@@ -82,6 +83,27 @@ void CleanupCursors()
 Vector2 GetMouseWorldPosition()
 {
     return mouseWorldPos;
+}
+
+Vector2 GetMouseVirtualPosition()
+{
+    Vector2 screenPos = GetMousePosition();
+
+    // transform screen coordinates to virtual screen coordinates
+    Vector2 virtualPos;
+    virtualPos.x = (screenPos.x - targetRect.x) / virtualScale.x;
+    virtualPos.y = (screenPos.y - targetRect.y) / virtualScale.y;
+
+    if (virtualPos.x < 0)
+        virtualPos.x = 0;
+    if (virtualPos.y < 0)
+        virtualPos.y = 0;
+    if (virtualPos.x > VIRTUAL_WIDTH)
+        virtualPos.x = VIRTUAL_WIDTH;
+    if (virtualPos.y > VIRTUAL_HEIGHT)
+        virtualPos.y = VIRTUAL_HEIGHT;
+
+    return virtualPos;
 }
 
 void SetCurrentCursorSprite(const char *cursor)

@@ -19,6 +19,7 @@ RenderTexture2D virtualScreen;
 Rectangle virtualRect = {0.0f, 0.0f, VIRTUAL_WIDTH, -VIRTUAL_HEIGHT}; // Negative height to flip source
 Rectangle targetRect;
 Vector2 virtualScale;
+float uiScale = 1.0f;
 
 void SaveConfig()
 {
@@ -138,7 +139,7 @@ void UpdateScreenDimensions()
     }
 
     screenCenter = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
-    
+
     UpdateVirtualScreen();
 }
 
@@ -186,9 +187,9 @@ void InitDisplaySystem()
 void InitVirtualScreen()
 {
     virtualScreen = LoadRenderTexture(VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
-    
+
     SetTextureFilter(virtualScreen.texture, TEXTURE_FILTER_POINT);
-    
+
     UpdateVirtualScreen();
 }
 
@@ -197,18 +198,24 @@ void UpdateVirtualScreen()
     float scaleX = (float)screenWidth / VIRTUAL_WIDTH;
     float scaleY = (float)screenHeight / VIRTUAL_HEIGHT;
     float scale = fminf(scaleX, scaleY);
-    
+
     virtualScale = {scale, scale};
-    
+
+    // base UI scale on 1080p as reference
+    uiScale = (float)screenHeight / 1080.0f;
+    if (uiScale < 0.5f)
+        uiScale = 0.5f;
+    if (uiScale > 3.0f)
+        uiScale = 3.0f;
+
     float targetWidth = VIRTUAL_WIDTH * scale;
     float targetHeight = VIRTUAL_HEIGHT * scale;
-    
+
     targetRect = {
         (screenWidth - targetWidth) / 2.0f,
         (screenHeight - targetHeight) / 2.0f,
         targetWidth,
-        targetHeight
-    };
+        targetHeight};
 }
 
 void CleanupVirtualScreen()

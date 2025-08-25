@@ -34,6 +34,7 @@ extern RenderTexture2D virtualScreen;
 extern Rectangle virtualRect;
 extern Rectangle targetRect;
 extern Vector2 virtualScale;
+extern float uiScale;
 
 void LoadConfig();
 void SaveConfig();
