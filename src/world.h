@@ -19,6 +19,9 @@ typedef struct Diamond
 #define TILE_HOVER_SPRITE_PATH "assets/sprites/tiles/selection.png"
 #define TILE_HOVER_SPRITE_SCALE 8.0f
 
+#define POTENTIAL_TILE_HOVER_SPRITE_PATH "assets/sprites/tiles/potential-selection.png"
+#define POTENTIAL_TILE_HOVER_SPRITE_SCALE 8.0f
+
 #define TILE_TYPES_PATH "assets/data/tiles/tile_types.json"
 #define TILE_SETS_PATH "assets/data/tiles/tile_sets.json"
 

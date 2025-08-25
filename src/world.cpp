@@ -20,6 +20,7 @@ Image noise;
 Texture2D noiseTexture;
 
 static Texture2D tileHoverSprite;
+static Texture2D potentialTileHoverSprite;
 static LgTexShaderData lgTexShader;
 
 using json = nlohmann::json;
@@ -479,6 +480,13 @@ void InitWorld(World *world)
     tileHoverSprite = LoadTextureFromImage(tileHoverImage);
     UnloadImage(tileHoverImage);
 
+    Image potentialTileHoverImage = LoadImage(POTENTIAL_TILE_HOVER_SPRITE_PATH);
+    ImageResizeNN(&potentialTileHoverImage,
+                  (int)((float)potentialTileHoverImage.width * POTENTIAL_TILE_HOVER_SPRITE_SCALE),
+                  (int)((float)potentialTileHoverImage.height * POTENTIAL_TILE_HOVER_SPRITE_SCALE));
+    potentialTileHoverSprite = LoadTextureFromImage(potentialTileHoverImage);
+    UnloadImage(potentialTileHoverImage);
+
     if (FileExists(WORLD_FILE_NAME))
     {
         if (World_Load(WORLD_FILE_NAME, world) != 1)
@@ -616,7 +624,7 @@ bool CheckPointInDiamond(Vector2 point, Diamond diamond)
 void CheckHover(World *world)
 {
     Vector2 mouseWorldPos = GetMouseWorldPosition();
-    Vector2 mouseScreenPos = GetMousePosition();
+    Vector2 mouseScreenPos = GetMouseVirtualPosition();
     WorldTile hoveredTile;
     bool tileFound = false;
 
@@ -668,7 +676,7 @@ void CheckHover(World *world)
 
                 if (tileDistanceSquared < reach * reach)
                 {
-                    DrawCircleV(world->tiles[i].bounds.center, 8.0f, LIME);
+                    DrawTextureV(potentialTileHoverSprite, {world->tiles[i].bounds.center.x - potentialTileHoverSprite.width / 2, world->tiles[i].bounds.center.y - potentialTileHoverSprite.height / 2}, WHITE);
                 }
             }
         }

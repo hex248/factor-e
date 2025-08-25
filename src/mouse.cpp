@@ -41,7 +41,7 @@ void InitialiseMouse()
 
 void HandleMouse(Camera2D camera)
 {
-    mouseScreenPos = GetMousePosition();
+    mouseScreenPos = GetMouseVirtualPosition();
     mouseWorldPos = GetScreenToWorld2D(mouseScreenPos, camera);
 }
 
