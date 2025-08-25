@@ -106,7 +106,7 @@ void DrawDebugInfo()
     snprintf(buffer, sizeof(buffer), "Current Monitor: %d", GetCurrentMonitor());
     debugValues["current_monitor"] = buffer;
 
-    snprintf(buffer, sizeof(buffer), "Screen: %dx%d", screenWidth, screenHeight);
+    snprintf(buffer, sizeof(buffer), "Screen: %dx%d (Virtual: %dx%d)", screenWidth, screenHeight, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     debugValues["screen_size"] = buffer;
 
     snprintf(buffer, sizeof(buffer), "Display Size: %dx%d", displayWidth, displayHeight);

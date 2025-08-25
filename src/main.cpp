@@ -51,7 +51,7 @@ int main()
 
     Camera2D camera;
     camera.target = {player.position.x, player.position.y};
-    camera.offset = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
+    camera.offset = {(float)VIRTUAL_WIDTH / 2.0f, (float)VIRTUAL_HEIGHT / 2.0f};
     camera.rotation = 0.0f;
     camera.zoom = 1.0f;
 
@@ -60,7 +60,6 @@ int main()
         UpdateScreenDimensions();
         UpdateConfig();
 
-        camera.offset = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
 
         HandleMouse(camera);
         HandleControls();
@@ -85,8 +84,8 @@ int main()
 
         camera.target = {player.position.x, player.position.y};
 
-        // RENDER
-        BeginDrawing();
+        // RENDER TO VIRTUAL SCREEN
+        BeginTextureMode(virtualScreen);
         ClearBackground({10, 10, 10, 255});
 
         BeginMode2D(camera);
@@ -96,6 +95,15 @@ int main()
         EndMode2D();
 
         DrawMouse();
+        
+        EndTextureMode();
+
+        // RENDER VIRTUAL SCREEN TO ACTUAL SCREEN
+        BeginDrawing();
+        ClearBackground(BLACK);
+        
+        DrawTexturePro(virtualScreen.texture, virtualRect, targetRect, {0, 0}, 0.0f, WHITE);
+
         DrawDebugInfo();
 
         // exit confirmation prompt
@@ -127,6 +135,7 @@ int main()
     }
 
     // CLEAN UP
+    CleanupVirtualScreen();
     CleanupFonts();
 
     CleanupWorld(&world);
