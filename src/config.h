@@ -3,8 +3,8 @@
 
 #include "raylib.h"
 
-#define DEFAULT_WINDOW_WIDTH 1600
-#define DEFAULT_WINDOW_HEIGHT 900
+#define DEFAULT_WINDOW_WIDTH 1280
+#define DEFAULT_WINDOW_HEIGHT 720
 #define VIRTUAL_WIDTH 1920
 #define VIRTUAL_HEIGHT 1080
 #define CONFIG_FILE_NAME "factor-e.config"
