@@ -7,16 +7,16 @@
 Config config;
 bool configChanged = false;
 
-int screenWidth = DEFAULT_WINDOW_WIDTH;
-int screenHeight = DEFAULT_WINDOW_HEIGHT;
-int displayWidth = DEFAULT_WINDOW_WIDTH;
-int displayHeight = DEFAULT_WINDOW_HEIGHT;
-int trueMonitorWidth = DEFAULT_WINDOW_WIDTH;
-int trueMonitorHeight = DEFAULT_WINDOW_HEIGHT;
+float screenWidth = DEFAULT_WINDOW_WIDTH;
+float screenHeight = DEFAULT_WINDOW_HEIGHT;
+float displayWidth = DEFAULT_WINDOW_WIDTH;
+float displayHeight = DEFAULT_WINDOW_HEIGHT;
+float trueMonitorWidth = DEFAULT_WINDOW_WIDTH;
+float trueMonitorHeight = DEFAULT_WINDOW_HEIGHT;
 Vector2 screenCenter = {DEFAULT_WINDOW_WIDTH / 2.0f, DEFAULT_WINDOW_HEIGHT / 2.0f};
 
 RenderTexture2D virtualScreen;
-Rectangle virtualRect = {0.0f, 0.0f, VIRTUAL_WIDTH, -VIRTUAL_HEIGHT}; // Negative height to flip source
+Rectangle virtualRect = {0.0f, 0.0f, VIRTUAL_WIDTH, -VIRTUAL_HEIGHT};
 Rectangle targetRect;
 Vector2 virtualScale;
 float uiScale = 1.0f;
@@ -27,8 +27,8 @@ void SaveConfig()
     snprintf(configText, sizeof(configText),
              "borderlessFullscreen=%d\n"
              "preferredMonitor=%d\n"
-             "windowWidth=%d\n"
-             "windowHeight=%d\n"
+             "windowWidth=%.1f\n"
+             "windowHeight=%.1f\n"
              "windowPosX=%d\n"
              "windowPosY=%d\n",
              config.borderlessFullscreen ? 1 : 0,
@@ -66,9 +66,9 @@ void LoadConfig()
                 else if (strcmp(key, "preferredMonitor") == 0)
                     config.preferredMonitor = atoi(value);
                 else if (strcmp(key, "windowWidth") == 0)
-                    config.windowWidth = atoi(value);
+                    config.windowWidth = (float)atof(value);
                 else if (strcmp(key, "windowHeight") == 0)
-                    config.windowHeight = atoi(value);
+                    config.windowHeight = (float)atof(value);
                 else if (strcmp(key, "windowPosX") == 0)
                     config.windowPosX = atoi(value);
                 else if (strcmp(key, "windowPosY") == 0)
@@ -97,10 +97,10 @@ void UpdateConfig()
 
         int currentWidth = GetRenderWidth();
         int currentHeight = GetRenderHeight();
-        if (config.windowWidth != currentWidth || config.windowHeight != currentHeight)
+        if ((int)config.windowWidth != currentWidth || (int)config.windowHeight != currentHeight)
         {
-            config.windowWidth = currentWidth;
-            config.windowHeight = currentHeight;
+            config.windowWidth = (float)currentWidth;
+            config.windowHeight = (float)currentHeight;
             wasChanged = true;
         }
     }
@@ -129,16 +129,16 @@ void UpdateScreenDimensions()
     }
     else
     {
-        trueMonitorWidth = GetMonitorWidth(monitor);
-        trueMonitorHeight = GetMonitorHeight(monitor);
+        trueMonitorWidth = (float)GetMonitorWidth(monitor);
+        trueMonitorHeight = (float)GetMonitorHeight(monitor);
         displayWidth = trueMonitorWidth;
         displayHeight = trueMonitorHeight;
 
-        screenWidth = GetRenderWidth();
-        screenHeight = GetRenderHeight();
+        screenWidth = (float)GetRenderWidth();
+        screenHeight = (float)GetRenderHeight();
     }
 
-    screenCenter = {(float)screenWidth / 2.0f, (float)screenHeight / 2.0f};
+    screenCenter = {screenWidth / 2.0f, screenHeight / 2.0f};
 
     UpdateVirtualScreen();
 }
@@ -147,7 +147,7 @@ void InitDisplaySystem()
 {
     LoadConfig();
 
-    InitWindow(config.windowWidth, config.windowHeight, "FACTOR E");
+    InitWindow((int)config.windowWidth, (int)config.windowHeight, "FACTOR E");
 
     // set preferred monitor
     int monitorCount = GetMonitorCount();
@@ -155,8 +155,8 @@ void InitDisplaySystem()
         config.preferredMonitor = 0;
 
     int monitor = config.preferredMonitor;
-    trueMonitorWidth = GetMonitorWidth(monitor);
-    trueMonitorHeight = GetMonitorHeight(monitor);
+    trueMonitorWidth = (float)GetMonitorWidth(monitor);
+    trueMonitorHeight = (float)GetMonitorHeight(monitor);
 
     displayWidth = trueMonitorWidth;
     displayHeight = trueMonitorHeight;
@@ -166,11 +166,11 @@ void InitDisplaySystem()
     if (config.windowPosX == -1 || config.windowPosY == -1)
     {
         // center on preferred monitor
-        int monitorX = (int)GetMonitorPosition(monitor).x;
-        int monitorY = (int)GetMonitorPosition(monitor).y;
+        float monitorX = GetMonitorPosition(monitor).x;
+        float monitorY = GetMonitorPosition(monitor).y;
         SetWindowPosition(
-            monitorX + (trueMonitorWidth - config.windowWidth) / 2,
-            monitorY + (trueMonitorHeight - config.windowHeight) / 2);
+            (int)(monitorX + (trueMonitorWidth - config.windowWidth) / 2),
+            (int)(monitorY + (trueMonitorHeight - config.windowHeight) / 2));
     }
     else
     {
@@ -195,14 +195,14 @@ void InitVirtualScreen()
 
 void UpdateVirtualScreen()
 {
-    float scaleX = (float)screenWidth / VIRTUAL_WIDTH;
-    float scaleY = (float)screenHeight / VIRTUAL_HEIGHT;
+    float scaleX = screenWidth / VIRTUAL_WIDTH;
+    float scaleY = screenHeight / VIRTUAL_HEIGHT;
     float scale = fminf(scaleX, scaleY);
 
     virtualScale = {scale, scale};
 
     // base UI scale on 1080p as reference
-    uiScale = (float)screenHeight / 1080.0f;
+    uiScale = screenHeight / 1080.0f;
     if (uiScale < 0.5f)
         uiScale = 0.5f;
     if (uiScale > 3.0f)

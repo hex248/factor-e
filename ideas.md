@@ -9,7 +9,7 @@
 - stardew valley
 - zelda
 - pokemon
-- **gourdlets**
+- gourdlets
 # power system
 - little minions
 # early game storage

@@ -3,18 +3,18 @@
 
 #include "raylib.h"
 
-#define DEFAULT_WINDOW_WIDTH 1280
-#define DEFAULT_WINDOW_HEIGHT 720
-#define VIRTUAL_WIDTH 1920
-#define VIRTUAL_HEIGHT 1080
+#define DEFAULT_WINDOW_WIDTH 1280.0f
+#define DEFAULT_WINDOW_HEIGHT 720.0f
+#define VIRTUAL_WIDTH 1920.0f
+#define VIRTUAL_HEIGHT 1080.0f
 #define CONFIG_FILE_NAME "factor-e.config"
 
 typedef struct Config
 {
     bool borderlessFullscreen;
     int preferredMonitor;
-    int windowWidth;
-    int windowHeight;
+    float windowWidth;
+    float windowHeight;
     int windowPosX;
     int windowPosY;
 } Config;
@@ -22,12 +22,12 @@ typedef struct Config
 extern Config config;
 extern bool configChanged;
 
-extern int screenWidth;
-extern int screenHeight;
-extern int displayWidth;
-extern int displayHeight;
-extern int trueMonitorWidth;
-extern int trueMonitorHeight;
+extern float screenWidth;
+extern float screenHeight;
+extern float displayWidth;
+extern float displayHeight;
+extern float trueMonitorWidth;
+extern float trueMonitorHeight;
 extern Vector2 screenCenter;
 
 extern RenderTexture2D virtualScreen;

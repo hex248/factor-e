@@ -676,7 +676,7 @@ void CheckHover(World *world)
 
                 if (tileDistanceSquared < reach * reach)
                 {
-                    DrawTextureV(potentialTileHoverSprite, {world->tiles[i].bounds.center.x - potentialTileHoverSprite.width / 2, world->tiles[i].bounds.center.y - potentialTileHoverSprite.height / 2}, WHITE);
+                    DrawTextureV(potentialTileHoverSprite, {world->tiles[i].bounds.center.x - (float)potentialTileHoverSprite.width / 2, world->tiles[i].bounds.center.y - (float)potentialTileHoverSprite.height / 2}, WHITE);
                 }
             }
         }

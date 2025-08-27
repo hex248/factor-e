@@ -121,10 +121,10 @@ void DrawDebugInfo()
     snprintf(buffer, sizeof(buffer), "Current Monitor: %d", GetCurrentMonitor());
     debugValues["current_monitor"] = buffer;
 
-    snprintf(buffer, sizeof(buffer), "Screen: %dx%d (Virtual: %dx%d)", screenWidth, screenHeight, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
+    snprintf(buffer, sizeof(buffer), "Screen: %.0fx%.0f (Virtual: %.0fx%.0f)", screenWidth, screenHeight, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
     debugValues["screen_size"] = buffer;
 
-    snprintf(buffer, sizeof(buffer), "Display Size: %dx%d", displayWidth, displayHeight);
+    snprintf(buffer, sizeof(buffer), "Display Size: %.0fx%.0f", displayWidth, displayHeight);
     debugValues["display_size"] = buffer;
 
     snprintf(buffer, sizeof(buffer), "Screen Center: %.0fx%.0f", screenCenter.x, screenCenter.y);
@@ -195,21 +195,21 @@ void DrawControlsInfo()
 
     Vector2 controlsSize = MeasureTextEx(fontSmallExtraLight, controls, fontSize, spacing);
     DrawTextEx(fontSmallExtraLight, controls,
-               {(float)screenWidth - controlsSize.x - padding, (float)screenHeight - controlsSize.y - padding},
+               {screenWidth - controlsSize.x - padding, screenHeight - controlsSize.y - padding},
                fontSize, spacing, WHITE);
 }
 
 void DrawExitConfirmation()
 {
     ShowMouse();
-    DrawRectangle(0, 0, screenWidth, screenHeight, {0, 0, 0, 200});
+    DrawRectangle(0, 0, (int)screenWidth, (int)screenHeight, {0, 0, 0, 200});
     const char *closeText = "close the window? (Y/n)";
     const float fontSize = GetScaledFontSize((float)fontMedium.baseSize);
     const float spacing = GetScaledPadding(2.0f);
 
     Vector2 textSize = MeasureTextEx(fontMedium, closeText, fontSize, spacing);
     DrawTextEx(fontMedium, closeText,
-               {(float)screenWidth / 2 - textSize.x / 2,
-                (float)screenHeight / 2 - textSize.y / 2},
+               {screenWidth / 2 - textSize.x / 2,
+                screenHeight / 2 - textSize.y / 2},
                fontSize, spacing, WHITE);
 }

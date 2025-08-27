@@ -27,21 +27,21 @@ void HandleControls()
         {
             config.preferredMonitor = (config.preferredMonitor + 1) % monitorCount;
             Vector2 monitorPos = GetMonitorPosition(config.preferredMonitor);
-            int monitorWidth = GetMonitorWidth(config.preferredMonitor);
-            int monitorHeight = GetMonitorHeight(config.preferredMonitor);
+            float monitorWidth = (float)GetMonitorWidth(config.preferredMonitor);
+            float monitorHeight = (float)GetMonitorHeight(config.preferredMonitor);
 
             if (IsWindowFullscreen())
             {
                 // toggle off fullscreen, move window, then toggle back on
                 ToggleBorderlessWindowed();
-                SetWindowPosition((int)monitorPos.x + (monitorWidth - config.windowWidth) / 2,
-                                  (int)monitorPos.y + (monitorHeight - config.windowHeight) / 2);
+                SetWindowPosition((int)(monitorPos.x + (monitorWidth - config.windowWidth) / 2),
+                                  (int)(monitorPos.y + (monitorHeight - config.windowHeight) / 2));
                 ToggleBorderlessWindowed();
             }
             else
             {
-                SetWindowPosition((int)monitorPos.x + (monitorWidth - config.windowWidth) / 2,
-                                  (int)monitorPos.y + (monitorHeight - config.windowHeight) / 2);
+                SetWindowPosition((int)(monitorPos.x + (monitorWidth - config.windowWidth) / 2),
+                                  (int)(monitorPos.y + (monitorHeight - config.windowHeight) / 2));
             }
             configChanged = true;
         }

@@ -60,7 +60,6 @@ int main()
         UpdateScreenDimensions();
         UpdateConfig();
 
-
         HandleMouse(camera);
         HandleControls();
         player.HandleMovement();
@@ -95,13 +94,13 @@ int main()
         EndMode2D();
 
         DrawMouse();
-        
+
         EndTextureMode();
 
         // RENDER VIRTUAL SCREEN TO ACTUAL SCREEN
         BeginDrawing();
         ClearBackground(BLACK);
-        
+
         DrawTexturePro(virtualScreen.texture, virtualRect, targetRect, {0, 0}, 0.0f, WHITE);
 
         DrawDebugInfo();
