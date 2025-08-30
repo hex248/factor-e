@@ -1,0 +1,26 @@
+{
+    "dirt": {
+        "id": 1,
+        "name": "Dirt",
+        "iconSpritePath": "assets/sprites/tiles/dirt.png",
+        "inHandSpritePath": "assets/sprites/tiles/dirt.png",
+        "iconScale": 4.0,
+        "inHandScale": 4.0,
+        "tileID": 1,
+        "stackSize": 128,
+        "placeable": true,
+        "showInHand": true
+    },
+    "grass": {
+        "id": 2,
+        "name": "Grass",
+        "iconSpritePath": "assets/sprites/tiles/grass.png",
+        "inHandSpritePath": "assets/sprites/tiles/grass.png",
+        "iconScale": 4.0,
+        "inHandScale": 4.0,
+        "tileID": 2,
+        "stackSize": 128,
+        "placeable": true,
+        "showInHand": true
+    }
+}

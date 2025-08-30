@@ -58,6 +58,7 @@ typedef struct WorldTile
 typedef struct TileType
 {
     int id;
+    unsigned char itemID;
     std::string name;
     std::string description;
     std::string layer;
