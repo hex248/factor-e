@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "raylib.h"
+#include "item.h"
 
 #define PLAYER_SPRITE_PATH "assets/sprites/player.png"
 #define PLAYER_SPRITE_SCALE 3.0f
@@ -14,6 +15,8 @@ private:
     Texture2D sprite;
 
 public:
+    ItemStack inventory[21];
+
     Vector2 position = {0, 0};
     Vector2 dir = {0, 0};
     float size = 1.0f;
