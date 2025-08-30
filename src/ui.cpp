@@ -15,6 +15,11 @@ static Font fontSmall;
 static Font fontSmallExtraLight;
 static bool fontsLoaded = false;
 
+Image toolbeltSpriteImage;
+float toolbeltSpriteScale = 8.0f;
+Texture2D toolbeltSprite;
+Vector2 toolbeltPosition = {0, 0};
+
 static std::map<std::string, std::string> debugValues;
 static std::vector<std::string> debugOrder = {
     "monitor_count",
@@ -37,6 +42,15 @@ void InitFonts()
 {
     if (fontsLoaded)
         return;
+
+    toolbeltSpriteImage = LoadImage("assets/sprites/toolbelt.png");
+    ImageResizeNN(&toolbeltSpriteImage,
+                  (int)((float)toolbeltSpriteImage.width * toolbeltSpriteScale),
+                  (int)((float)toolbeltSpriteImage.height * toolbeltSpriteScale));
+    toolbeltSprite = LoadTextureFromImage(toolbeltSpriteImage);
+    UnloadImage(toolbeltSpriteImage);
+
+    toolbeltPosition = {(VIRTUAL_WIDTH - toolbeltSprite.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
 
     fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
     fontLargeExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 128, 0, 250);
@@ -83,6 +97,28 @@ float GetScaledLineHeight(float baseLineHeight)
 float GetScaledPadding(float basePadding)
 {
     return basePadding * uiScale;
+}
+
+void DrawToolBelt(const Player &player)
+{
+    DrawTextureV(toolbeltSprite, toolbeltPosition, WHITE);
+
+    float gap = (2 * toolbeltSpriteScale);
+    Vector2 startPos = {toolbeltPosition.x + 3 * toolbeltSpriteScale, toolbeltPosition.y + gap};
+
+    for (int i = 0; i < 7; i++)
+    {
+        Vector2 itemPos = {startPos.x + i * ITEM_STACK_WIDTH + gap, startPos.y};
+        const ItemStack &stack = player.inventory[i];
+        if (stack.quantity > 0)
+        {
+            DrawTextureV(stack.iconSprite, itemPos, WHITE);
+
+            const char *quantityText = TextFormat("%d", stack.quantity);
+            Vector2 textSize = MeasureTextEx(fontLarge, quantityText, 64, 15);
+            DrawTextEx(fontLarge, quantityText, {itemPos.x + (ITEM_STACK_WIDTH * 0.5f) - (textSize.x * 0.5f), itemPos.y + (ITEM_STACK_HEIGHT * 0.25f) - (textSize.y * 0.5f)}, 64, 15, RED);
+        }
+    }
 }
 
 void InitDebugSystem()
