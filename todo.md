@@ -6,7 +6,8 @@
 
 # GAMEPLAY
 
--   inventory
+-   inventory:
+    -   save player to player.bin
 -   "spawn in" menu (debug mode)
 -   tools
 -   break + place tiles
