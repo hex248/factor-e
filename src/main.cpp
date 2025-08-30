@@ -91,7 +91,10 @@ int main()
         DrawWorld(&world);
         CheckHover(&world);
         player.Draw();
+
         EndMode2D();
+
+        DrawToolBelt(player);
 
         DrawMouse();
 
