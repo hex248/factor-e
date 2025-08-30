@@ -42,13 +42,6 @@ typedef struct WorldTile
     char largeTexturePath[256];
 } WorldTile;
 
-typedef struct CollisionType
-{
-    bool solid;
-    float width;
-    float height;
-} CollisionType;
-
 /*
 {
     "id": 0,
@@ -57,11 +50,6 @@ typedef struct CollisionType
     "layer": "ground",
     "spritePath": "assets/sprites/dirt.png",
     "spriteScale": 4.0,
-    "collision": {
-        "solid": false,
-        "width": 1,
-        "height": 1
-    },
     "walkable": true,
     "buildable": true,
     "harvestable": false
@@ -75,7 +63,6 @@ typedef struct TileType
     std::string layer;
     std::string spritePath;
     float spriteScale;
-    CollisionType collision;
     char cursorType[8];
     bool useShader;
     std::string largeTexturePath;
@@ -143,8 +130,6 @@ typedef struct LgTexShaderData
     bool initialized;
 } LgTexShaderData;
 
-void to_json(nlohmann::json &j, const CollisionType &c);
-void from_json(const nlohmann::json &j, CollisionType &c);
 void to_json(nlohmann::json &j, const TileType &t);
 void from_json(const nlohmann::json &j, TileType &t);
 void to_json(nlohmann::json &j, const TileSet &t);

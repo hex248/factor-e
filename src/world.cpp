@@ -26,18 +26,6 @@ static LgTexShaderData lgTexShader;
 using json = nlohmann::json;
 
 // json parsing and serialization functions for each type
-void to_json(json &j, const CollisionType &c)
-{
-    j = json{{"solid", c.solid}, {"width", c.width}, {"height", c.height}};
-}
-
-void from_json(const json &j, CollisionType &c)
-{
-    j.at("solid").get_to(c.solid);
-    j.at("width").get_to(c.width);
-    j.at("height").get_to(c.height);
-}
-
 void to_json(json &j, const TileType &t)
 {
     j = json{{"name", t.name},
@@ -45,7 +33,6 @@ void to_json(json &j, const TileType &t)
              {"layer", t.layer},
              {"spritePath", t.spritePath},
              {"spriteScale", t.spriteScale},
-             {"collision", t.collision},
              {"cursorType", std::string(t.cursorType)},
              {"useShader", t.useShader},
              {"largeTexturePath", t.largeTexturePath}};
@@ -59,7 +46,6 @@ void from_json(const json &j, TileType &t)
     j.at("layer").get_to(t.layer);
     j.at("spritePath").get_to(t.spritePath);
     j.at("spriteScale").get_to(t.spriteScale);
-    j.at("collision").get_to(t.collision);
     std::string cursorTypeStr;
     j.at("cursorType").get_to(cursorTypeStr);
     strncpy(t.cursorType, cursorTypeStr.c_str(), sizeof(t.cursorType) - 1);

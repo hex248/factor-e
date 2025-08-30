@@ -6,11 +6,6 @@
         "layer": "ground",
         "spritePath": "assets/sprites/tiles/dirt.png",
         "spriteScale": 8.0,
-        "collision": {
-            "solid": false,
-            "width": 1,
-            "height": 1
-        },
         "walkable": true,
         "buildable": true,
         "harvestable": false,
@@ -25,11 +20,6 @@
         "layer": "ground",
         "spritePath": "assets/sprites/tiles/grass.png",
         "spriteScale": 8.0,
-        "collision": {
-            "solid": false,
-            "width": 1,
-            "height": 1
-        },
         "walkable": true,
         "buildable": true,
         "harvestable": false,
@@ -44,11 +34,6 @@
         "layer": "object",
         "spritePath": "assets/sprites/rock.png",
         "spriteScale": 8.0,
-        "collision": {
-            "solid": true,
-            "width": 0.75,
-            "height": 0.75
-        },
         "walkable": false,
         "buildable": false,
         "harvestable": true,
@@ -63,11 +48,6 @@
         "layer": "object",
         "spritePath": "assets/sprites/tree.png",
         "spriteScale": 8.0,
-        "collision": {
-            "solid": true,
-            "width": 0.8,
-            "height": 0.8
-        },
         "walkable": false,
         "buildable": false,
         "harvestable": true,
@@ -82,11 +62,6 @@
         "layer": "object",
         "spritePath": "assets/sprites/poison-flower.png",
         "spriteScale": 8.0,
-        "collision": {
-            "solid": false,
-            "width": 0.3,
-            "height": 0.3
-        },
         "walkable": true,
         "buildable": false,
         "harvestable": true,
