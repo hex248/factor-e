@@ -5,8 +5,8 @@
 
 #define DEFAULT_WINDOW_WIDTH 1280.0f
 #define DEFAULT_WINDOW_HEIGHT 720.0f
-#define VIRTUAL_WIDTH 1920.0f
-#define VIRTUAL_HEIGHT 1080.0f
+#define VIRTUAL_WIDTH 2560.0f
+#define VIRTUAL_HEIGHT 1440.0f
 #define CONFIG_FILE_NAME "factor-e.config"
 
 typedef struct Config

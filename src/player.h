@@ -6,7 +6,7 @@
 #define PLAYER_SPRITE_PATH "assets/sprites/player.png"
 #define PLAYER_SPRITE_SCALE 3.0f
 #define PLAYER_SPEED 25
-#define PLAYER_REACH 3
+#define PLAYER_REACH 4
 
 class Player
 {
