@@ -1,7 +1,5 @@
 # PERFORMANCE
 
--   find a way to keep track of all loaded sprites, and only unload at the end (at the moment, the sprites are loaded + unloaded every single time they are drawn)
-
 # VISUAL
 
 # GAMEPLAY
