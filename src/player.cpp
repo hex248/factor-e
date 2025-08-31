@@ -18,8 +18,9 @@ Player::~Player()
 
 void Player::Initialize(Vector2 pos, float sz, float sp)
 {
-    inventory[0] = CreateItemStack(1, 128);
-    inventory[1] = CreateItemStack(2, 16);
+    inventory[0] = CreateItemStack(3, 1);
+    inventory[1] = CreateItemStack(1, 128);
+    inventory[2] = CreateItemStack(2, 16);
     position = pos;
     size = sz;
     speed = sp;

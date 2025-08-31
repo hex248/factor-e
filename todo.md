@@ -18,7 +18,6 @@
 
 # ART:
 
--   shovel
 -   jackhammer or drill
 -   basic player animation
 
