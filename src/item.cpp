@@ -92,22 +92,28 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
         }
     }
 
-    Texture2D inHandTex = GetTexture(item.inHandSpritePath);
-    if (inHandTex.id <= 0)
+    stack.showInHand = item.showInHand;
+    if (item.showInHand)
     {
-        Image inHandSpriteImage = LoadImage(item.inHandSpritePath.c_str());
-        if (inHandSpriteImage.data != NULL)
+        stack.inHandSprite = item.inHandSpritePath;
+        Texture2D inHandTex = GetTexture(item.inHandSpritePath);
+        if (inHandTex.id <= 0)
         {
-            ImageResizeNN(&inHandSpriteImage,
-                          (int)((float)inHandSpriteImage.width * item.inHandScale),
-                          (int)((float)inHandSpriteImage.height * item.inHandScale));
+            Image inHandSpriteImage = LoadImage(item.inHandSpritePath.c_str());
+            if (inHandSpriteImage.data != NULL)
+            {
+                ImageResizeNN(&inHandSpriteImage,
+                              (int)((float)inHandSpriteImage.width * item.inHandScale),
+                              (int)((float)inHandSpriteImage.height * item.inHandScale));
 
             stack.inHandSprite = RegisterTexture(inHandSpriteImage, item.inHandSpritePath);
-            UnloadImage(inHandSpriteImage);
+                RegisterTexture(inHandSpriteImage, item.inHandSpritePath);
+                UnloadImage(inHandSpriteImage);
+            }
         }
-    }
 
-    stack.inHandOffset = item.inHandOffset;
+        stack.inHandOffset = item.inHandOffset;
+    }
 
     return stack;
 }

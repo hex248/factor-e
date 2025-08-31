@@ -76,7 +76,7 @@ void Player::Draw()
     DrawTextureV(shadowTex, shadowPos, WHITE);
     DrawTexturePro(playerTex, source, pos, origin, 0, WHITE);
 
-    if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0)
+    if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0 && inventory[selectedSlot].showInHand)
     {
         Texture2D inHandSprite = GetTexture(inventory[selectedSlot].inHandSprite);
         Vector2 inHandSpritePos = {(position.x - inHandSprite.width / 2) + inventory[selectedSlot].inHandOffset.x,

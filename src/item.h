@@ -29,6 +29,7 @@ typedef struct ItemStack
     std::string iconSprite;
     std::string inHandSprite;
     Vector2 inHandOffset;
+    bool showInHand;
 } ItemStack;
 
 void to_json(nlohmann::json &j, const Item &item);
