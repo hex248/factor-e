@@ -16,7 +16,6 @@
 #include "mouse.h"
 #include "tex.h"
 
-World world;
 void ReloadGame()
 {
     player.position = {0.0f, 0.0f};
@@ -25,7 +24,7 @@ void ReloadGame()
 
 void RegenerateWorld()
 {
-    GenerateWorld(&world);
+    GenerateWorld();
 
     ReloadGame();
 }
@@ -42,7 +41,7 @@ int main()
     InitFonts();
     InitDebugSystem();
 
-    InitWorld(&world);
+    InitWorld();
 
     if (!DEV)
         SetExitKey(KEY_NULL);
@@ -91,8 +90,8 @@ int main()
         ClearBackground({10, 10, 10, 255});
 
         BeginMode2D(camera);
-        DrawWorld(&world);
-        CheckHover(&world);
+        DrawWorld();
+        CheckHover();
         player.Draw();
 
         EndMode2D();
@@ -143,7 +142,7 @@ int main()
     CleanupVirtualScreen();
     CleanupFonts();
 
-    CleanupWorld(&world);
+    CleanupWorld();
 
     UnregisterTextures();
 

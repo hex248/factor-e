@@ -137,22 +137,23 @@ void to_json(nlohmann::json &j, const TileSet &t);
 void from_json(const nlohmann::json &j, TileSet &t);
 
 // World save/load functions
-int World_Save(const char *path, struct World *world);
-int World_Load(const char *path, struct World *world);
-void RegenerateTexturesForLoadedWorld(World *world);
+int World_Save(const char *path);
+int World_Load(const char *path);
+void RegenerateTexturesForLoadedWorld();
 
 TileType GetRandomWeightedTile(const std::map<std::string, float> &weights);
 TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map<std::string, float> &weights);
 
 Texture2D GetOrLoadShaderTexture(const std::string &texturePath);
 
-void GenerateWorld(World *world);
-void InitWorld(World *world);
+void GenerateWorld();
+void InitWorld();
 void InitTextureShader();
 void CleanupTextureShader();
-void DrawWorld(World *world);
-void CleanupWorld(World *world);
-void CheckHover(World *world);
+void DrawWorld();
 bool CheckPointInDiamond(Vector2 point, Diamond diamond);
+void CheckHover();
+void CleanupWorld();
+
 
 #endif
