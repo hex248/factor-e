@@ -19,7 +19,7 @@ private:
 
 public:
     ItemStack inventory[21];
-    unsigned int selectedSlot = 7;
+    unsigned int selectedSlot = 0;
 
     WorldTile hovering;
 
