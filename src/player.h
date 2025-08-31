@@ -16,6 +16,7 @@ private:
 
 public:
     ItemStack inventory[21];
+    unsigned int selectedSlot = 7;
 
     Vector2 position = {0, 0};
     Vector2 dir = {0, 0};
