@@ -135,9 +135,14 @@ void DrawToolBelt(const Player &player)
         {
             DrawTextureV(stack.iconSprite, itemPos, WHITE);
 
-            const char *quantityText = TextFormat("%d", stack.quantity);
-            Vector2 textSize = MeasureTextEx(fontLarge, quantityText, 64, 15);
-            DrawTextEx(fontLarge, quantityText, {itemPos.x + (ITEM_STACK_WIDTH * 0.5f) - (textSize.x * 0.5f), itemPos.y + (ITEM_STACK_HEIGHT * 0.25f) - (textSize.y * 0.5f)}, 64, 15, RED);
+            if (stack.quantity > 1)
+            {
+                const char *quantityText = TextFormat("x%d", stack.quantity);
+                unsigned int fontSize = 42;
+                unsigned int fontSpacing = 5;
+                Vector2 textSize = MeasureTextEx(fontLargeBold, quantityText, fontSize, fontSpacing);
+                DrawTextEx(fontLargeBold, quantityText, {itemPos.x + (ITEM_STACK_WIDTH * 1.0f) - (textSize.x), itemPos.y + (ITEM_STACK_HEIGHT * 0.85f) - (textSize.y * 0.5f)}, fontSize, fontSpacing, WHITE);
+            }
         }
     }
 }
