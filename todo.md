@@ -4,8 +4,6 @@
 
 # VISUAL
 
--   item in hand
-
 # GAMEPLAY
 
 -   tools
@@ -22,6 +20,8 @@
 
 # ART:
 
+-   shovel
+-   jackhammer or drill
 -   basic player animation
 
 # UI:
