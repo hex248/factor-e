@@ -32,6 +32,8 @@ void RegenerateWorld()
 
 int main()
 {
+    SetTraceLogLevel(LOG_ERROR);
+
     InitDisplaySystem();
     InitialiseMouse();
 
