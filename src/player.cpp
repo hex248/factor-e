@@ -56,7 +56,6 @@ float angleOff = 0;
 bool stationary = true;
 void Player::Draw()
 {
-    angleOff++;
     if (!spriteLoaded)
         return;
     float angle = std::atan2(dir.x, dir.y) * 180 / PI;
