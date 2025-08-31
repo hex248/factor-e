@@ -8,6 +8,7 @@ items.json
 | name             | std::string   |                                                              |
 | iconSpritePath   | std::string   | path to icon sprite to be used in UI                         |
 | inHandSpritePath | std::string   | path to sprite to use when "in hand"                         |
+| inHandOffset     | Vector2       | position offset for player                                   |
 | iconScale        | float         |                                                              |
 | inHandScale      | float         |                                                              |
 | tileID           | unsigned char | 0 indicates no tile (?) - references tile in tile_types.json |
@@ -24,6 +25,7 @@ items.json
 | quantity      | unsigned int  | amount of these items in the stack |
 | iconSprite    | Texture2D     |                                    |
 | inHandSprite  | Texture2D     |                                    |
+| inHandOffset  | Vector2       | position offset for player         |
 
 # Player (stored in player.bin)
 

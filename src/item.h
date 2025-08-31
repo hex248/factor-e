@@ -12,6 +12,7 @@ typedef struct Item
     std::string name;
     std::string iconSpritePath;
     std::string inHandSpritePath;
+    Vector2 inHandOffset;
     float iconScale;
     float inHandScale;
     unsigned char tileID;
@@ -26,6 +27,7 @@ typedef struct ItemStack
     unsigned int quantity;
     Texture2D iconSprite;
     Texture2D inHandSprite;
+    Vector2 inHandOffset;
 } ItemStack;
 
 void to_json(nlohmann::json &j, const Item &item);

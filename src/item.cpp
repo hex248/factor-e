@@ -10,6 +10,7 @@ void to_json(json &j, const Item &item)
         {"name", item.name},
         {"iconSpritePath", item.iconSpritePath},
         {"inHandSpritePath", item.inHandSpritePath},
+        {"inHandOffset", {{"x", item.inHandOffset.x}, {"y", item.inHandOffset.y}}},
         {"iconScale", item.iconScale},
         {"inHandScale", item.inHandScale},
         {"tileID", item.tileID},
@@ -24,6 +25,8 @@ void from_json(const json &j, Item &item)
     j.at("name").get_to(item.name);
     j.at("iconSpritePath").get_to(item.iconSpritePath);
     j.at("inHandSpritePath").get_to(item.inHandSpritePath);
+    j.at("inHandOffset").at("x").get_to(item.inHandOffset.x);
+    j.at("inHandOffset").at("y").get_to(item.inHandOffset.y);
     j.at("iconScale").get_to(item.iconScale);
     j.at("inHandScale").get_to(item.inHandScale);
     j.at("tileID").get_to(item.tileID);
@@ -92,6 +95,7 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
         stack.inHandSprite = LoadTextureFromImage(inHandSpriteImage);
         UnloadImage(inHandSpriteImage);
     }
+    stack.inHandOffset = item.inHandOffset;
 
     return stack;
 }

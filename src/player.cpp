@@ -91,6 +91,14 @@ void Player::Draw()
     }
 
     DrawTexturePro(sprite, source, pos, origin, angleOut, color);
+
+    if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0)
+    {
+        Vector2 inHandSpritePos = {(position.x - inventory[selectedSlot].inHandSprite.width / 2) + inventory[selectedSlot].inHandOffset.x,
+                                   (position.y - inventory[selectedSlot].inHandSprite.height / 2) + inventory[selectedSlot].inHandOffset.y};
+
+        DrawTextureV(inventory[selectedSlot].inHandSprite, inHandSpritePos, WHITE);
+    }
 }
 
 void Player::HandleMovement()
