@@ -73,7 +73,7 @@ void HandleControls()
             player.selectedSlot = 6;
     }
 
-    if (IsKeyPressed(KEY_E))
+    if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) && player.selectedSlot < 7)
     {
         ItemStack current = player.inventory[player.selectedSlot];
         if (current.isTool)
