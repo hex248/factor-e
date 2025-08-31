@@ -3,11 +3,11 @@
 
 Player player;
 
-Player::Player() : position({0.0f, 0.0f}), size(25.0f), speed(PLAYER_SPEED), color(WHITE), spriteLoaded(false)
+Player::Player() : position({0.0f, 0.0f}), size(25.0f), speed(PLAYER_SPEED), spriteLoaded(false)
 {
 }
 
-Player::Player(Vector2 pos, float sz, float sp, Color col) : position(pos), size(sz), speed(sp), color(col), spriteLoaded(false)
+Player::Player(Vector2 pos, float sz, float sp) : position(pos), size(sz), speed(sp), spriteLoaded(false)
 {
 }
 
@@ -16,14 +16,13 @@ Player::~Player()
     UnloadSprite();
 }
 
-void Player::Initialize(Vector2 pos, float sz, float sp, Color col)
+void Player::Initialize(Vector2 pos, float sz, float sp)
 {
     inventory[0] = CreateItemStack(1, 128);
     inventory[1] = CreateItemStack(2, 16);
     position = pos;
     size = sz;
     speed = sp;
-    color = col;
     LoadSprite();
 }
 
@@ -40,7 +39,18 @@ void Player::LoadSprite()
                   (int)((float)(playerImage.height) * PLAYER_SPRITE_SCALE));
 
     sprite = LoadTextureFromImage(playerImage);
+
+    Image playerShadowImage = LoadImage(PLAYER_SHADOW_SPRITE_PATH);
+
+    ImageResizeNN(&playerShadowImage,
+                  (int)((float)(playerShadowImage.width) * PLAYER_SPRITE_SCALE),
+                  (int)((float)(playerShadowImage.height) * PLAYER_SPRITE_SCALE));
+
+    shadowSprite = LoadTextureFromImage(playerShadowImage);
+
     UnloadImage(playerImage);
+    UnloadImage(playerShadowImage);
+
     spriteLoaded = true;
 }
 
@@ -62,11 +72,13 @@ void Player::Draw()
 
     Rectangle source = {0.0f, 0.0f, (float)(sprite.width), (float)(sprite.height)};
 
+    Vector2 shadowPos = {position.x - shadowSprite.width / 2.0f, (position.y - shadowSprite.height / 2.0f) + PLAYER_SPRITE_SCALE};
     Rectangle pos = {position.x, position.y, (float)(sprite.width), (float)(sprite.height)};
 
     Vector2 origin = {pos.width / 2.0f, pos.height / 2.0f};
 
-    DrawTexturePro(sprite, source, pos, origin, 0, color);
+    DrawTextureV(shadowSprite, shadowPos, WHITE);
+    DrawTexturePro(sprite, source, pos, origin, 0, WHITE);
 
     if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0)
     {

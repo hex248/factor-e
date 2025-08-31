@@ -47,7 +47,7 @@ int main()
     bool exitWindow = false;
     const int CLOSE_KEY = KEY_ESCAPE;
 
-    player.Initialize({0.0f, 0.0f}, 25.0f, PLAYER_SPEED, WHITE);
+    player.Initialize({0.0f, 0.0f}, 25.0f, PLAYER_SPEED);
 
     Camera2D camera;
     camera.target = {player.position.x, player.position.y};

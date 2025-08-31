@@ -507,7 +507,7 @@ void DrawWorld(World *world)
     float centerTileY = centerIsoPos.y * WORLD_TILE_SIZE;
 
     float tileCenterX = centerTileX + WORLD_TILE_SIZE / 2.0f;
-    float tileCenterY = centerTileY + WORLD_TILE_SIZE / 2.0f - WORLD_TILE_SIZE * 0.25f;
+    float tileCenterY = centerTileY + WORLD_TILE_SIZE / 2.0f - WORLD_TILE_SIZE * 0.5f;
 
     float offsetX = -tileCenterX;
     float offsetY = -tileCenterY;
