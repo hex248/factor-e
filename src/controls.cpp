@@ -1,6 +1,7 @@
 #include "controls.h"
 #include "config.h"
 #include "main.h"
+#include "player.h"
 
 bool showDebug = DEV;
 
@@ -20,6 +21,58 @@ void HandleControls()
         if (IsKeyPressed(KEY_F3))
             showDebug = !showDebug;
     }
+
+    // toolbelt slots
+    if (IsKeyPressed(KEY_ONE))
+    {
+        if (player.selectedSlot == 0)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 0;
+    }
+    else if (IsKeyPressed(KEY_TWO))
+    {
+        if (player.selectedSlot == 1)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 1;
+    }
+    else if (IsKeyPressed(KEY_THREE))
+    {
+        if (player.selectedSlot == 2)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 2;
+    }
+    else if (IsKeyPressed(KEY_FOUR))
+    {
+        if (player.selectedSlot == 3)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 3;
+    }
+    else if (IsKeyPressed(KEY_FIVE))
+    {
+        if (player.selectedSlot == 4)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 4;
+    }
+    else if (IsKeyPressed(KEY_SIX))
+    {
+        if (player.selectedSlot == 5)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 5;
+    }
+    else if (IsKeyPressed(KEY_SEVEN))
+    {
+        if (player.selectedSlot == 6)
+            player.selectedSlot = 7;
+        else
+            player.selectedSlot = 6;
+    }
+
     if (IsKeyPressed(KEY_F10))
     {
         int monitorCount = GetMonitorCount();
