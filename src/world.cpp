@@ -4,10 +4,11 @@
 #include "mouse.h"
 #include "player.h"
 #include "controls.h"
+#include "tex.h"
+#include "include/json.hpp"
 #include <stdlib.h>
 #include <stdio.h>
 #include <fstream>
-#include "include/json.hpp"
 #include <iostream>
 #include <cmath>
 #include <algorithm>
@@ -19,8 +20,8 @@
 Image noise;
 Texture2D noiseTexture;
 
-static Texture2D tileHoverSprite;
-static Texture2D potentialTileHoverSprite;
+unsigned char tileHoverSprite;
+unsigned char potentialTileHoverSprite;
 static LgTexShaderData lgTexShader;
 
 using json = nlohmann::json;
@@ -143,38 +144,37 @@ void RegenerateTexturesForLoadedWorld(World *world)
             // convert to lowercase
             std::transform(tileName.begin(), tileName.end(), tileName.begin(), ::tolower);
 
-            bool tileTypeFound = false;
             for (auto &[key, value] : tile_types_data.items())
             {
                 if (key == tileName)
                 {
                     TileType tileType = value.template get<TileType>();
 
-                    Image spriteImage = LoadImage(tileType.spritePath.c_str());
-                    if (spriteImage.data != NULL)
-                    {
-                        ImageResizeNN(&spriteImage,
-                                      (int)((float)spriteImage.width * tileType.spriteScale),
-                                      (int)((float)spriteImage.height * tileType.spriteScale));
+                    Texture2D tileTex = GetTexture(tileType.spritePath);
 
-                        world->tiles[i].sprite = LoadTextureFromImage(spriteImage);
-                        UnloadImage(spriteImage);
+                    if (tileTex.id > 0)
+                    {
+                        strncpy(world->tiles[i].sprite, tileType.spritePath.c_str(), sizeof(world->tiles[i].sprite) - 1);
+                        world->tiles[i].sprite[sizeof(world->tiles[i].sprite) - 1] = '\0';
+                    }
+                    else
+                    {
+                        Image spriteImage = LoadImage(tileType.spritePath.c_str());
+                        if (spriteImage.data != NULL)
+                        {
+                            ImageResizeNN(&spriteImage,
+                                          (int)((float)spriteImage.width * tileType.spriteScale),
+                                          (int)((float)spriteImage.height * tileType.spriteScale));
+
+                            std::string textureKey = RegisterTexture(spriteImage, tileType.spritePath);
+                            strncpy(world->tiles[i].sprite, textureKey.c_str(), sizeof(world->tiles[i].sprite) - 1);
+                            world->tiles[i].sprite[sizeof(world->tiles[i].sprite) - 1] = '\0';
+                            UnloadImage(spriteImage);
+                        }
                     }
 
-                    tileTypeFound = true;
                     break;
                 }
-            }
-
-            if (!tileTypeFound)
-            {
-                printf("WARNING: could not find tile type for '%s' during texture regeneration\n", world->tiles[i].name);
-                // invalid texture as fallback
-                world->tiles[i].sprite.id = 0;
-                world->tiles[i].sprite.width = 0;
-                world->tiles[i].sprite.height = 0;
-                world->tiles[i].sprite.mipmaps = 0;
-                world->tiles[i].sprite.format = 0;
             }
         }
     }
@@ -437,14 +437,26 @@ void GenerateWorld(World *world)
 
             if (!tile.useShader)
             {
-                Image spriteImage = LoadImage(tile.spritePath.c_str());
+                Texture2D tileTex = GetTexture(tile.spritePath);
 
-                ImageResizeNN(&spriteImage,
-                              (int)((float)spriteImage.width * tile.spriteScale),
-                              (int)((float)spriteImage.height * tile.spriteScale));
+                if (tileTex.id > 0)
+                {
+                    strncpy(world->tiles[i].sprite, tile.spritePath.c_str(), sizeof(world->tiles[i].sprite) - 1);
+                    world->tiles[i].sprite[sizeof(world->tiles[i].sprite) - 1] = '\0';
+                }
+                else
+                {
+                    Image spriteImage = LoadImage(tile.spritePath.c_str());
 
-                world->tiles[i].sprite = LoadTextureFromImage(spriteImage);
-                UnloadImage(spriteImage);
+                    ImageResizeNN(&spriteImage,
+                                  (int)((float)spriteImage.width * tile.spriteScale),
+                                  (int)((float)spriteImage.height * tile.spriteScale));
+
+                    std::string textureKey = RegisterTexture(spriteImage, tile.spritePath);
+                    strncpy(world->tiles[i].sprite, textureKey.c_str(), sizeof(world->tiles[i].sprite) - 1);
+                    world->tiles[i].sprite[sizeof(world->tiles[i].sprite) - 1] = '\0';
+                    UnloadImage(spriteImage);
+                }
             }
             snprintf(world->tiles[i].cursorType, sizeof(world->tiles[i].cursorType), "%s", tile.cursorType);
             world->tiles[i].useShader = tile.useShader;
@@ -463,14 +475,14 @@ void InitWorld(World *world)
                   (int)((float)tileHoverImage.width * TILE_HOVER_SPRITE_SCALE),
                   (int)((float)tileHoverImage.height * TILE_HOVER_SPRITE_SCALE));
 
-    tileHoverSprite = LoadTextureFromImage(tileHoverImage);
+    tileHoverSprite = RegisterTexture(tileHoverImage);
     UnloadImage(tileHoverImage);
 
     Image potentialTileHoverImage = LoadImage(POTENTIAL_TILE_HOVER_SPRITE_PATH);
     ImageResizeNN(&potentialTileHoverImage,
                   (int)((float)potentialTileHoverImage.width * POTENTIAL_TILE_HOVER_SPRITE_SCALE),
                   (int)((float)potentialTileHoverImage.height * POTENTIAL_TILE_HOVER_SPRITE_SCALE));
-    potentialTileHoverSprite = LoadTextureFromImage(potentialTileHoverImage);
+    potentialTileHoverSprite = RegisterTexture(potentialTileHoverImage);
     UnloadImage(potentialTileHoverImage);
 
     if (FileExists(WORLD_FILE_NAME))
@@ -561,14 +573,14 @@ void DrawWorld(World *world)
                 else
                 {
                     // fallback to regular sprite if shader texture failed to load
-                    Texture2D sprite = world->tiles[index].sprite;
+                    Texture2D sprite = GetTexture(std::string(world->tiles[index].sprite));
                     DrawTexture(sprite, (int)tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
                 }
             }
             // no shader
             else
             {
-                Texture2D sprite = world->tiles[index].sprite;
+                Texture2D sprite = GetTexture(std::string(world->tiles[index].sprite));
                 DrawTexture(sprite, (int)tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
             }
 
@@ -662,7 +674,11 @@ void CheckHover(World *world)
 
                 if (tileDistanceSquared < reach * reach)
                 {
-                    DrawTextureV(potentialTileHoverSprite, {world->tiles[i].bounds.center.x - (float)potentialTileHoverSprite.width / 2, world->tiles[i].bounds.center.y - (float)potentialTileHoverSprite.height / 2}, WHITE);
+                    Texture2D potentialHoverTex = GetTexture(potentialTileHoverSprite);
+                    DrawTextureV(potentialHoverTex,
+                                 {world->tiles[i].bounds.center.x - (float)potentialHoverTex.width / 2,
+                                  world->tiles[i].bounds.center.y - (float)potentialHoverTex.height / 2},
+                                 WHITE);
                 }
             }
         }
@@ -718,7 +734,11 @@ void CheckHover(World *world)
                 // only show the hover overlay for the "HAND" cursor
                 if (strcmp(hoveredTile.cursorType, "HAND") == 0)
                 {
-                    DrawTextureV(tileHoverSprite, {world->tiles[i].bounds.center.x - WORLD_TILE_SIZE / 2, world->tiles[i].bounds.center.y - WORLD_TILE_SIZE / 4}, WHITE);
+                    Texture2D tileHoverTex = GetTexture(tileHoverSprite);
+                    DrawTextureV(tileHoverTex,
+                                 {world->tiles[i].bounds.center.x - WORLD_TILE_SIZE / 2,
+                                  world->tiles[i].bounds.center.y - WORLD_TILE_SIZE / 4},
+                                 WHITE);
                 }
 
                 goto tile_check_done;
@@ -770,15 +790,6 @@ void CleanupWorld(World *world)
 
     if (world->tiles)
     {
-        // clean up individual tile textures before freeing the array
-        for (int i = 0; i < world->tilesX * world->tilesY; i++)
-        {
-            if (world->tiles[i].sprite.id > 0)
-            {
-                UnloadTexture(world->tiles[i].sprite);
-            }
-        }
-
         free(world->tiles);
         world->tiles = NULL;
     }

@@ -13,8 +13,8 @@
 class Player
 {
 private:
-    Texture2D sprite;
-    Texture2D shadowSprite;
+    unsigned char sprite;
+    unsigned char shadowSprite;
 
 public:
     ItemStack inventory[21];
@@ -33,7 +33,6 @@ public:
     void Draw();
     void HandleMovement();
     void LoadSprite();
-    void UnloadSprite();
 };
 
 extern Player player;

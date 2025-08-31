@@ -1,5 +1,6 @@
 #include <fstream>
 #include "item.h"
+#include "tex.h"
 
 using json = nlohmann::json;
 
@@ -75,26 +76,37 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
     ItemStack stack;
     stack.itemID = itemID;
     stack.quantity = quantity;
-    Image iconSpriteImage = LoadImage(item.iconSpritePath.c_str());
-    if (iconSpriteImage.data != NULL)
-    {
-        ImageResizeNN(&iconSpriteImage,
-                      ITEM_STACK_WIDTH,
-                      ITEM_STACK_HEIGHT);
 
-        stack.iconSprite = LoadTextureFromImage(iconSpriteImage);
-        UnloadImage(iconSpriteImage);
-    }
-    Image inHandSpriteImage = LoadImage(item.inHandSpritePath.c_str());
-    if (inHandSpriteImage.data != NULL)
+    Texture2D iconTex = GetTexture(item.iconSpritePath);
+    if (iconTex.id <= 0)
     {
-        ImageResizeNN(&inHandSpriteImage,
-                      (int)((float)inHandSpriteImage.width * item.inHandScale),
-                      (int)((float)inHandSpriteImage.height * item.inHandScale));
+        Image iconSpriteImage = LoadImage(item.iconSpritePath.c_str());
+        if (iconSpriteImage.data != NULL)
+        {
+            ImageResizeNN(&iconSpriteImage,
+                          ITEM_STACK_WIDTH,
+                          ITEM_STACK_HEIGHT);
 
-        stack.inHandSprite = LoadTextureFromImage(inHandSpriteImage);
-        UnloadImage(inHandSpriteImage);
+            stack.iconSprite = RegisterTexture(iconSpriteImage, item.iconSpritePath);
+            UnloadImage(iconSpriteImage);
+        }
     }
+
+    Texture2D inHandTex = GetTexture(item.inHandSpritePath);
+    if (inHandTex.id <= 0)
+    {
+        Image inHandSpriteImage = LoadImage(item.inHandSpritePath.c_str());
+        if (inHandSpriteImage.data != NULL)
+        {
+            ImageResizeNN(&inHandSpriteImage,
+                          (int)((float)inHandSpriteImage.width * item.inHandScale),
+                          (int)((float)inHandSpriteImage.height * item.inHandScale));
+
+            stack.inHandSprite = RegisterTexture(inHandSpriteImage, item.inHandSpritePath);
+            UnloadImage(inHandSpriteImage);
+        }
+    }
+
     stack.inHandOffset = item.inHandOffset;
 
     return stack;

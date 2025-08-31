@@ -52,6 +52,7 @@ add_executable(${PROJECT_NAME}
     src/ui.cpp
     src/mouse.cpp
     src/item.cpp
+    src/tex.cpp
 )
 
 # platform-specific compiler flags

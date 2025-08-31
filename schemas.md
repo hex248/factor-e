@@ -23,8 +23,8 @@ items.json
 | id            | unsigned char |                                    |
 | itemID        | unsigned char | references item in items.json      |
 | quantity      | unsigned int  | amount of these items in the stack |
-| iconSprite    | Texture2D     |                                    |
-| inHandSprite  | Texture2D     |                                    |
+| iconSprite    | const char \* |                                    |
+| inHandSprite  | const char \* |                                    |
 | inHandOffset  | Vector2       | position offset for player         |
 
 # Player (stored in player.bin)
@@ -34,7 +34,8 @@ items.json
 | id            | unsigned char |                                            |
 | inventory     | ItemStack[21] | 3 rows of 7 (toolbelt bar is indexes 0-6)  |
 | selectedSlot  | unsigned int  | index 0-7 of toolbelt (7 is none selected) |
-| sprite        | Texture2D     | (not saved)                                |
+| sprite        | unsigned char | (not saved)                                |
+| shadowSprite  | unsigned char | (not saved)                                |
 | position      | Vector2       |                                            |
 |               |               |                                            |
 |               |               |                                            |

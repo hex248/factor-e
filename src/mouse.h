@@ -13,7 +13,6 @@ void HandleMouse(Camera2D camera);
 void DrawMouse();
 void HideMouse();
 void ShowMouse();
-void CleanupCursors();
 Vector2 GetMouseWorldPosition();
 Vector2 GetMouseVirtualPosition();
 void SetCurrentCursorSprite(const char *cursor);

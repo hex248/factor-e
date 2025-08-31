@@ -1,11 +1,12 @@
 #include "mouse.h"
 #include "config.h"
+#include "tex.h"
 #include <cstring>
 #include <stdio.h>
 
-Texture2D pointerSprite;
-Texture2D handSprite;
-Texture2D currentCursorSprite;
+unsigned char pointerSprite;
+unsigned char handSprite;
+unsigned char currentCursorSprite;
 
 static bool showMouse = false;
 static bool showCustomCursor = false;
@@ -33,9 +34,10 @@ void InitialiseMouse()
                   (int)((float)handImage.width * CURSOR_SPRITE_SCALE),
                   (int)((float)handImage.height * CURSOR_SPRITE_SCALE));
 
-    pointerSprite = LoadTextureFromImage(pointerImage);
+    pointerSprite = RegisterTexture(pointerImage);
+    handSprite = RegisterTexture(handImage);
+
     UnloadImage(pointerImage);
-    handSprite = LoadTextureFromImage(handImage);
     UnloadImage(handImage);
 }
 
@@ -55,7 +57,8 @@ void DrawMouse()
         mousePos.x - CURSOR_SPRITE_SCALE,
         mousePos.y - CURSOR_SPRITE_SCALE}; // the cursors have an empty pixel in the top left
 
-    DrawTextureV(currentCursorSprite, mousePos, WHITE);
+    Texture2D cursorTex = GetTexture(currentCursorSprite);
+    DrawTextureV(cursorTex, mousePos, WHITE);
 }
 
 void HideMouse()
@@ -72,12 +75,6 @@ void ShowMouse()
     ShowCursor();
     showMouse = true;
     showCustomCursor = false;
-}
-
-void CleanupCursors()
-{
-    UnloadTexture(pointerSprite);
-    UnloadTexture(handSprite);
 }
 
 Vector2 GetMouseWorldPosition()

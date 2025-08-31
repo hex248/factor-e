@@ -14,6 +14,7 @@
 #include "controls.h"
 #include "ui.h"
 #include "mouse.h"
+#include "tex.h"
 
 World world;
 void ReloadGame()
@@ -142,7 +143,7 @@ int main()
 
     CleanupWorld(&world);
 
-    CleanupCursors();
+    UnregisterTextures();
 
     if (configChanged)
         SaveConfig();

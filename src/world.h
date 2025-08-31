@@ -34,7 +34,7 @@ typedef struct WorldTile
 {
     unsigned char id;
     char name[16];
-    Texture2D sprite;
+    char sprite[256];
     Diamond bounds;
     bool hovered;
     char cursorType[8];

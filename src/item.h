@@ -1,6 +1,7 @@
 #include <string>
 #include "include/json.hpp"
 #include "raylib.h"
+#include <string>
 
 #define ITEMS_PATH "assets/data/items.json"
 #define ITEM_STACK_WIDTH 160
@@ -25,8 +26,8 @@ typedef struct ItemStack
 {
     unsigned char itemID;
     unsigned int quantity;
-    Texture2D iconSprite;
-    Texture2D inHandSprite;
+    std::string iconSprite;
+    std::string inHandSprite;
     Vector2 inHandOffset;
 } ItemStack;
 

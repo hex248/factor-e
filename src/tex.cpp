@@ -1,9 +1,10 @@
 #include "tex.h"
-
+#include <stdio.h>
 #include <map>
+#include <string>
 
 std::map<unsigned char, Texture2D> loadedTextures;
-std::map<char *, Texture2D> customKeyTextures;
+std::map<std::string, Texture2D> customKeyTextures;
 
 unsigned char RegisterTexture(Image img)
 {
@@ -13,7 +14,7 @@ unsigned char RegisterTexture(Image img)
     return newKey;
 }
 
-unsigned char RegisterTexture(char *file)
+unsigned char RegisterTexture(const char *file)
 {
     unsigned char newKey = loadedTextures.size() + 1;
     loadedTextures[newKey] = LoadTexture(file);
@@ -21,14 +22,18 @@ unsigned char RegisterTexture(char *file)
     return newKey;
 }
 
-char *RegisterTexture(Image img, char *customkey)
+std::string RegisterTexture(Image img, std::string customKey)
 {
-    customKeyTextures[customkey] = LoadTextureFromImage(img);
+    customKeyTextures[customKey] = LoadTextureFromImage(img);
+
+    return customKey;
 }
 
-char *RegisterTexture(char *file, char *customkey)
+std::string RegisterTexture(const char *file, std::string customKey)
 {
-    customKeyTextures[customkey] = LoadTexture(file);
+    customKeyTextures[customKey] = LoadTexture(file);
+
+    return customKey;
 }
 
 Texture2D GetTexture(unsigned char key)
@@ -36,26 +41,31 @@ Texture2D GetTexture(unsigned char key)
     return loadedTextures[key];
 }
 
-Texture2D GetTexture(char *key)
+Texture2D GetTexture(std::string customKey)
 {
-    return customKeyTextures[key];
+    return customKeyTextures[customKey];
 }
 
-void UnloadTextures()
+void UnregisterTextures()
 {
     for (auto texture : loadedTextures)
     {
         UnloadTexture(texture.second);
         loadedTextures.erase(texture.first);
     }
+    for (auto texture : customKeyTextures)
+    {
+        UnloadTexture(texture.second);
+        customKeyTextures.erase(texture.first);
+    }
 }
 
-void UnloadTexture(unsigned char key)
+void UnregisterTexture(unsigned char key)
 {
     loadedTextures.erase(key);
 }
 
-void UnloadTexture(char *key)
+void UnregisterTexture(std::string customKey)
 {
-    customKeyTextures.erase(key);
+    customKeyTextures.erase(customKey);
 }

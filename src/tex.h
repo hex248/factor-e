@@ -1,13 +1,14 @@
 #include "raylib.h"
+#include <string>
 
 unsigned char RegisterTexture(Image img);
 unsigned char RegisterTexture(const char *file);
-char *RegisterTexture(Image img, const char *customkey);
-char *RegisterTexture(char *file, const char *customkey);
+std::string RegisterTexture(Image img, std::string customkey);
+std::string RegisterTexture(const char *file, std::string customkey);
 
 Texture2D GetTexture(unsigned char key);
-Texture2D GetTexture(const char *key);
+Texture2D GetTexture(std::string customKey);
 
-void UnloadTextures();
-void UnloadTexture(unsigned char key);
-void UnloadTexture(const char *key);
+void UnregisterTextures();
+void UnregisterTexture(unsigned char key);
+void UnregisterTexture(std::string customKey);

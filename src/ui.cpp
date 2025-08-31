@@ -2,8 +2,9 @@
 #include "config.h"
 #include "controls.h"
 #include "player.h"
-#include <stdio.h>
 #include "mouse.h"
+#include "tex.h"
+#include <stdio.h>
 #include <map>
 #include <vector>
 
@@ -19,8 +20,8 @@ static Font fontSmallExtraLight;
 static bool fontsLoaded = false;
 
 float toolbeltSpriteScale = 8.0f;
-Texture2D toolbeltSprite;
-Texture2D toolbeltSlotSelectedSprite;
+unsigned char toolbeltSprite;
+unsigned char toolbeltSlotSelectedSprite;
 Vector2 toolbeltPosition = {0, 0};
 
 static std::map<std::string, std::string> debugValues;
@@ -50,17 +51,15 @@ void InitFonts()
     ImageResizeNN(&toolbeltSpriteImage,
                   (int)((float)toolbeltSpriteImage.width * toolbeltSpriteScale),
                   (int)((float)toolbeltSpriteImage.height * toolbeltSpriteScale));
-    toolbeltSprite = LoadTextureFromImage(toolbeltSpriteImage);
-    UnloadImage(toolbeltSpriteImage);
+    toolbeltSprite = RegisterTexture(toolbeltSpriteImage);
 
     Image toolbeltSlotSelectedSpriteImage = LoadImage("assets/sprites/toolbelt-slot-selected.png");
     ImageResizeNN(&toolbeltSlotSelectedSpriteImage,
                   (int)((float)toolbeltSlotSelectedSpriteImage.width * toolbeltSpriteScale),
                   (int)((float)toolbeltSlotSelectedSpriteImage.height * toolbeltSpriteScale));
-    toolbeltSlotSelectedSprite = LoadTextureFromImage(toolbeltSlotSelectedSpriteImage);
-    UnloadImage(toolbeltSlotSelectedSpriteImage);
+    toolbeltSlotSelectedSprite = RegisterTexture(toolbeltSlotSelectedSpriteImage);
 
-    toolbeltPosition = {(VIRTUAL_WIDTH - toolbeltSprite.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
+    toolbeltPosition = {(VIRTUAL_WIDTH - toolbeltSpriteImage.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
 
     fontLargeBold = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf", 128, 0, 250);
     fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
@@ -76,6 +75,9 @@ void InitFonts()
 
     SetTextLineSpacing(16);
     fontsLoaded = true;
+
+    UnloadImage(toolbeltSpriteImage);
+    UnloadImage(toolbeltSlotSelectedSpriteImage);
 }
 
 void CleanupFonts()
@@ -116,7 +118,8 @@ float GetScaledPadding(float basePadding)
 
 void DrawToolBelt(const Player &player)
 {
-    DrawTextureV(toolbeltSprite, toolbeltPosition, WHITE);
+    Texture2D toolbeltTex = GetTexture(toolbeltSprite);
+    DrawTextureV(toolbeltTex, toolbeltPosition, WHITE);
 
     float gap = (2 * toolbeltSpriteScale);
     Vector2 startPos = {toolbeltPosition.x + 3 * toolbeltSpriteScale, toolbeltPosition.y + gap};
@@ -127,13 +130,15 @@ void DrawToolBelt(const Player &player)
 
         if (i == player.selectedSlot)
         {
-            DrawTextureV(toolbeltSlotSelectedSprite, itemPos, WHITE);
+            Texture2D tex = GetTexture(toolbeltSlotSelectedSprite);
+            DrawTextureV(tex, itemPos, WHITE);
         }
 
         const ItemStack &stack = player.inventory[i];
         if (stack.quantity > 0)
         {
-            DrawTextureV(stack.iconSprite, itemPos, WHITE);
+            Texture2D tex = GetTexture(stack.iconSprite);
+            DrawTextureV(tex, itemPos, WHITE);
 
             if (stack.quantity > 1)
             {
