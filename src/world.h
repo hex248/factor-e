@@ -155,5 +155,6 @@ bool CheckPointInDiamond(Vector2 point, Diamond diamond);
 void CheckHover();
 void CleanupWorld();
 
+void DestroyTile(WorldTile *tile);
 
 #endif

@@ -121,7 +121,7 @@ void Player::UseTool(const Tool &tool)
     {
         if (lowerHoveringName == target)
         {
-            printf("USE TOOL: %s ON %s\n", tool.name.c_str(), hovering.name);
+            DestroyTile(&hovering);
             return;
         }
     }

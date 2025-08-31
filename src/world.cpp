@@ -802,3 +802,8 @@ void CleanupWorld()
         world.tiles = NULL;
     }
 }
+
+void DestroyTile(WorldTile *tile)
+{
+    world.tiles[tile->id] = {};
+}
