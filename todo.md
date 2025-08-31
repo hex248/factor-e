@@ -1,5 +1,7 @@
 # PERFORMANCE
 
+-   pointer to Item in ItemStack, and remove all cloned fields
+
 # VISUAL
 
 # GAMEPLAY
