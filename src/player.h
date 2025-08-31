@@ -5,7 +5,7 @@
 #include "item.h"
 
 #define PLAYER_SPRITE_PATH "assets/sprites/player.png"
-#define PLAYER_SPRITE_SCALE 3.0f
+#define PLAYER_SPRITE_SCALE 8.0f
 #define PLAYER_SPEED 25
 #define PLAYER_REACH 4
 

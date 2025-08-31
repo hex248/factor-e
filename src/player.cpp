@@ -66,31 +66,7 @@ void Player::Draw()
 
     Vector2 origin = {pos.width / 2.0f, pos.height / 2.0f};
 
-    float angleOut;
-
-    if (!stationary)
-    {
-        angleOff = 0;
-    }
-
-    if (dir.x == 0 && dir.y == 0 && !stationary)
-    {
-        stationary = true;
-    }
-    if (dir.x == 0 && dir.y == 0 && stationary)
-    {
-        angleOut = angleOff;
-    }
-    else
-    {
-        angleOut = angle;
-    }
-    if (dir.x != 0 && dir.y != 0)
-    {
-        stationary = false;
-    }
-
-    DrawTexturePro(sprite, source, pos, origin, angleOut, color);
+    DrawTexturePro(sprite, source, pos, origin, 0, color);
 
     if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0)
     {
