@@ -7,10 +7,13 @@
 #include <map>
 #include <vector>
 
+static Font fontLargeBold;
 static Font fontLarge;
 static Font fontLargeExtraLight;
+static Font fontMediumBold;
 static Font fontMedium;
 static Font fontMediumExtraLight;
+static Font fontSmallBold;
 static Font fontSmall;
 static Font fontSmallExtraLight;
 static bool fontsLoaded = false;
@@ -52,10 +55,15 @@ void InitFonts()
 
     toolbeltPosition = {(VIRTUAL_WIDTH - toolbeltSprite.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
 
+    fontLargeBold = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf", 128, 0, 250);
     fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
     fontLargeExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 128, 0, 250);
+
+    fontMediumBold = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf", 64, 0, 250);
     fontMedium = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 64, 0, 250);
     fontMediumExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 64, 0, 250);
+
+    fontSmallBold = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf", 32, 0, 250);
     fontSmall = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 32, 0, 250);
     fontSmallExtraLight = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-ExtraLight.ttf", 32, 0, 250);
 
