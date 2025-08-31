@@ -18,9 +18,9 @@ static Font fontSmall;
 static Font fontSmallExtraLight;
 static bool fontsLoaded = false;
 
-Image toolbeltSpriteImage;
 float toolbeltSpriteScale = 8.0f;
 Texture2D toolbeltSprite;
+Texture2D toolbeltSlotSelectedSprite;
 Vector2 toolbeltPosition = {0, 0};
 
 static std::map<std::string, std::string> debugValues;
@@ -46,12 +46,19 @@ void InitFonts()
     if (fontsLoaded)
         return;
 
-    toolbeltSpriteImage = LoadImage("assets/sprites/toolbelt.png");
+    Image toolbeltSpriteImage = LoadImage("assets/sprites/toolbelt.png");
     ImageResizeNN(&toolbeltSpriteImage,
                   (int)((float)toolbeltSpriteImage.width * toolbeltSpriteScale),
                   (int)((float)toolbeltSpriteImage.height * toolbeltSpriteScale));
     toolbeltSprite = LoadTextureFromImage(toolbeltSpriteImage);
     UnloadImage(toolbeltSpriteImage);
+
+    Image toolbeltSlotSelectedSpriteImage = LoadImage("assets/sprites/toolbelt-slot-selected.png");
+    ImageResizeNN(&toolbeltSlotSelectedSpriteImage,
+                  (int)((float)toolbeltSlotSelectedSpriteImage.width * toolbeltSpriteScale),
+                  (int)((float)toolbeltSlotSelectedSpriteImage.height * toolbeltSpriteScale));
+    toolbeltSlotSelectedSprite = LoadTextureFromImage(toolbeltSlotSelectedSpriteImage);
+    UnloadImage(toolbeltSlotSelectedSpriteImage);
 
     toolbeltPosition = {(VIRTUAL_WIDTH - toolbeltSprite.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
 
@@ -116,7 +123,13 @@ void DrawToolBelt(const Player &player)
 
     for (int i = 0; i < 7; i++)
     {
-        Vector2 itemPos = {startPos.x + i * ITEM_STACK_WIDTH + gap, startPos.y};
+        Vector2 itemPos = {startPos.x + (i * (ITEM_STACK_WIDTH + gap)), startPos.y};
+
+        if (i == player.selectedSlot)
+        {
+            DrawTextureV(toolbeltSlotSelectedSprite, itemPos, WHITE);
+        }
+
         const ItemStack &stack = player.inventory[i];
         if (stack.quantity > 0)
         {
