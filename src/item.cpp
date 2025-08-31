@@ -17,7 +17,8 @@ void to_json(json &j, const Item &item)
         {"tileID", item.tileID},
         {"stackSize", item.stackSize},
         {"placeable", item.placeable},
-        {"showInHand", item.showInHand}};
+        {"showInHand", item.showInHand},
+        {"isTool", item.isTool}};
 }
 
 void from_json(const json &j, Item &item)
@@ -34,6 +35,7 @@ void from_json(const json &j, Item &item)
     j.at("stackSize").get_to(item.stackSize);
     j.at("placeable").get_to(item.placeable);
     j.at("showInHand").get_to(item.showInHand);
+    j.at("isTool").get_to(item.isTool);
 }
 
 // get items data from json file
@@ -106,7 +108,6 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
                               (int)((float)inHandSpriteImage.width * item.inHandScale),
                               (int)((float)inHandSpriteImage.height * item.inHandScale));
 
-            stack.inHandSprite = RegisterTexture(inHandSpriteImage, item.inHandSpritePath);
                 RegisterTexture(inHandSpriteImage, item.inHandSpritePath);
                 UnloadImage(inHandSpriteImage);
             }
@@ -115,5 +116,37 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
         stack.inHandOffset = item.inHandOffset;
     }
 
+    stack.isTool = item.isTool;
+
     return stack;
+}
+
+void to_json(nlohmann::json &j, const Tool &tool)
+{
+    j = json{{"id", tool.id},
+             {"itemID", tool.itemID},
+             {"name", tool.name},
+             {"targets", tool.targets},
+             {"speed", tool.speed}};
+}
+
+void from_json(const nlohmann::json &j, Tool &tool)
+{
+    j.at("id").get_to(tool.id);
+    j.at("itemID").get_to(tool.itemID);
+    j.at("name").get_to(tool.name);
+    j.at("targets").get_to(tool.targets);
+    j.at("speed").get_to(tool.speed);
+}
+
+// get tools data from json file
+std::ifstream tools_json(TOOLS_PATH);
+json tools_data = json::parse(tools_json);
+
+Tool GetToolByName(const std::string &name)
+{
+    std::string lowercaseName = name;
+    std::transform(lowercaseName.begin(), lowercaseName.end(), lowercaseName.begin(), ::tolower);
+
+    return tools_data[lowercaseName].template get<Tool>();
 }

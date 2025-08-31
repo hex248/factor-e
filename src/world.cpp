@@ -774,11 +774,15 @@ tile_check_done:
         snprintf(tileInfo, sizeof(tileInfo), "Hovered Tile: %s (%s)", hoveredTile.name, hoveredTile.cursorType);
         SetDebugValue("hovered_tile", tileInfo);
         SetCurrentCursorSprite(hoveredTile.cursorType);
+
+        player.hovering = hoveredTile;
     }
     else
     {
         SetDebugValue("hovered_tile", "Hovered Tile: None (POINTER)");
         SetCurrentCursorSprite("POINTER");
+
+        player.hovering = {};
     }
 }
 

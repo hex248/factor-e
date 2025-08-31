@@ -1,0 +1,9 @@
+{
+    "spade": {
+        "id": 1,
+        "itemID": 3,
+        "name": "Spade",
+        "targets": ["grass", "dirt"],
+        "speed": 1.0
+    }
+}

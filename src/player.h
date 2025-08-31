@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "item.h"
+#include "world.h"
 
 #define PLAYER_SPRITE_PATH "assets/sprites/player.png"
 #define PLAYER_SHADOW_SPRITE_PATH "assets/sprites/player-shadow.png"
@@ -20,6 +21,8 @@ public:
     ItemStack inventory[21];
     unsigned int selectedSlot = 7;
 
+    WorldTile hovering;
+
     Vector2 position = {0, 0};
     Vector2 dir = {0, 0};
     float size = 1.0f;
@@ -33,6 +36,7 @@ public:
     void Draw();
     void HandleMovement();
     void LoadSprite();
+    void UseTool(const Tool &tool);
 };
 
 extern Player player;

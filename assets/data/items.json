@@ -10,7 +10,8 @@
         "tileID": 1,
         "stackSize": 128,
         "placeable": true,
-        "showInHand": true
+        "showInHand": true,
+        "isTool": false
     },
     "grass": {
         "id": 2,
@@ -23,7 +24,8 @@
         "tileID": 2,
         "stackSize": 128,
         "placeable": true,
-        "showInHand": true
+        "showInHand": false,
+        "isTool": false
     },
     "spade": {
         "id": 3,
@@ -36,6 +38,7 @@
         "tileID": 2,
         "stackSize": 128,
         "placeable": true,
-        "showInHand": true
+        "showInHand": true,
+        "isTool": true
     }
 }

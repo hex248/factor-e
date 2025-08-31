@@ -111,3 +111,18 @@ void Player::HandleMovement()
     position.x += speed * 50.0f * GetFrameTime() * dir.x;
     position.y += speed * 50.0f * GetFrameTime() * dir.y * -1;
 }
+
+void Player::UseTool(const Tool &tool)
+{
+    std::string lowerHoveringName = hovering.name;
+    std::transform(lowerHoveringName.begin(), lowerHoveringName.end(), lowerHoveringName.begin(), ::tolower);
+
+    for (const std::string &target : tool.targets)
+    {
+        if (lowerHoveringName == target)
+        {
+            printf("USE TOOL: %s ON %s\n", tool.name.c_str(), hovering.name);
+            return;
+        }
+    }
+}

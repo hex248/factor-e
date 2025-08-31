@@ -15,6 +15,7 @@ items.json
 | stackSize        | unsigned int  | maximum of the item that can occupy 1 slot                   |
 | placeable        | bool          |                                                              |
 | showInHand       | bool          |                                                              |
+| isTool           | bool          |                                                              |
 
 # ItemStack
 
@@ -42,3 +43,17 @@ items.json
 |               |               |                                            |
 |               |               |                                            |
 |               |               |                                            |
+
+# Tool
+
+| property name | type                     | note              |
+| ------------- | ------------------------ | ----------------- |
+| id            | unsigned char            |                   |
+| itemID        | unsigned char            | reference to item |
+| name          | std::string              |                   |
+| targets       | std::vector<std::string> |                   |
+| speed         | float                    |                   |
+|               |                          |                   |
+|               |                          |                   |
+|               |                          |                   |
+|               |                          |                   |

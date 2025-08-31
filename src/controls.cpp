@@ -73,6 +73,18 @@ void HandleControls()
             player.selectedSlot = 6;
     }
 
+    if (IsKeyPressed(KEY_E))
+    {
+        ItemStack current = player.inventory[player.selectedSlot];
+        if (current.isTool)
+        {
+            Item toolItem = GetItemByID(current.itemID);
+            Tool tool = GetToolByName(toolItem.name);
+
+            player.UseTool(tool);
+        }
+    }
+
     if (IsKeyPressed(KEY_F10))
     {
         int monitorCount = GetMonitorCount();
