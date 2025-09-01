@@ -16,7 +16,7 @@ void to_json(json &j, const Item &item)
         {"inHandScale", item.inHandScale},
         {"tileID", item.tileID},
         {"stackSize", item.stackSize},
-        {"placeable", item.placeable},
+        {"isPlaceable", item.isPlaceable},
         {"showInHand", item.showInHand},
         {"isTool", item.isTool}};
 }
@@ -33,7 +33,7 @@ void from_json(const json &j, Item &item)
     j.at("inHandScale").get_to(item.inHandScale);
     j.at("tileID").get_to(item.tileID);
     j.at("stackSize").get_to(item.stackSize);
-    j.at("placeable").get_to(item.placeable);
+    j.at("isPlaceable").get_to(item.isPlaceable);
     j.at("showInHand").get_to(item.showInHand);
     j.at("isTool").get_to(item.isTool);
 }

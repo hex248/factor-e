@@ -13,7 +13,7 @@ items.json
 | inHandScale      | float         |                                                              |
 | tileID           | unsigned char | 0 indicates no tile (?) - references tile in tile_types.json |
 | stackSize        | unsigned int  | maximum of the item that can occupy 1 slot                   |
-| placeable        | bool          |                                                              |
+| isPlaceable      | bool          |                                                              |
 | showInHand       | bool          |                                                              |
 | isTool           | bool          |                                                              |
 

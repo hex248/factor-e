@@ -20,7 +20,7 @@ typedef struct Item
     float inHandScale;
     unsigned char tileID;
     unsigned int stackSize;
-    bool placeable;
+    bool isPlaceable;
     bool showInHand;
     bool isTool;
 } Item;

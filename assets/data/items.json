@@ -9,7 +9,7 @@
         "inHandScale": 4.0,
         "tileID": 1,
         "stackSize": 128,
-        "placeable": true,
+        "isPlaceable": true,
         "showInHand": true,
         "isTool": false
     },
@@ -23,7 +23,7 @@
         "inHandScale": 4.0,
         "tileID": 2,
         "stackSize": 128,
-        "placeable": true,
+        "isPlaceable": true,
         "showInHand": true,
         "isTool": false
     },
@@ -37,7 +37,7 @@
         "inHandScale": 8.0,
         "tileID": 2,
         "stackSize": 128,
-        "placeable": true,
+        "isPlaceable": true,
         "showInHand": true,
         "isTool": true
     }
