@@ -34,6 +34,7 @@ typedef struct ItemStack
     Vector2 inHandOffset;
     bool showInHand;
     bool isTool;
+    bool isPlaceable;
 } ItemStack;
 
 typedef struct Tool

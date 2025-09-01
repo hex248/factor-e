@@ -116,6 +116,7 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
         stack.inHandOffset = item.inHandOffset;
     }
 
+    stack.isPlaceable = item.isPlaceable;
     stack.isTool = item.isTool;
 
     return stack;
