@@ -87,7 +87,6 @@ void HandleControls()
         {
             if (strcmp(player.hovering.name, "Empty") == 0 && player.hoveringIndex >= 0)
             {
-                printf("Placing tile: %d\n", current.itemID);
                 PlaceTile(player.hoveringIndex, current.itemID);
                 player.inventory[player.selectedSlot].quantity--;
                 if (player.inventory[player.selectedSlot].quantity == 0)

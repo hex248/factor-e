@@ -900,5 +900,11 @@ void PlaceTile(int tileIndex, unsigned char itemID)
 
 void DestroyTile(int tileIndex)
 {
+    std::string lowerCaseTileName = world.tiles[tileIndex].name;
+    std::transform(lowerCaseTileName.begin(), lowerCaseTileName.end(), lowerCaseTileName.begin(), ::tolower);
+
+    Item item = GetItemByKey(lowerCaseTileName);
+
+    player.AddToInventory(item, 1);
     world.tiles[tileIndex] = emptyTile;
 }

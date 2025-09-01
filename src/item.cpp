@@ -78,6 +78,8 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
     ItemStack stack;
     stack.itemID = itemID;
     stack.quantity = quantity;
+    stack.iconSprite = item.iconSpritePath;
+    stack.inHandSprite = item.inHandSpritePath;
 
     Texture2D iconTex = GetTexture(item.iconSpritePath);
     if (iconTex.id <= 0)
@@ -89,7 +91,7 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
                           ITEM_STACK_WIDTH,
                           ITEM_STACK_HEIGHT);
 
-            stack.iconSprite = RegisterTexture(iconSpriteImage, item.iconSpritePath);
+            RegisterTexture(iconSpriteImage, item.iconSpritePath);
             UnloadImage(iconSpriteImage);
         }
     }
@@ -97,7 +99,6 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
     stack.showInHand = item.showInHand;
     if (item.showInHand)
     {
-        stack.inHandSprite = item.inHandSpritePath;
         Texture2D inHandTex = GetTexture(item.inHandSpritePath);
         if (inHandTex.id <= 0)
         {
