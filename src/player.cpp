@@ -36,16 +36,16 @@ void Player::LoadSprite()
 
     // nearest neighbour resize sprite
     ImageResizeNN(&playerImage,
-                  (int)((float)(playerImage.width) * PLAYER_SPRITE_SCALE),
-                  (int)((float)(playerImage.height) * PLAYER_SPRITE_SCALE));
+                  (int)((float)playerImage.width * PLAYER_SPRITE_SCALE),
+                  (int)((float)playerImage.height * PLAYER_SPRITE_SCALE));
 
     sprite = RegisterTexture(playerImage);
 
     Image playerShadowImage = LoadImage(PLAYER_SHADOW_SPRITE_PATH);
 
     ImageResizeNN(&playerShadowImage,
-                  (int)((float)(playerShadowImage.width) * PLAYER_SPRITE_SCALE),
-                  (int)((float)(playerShadowImage.height) * PLAYER_SPRITE_SCALE));
+                  (int)((float)playerShadowImage.width * PLAYER_SPRITE_SCALE),
+                  (int)((float)playerShadowImage.height * PLAYER_SPRITE_SCALE));
 
     shadowSprite = RegisterTexture(playerShadowImage);
 
@@ -61,15 +61,14 @@ void Player::Draw()
 {
     if (!spriteLoaded)
         return;
-    float angle = std::atan2(dir.x, dir.y) * 180 / PI;
 
     Texture2D playerTex = GetTexture(sprite);
     Texture2D shadowTex = GetTexture(shadowSprite);
 
-    Rectangle source = {0.0f, 0.0f, (float)(playerTex.width), (float)(playerTex.height)};
+    Rectangle source = {0.0f, 0.0f, (float)playerTex.width, (float)playerTex.height};
 
-    Vector2 shadowPos = {position.x - shadowTex.width / 2.0f, (position.y - shadowTex.height / 2.0f) + PLAYER_SPRITE_SCALE};
-    Rectangle pos = {position.x, position.y, (float)(playerTex.width), (float)(playerTex.height)};
+    Vector2 shadowPos = {position.x - (float)shadowTex.width / 2.0f, (position.y - (float)shadowTex.height / 2.0f) + PLAYER_SPRITE_SCALE};
+    Rectangle pos = {position.x, position.y, (float)playerTex.width, (float)playerTex.height};
 
     Vector2 origin = {pos.width / 2.0f, pos.height / 2.0f};
 
@@ -79,8 +78,8 @@ void Player::Draw()
     if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0 && inventory[selectedSlot].showInHand)
     {
         Texture2D inHandSprite = GetTexture(inventory[selectedSlot].inHandSprite);
-        Vector2 inHandSpritePos = {(position.x - inHandSprite.width / 2) + inventory[selectedSlot].inHandOffset.x,
-                                   (position.y - inHandSprite.height / 2) + inventory[selectedSlot].inHandOffset.y};
+        Vector2 inHandSpritePos = {(position.x - (float)inHandSprite.width / 2.0f) + inventory[selectedSlot].inHandOffset.x,
+                                   (position.y - (float)inHandSprite.height / 2.0f) + inventory[selectedSlot].inHandOffset.y};
 
         DrawTextureV(inHandSprite, inHandSpritePos, WHITE);
     }

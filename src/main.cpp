@@ -96,7 +96,7 @@ int main()
 
         EndMode2D();
 
-        DrawToolBelt(player);
+        DrawToolBelt();
 
         DrawMouse();
 

@@ -8,7 +8,7 @@ std::map<std::string, Texture2D> customKeyTextures;
 
 unsigned char RegisterTexture(Image img)
 {
-    unsigned char newKey = loadedTextures.size() + 1;
+    unsigned char newKey = (unsigned char)(loadedTextures.size()) + 1;
     loadedTextures[newKey] = LoadTextureFromImage(img);
 
     return newKey;
@@ -16,7 +16,7 @@ unsigned char RegisterTexture(Image img)
 
 unsigned char RegisterTexture(const char *file)
 {
-    unsigned char newKey = loadedTextures.size() + 1;
+    unsigned char newKey = (unsigned char)(loadedTextures.size()) + 1;
     loadedTextures[newKey] = LoadTexture(file);
 
     return newKey;

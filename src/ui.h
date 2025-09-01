@@ -20,7 +20,7 @@ float GetScaledFontSize(float baseFontSize);
 float GetScaledLineHeight(float baseLineHeight);
 float GetScaledPadding(float basePadding);
 
-void DrawToolBelt(const Player &player);
+void DrawToolBelt();
 
 void InitDebugSystem();
 void SetDebugValue(const std::string &key, const std::string &value);

@@ -59,7 +59,7 @@ void InitFonts()
                   (int)((float)toolbeltSlotSelectedSpriteImage.height * toolbeltSpriteScale));
     toolbeltSlotSelectedSprite = RegisterTexture(toolbeltSlotSelectedSpriteImage);
 
-    toolbeltPosition = {(VIRTUAL_WIDTH - toolbeltSpriteImage.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
+    toolbeltPosition = {(VIRTUAL_WIDTH - (float)toolbeltSpriteImage.width) / 2.0f, VIRTUAL_HEIGHT * 0.82f};
 
     fontLargeBold = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Bold.ttf", 128, 0, 250);
     fontLarge = LoadFontEx("assets/fonts/JetBrainsMono/JetBrainsMono-Regular.ttf", 128, 0, 250);
@@ -116,7 +116,7 @@ float GetScaledPadding(float basePadding)
     return basePadding * uiScale;
 }
 
-void DrawToolBelt(const Player &player)
+void DrawToolBelt()
 {
     Texture2D toolbeltTex = GetTexture(toolbeltSprite);
     DrawTextureV(toolbeltTex, toolbeltPosition, WHITE);
@@ -124,9 +124,9 @@ void DrawToolBelt(const Player &player)
     float gap = (2 * toolbeltSpriteScale);
     Vector2 startPos = {toolbeltPosition.x + 3 * toolbeltSpriteScale, toolbeltPosition.y + gap};
 
-    for (int i = 0; i < 7; i++)
+    for (unsigned int i = 0; i < 7; i++)
     {
-        Vector2 itemPos = {startPos.x + (i * (ITEM_STACK_WIDTH + gap)), startPos.y};
+        Vector2 itemPos = {startPos.x + ((float)i * (ITEM_STACK_WIDTH + gap)), startPos.y};
 
         if (i == player.selectedSlot)
         {
@@ -143,10 +143,13 @@ void DrawToolBelt(const Player &player)
             if (stack.quantity > 1)
             {
                 const char *quantityText = TextFormat("x%d", stack.quantity);
-                unsigned int fontSize = 42;
-                unsigned int fontSpacing = 5;
+                float fontSize = 42;
+                float fontSpacing = 5;
                 Vector2 textSize = MeasureTextEx(fontLargeBold, quantityText, fontSize, fontSpacing);
-                DrawTextEx(fontLargeBold, quantityText, {itemPos.x + (ITEM_STACK_WIDTH * 1.0f) - (textSize.x), itemPos.y + (ITEM_STACK_HEIGHT * 0.85f) - (textSize.y * 0.5f)}, fontSize, fontSpacing, WHITE);
+                DrawTextEx(fontLargeBold, quantityText,
+                           {itemPos.x + (ITEM_STACK_WIDTH * 1.0f) - textSize.x,
+                            itemPos.y + (ITEM_STACK_HEIGHT * 0.85f) - (textSize.y * 0.5f)},
+                           fontSize, fontSpacing, WHITE);
             }
         }
     }

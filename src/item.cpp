@@ -55,7 +55,7 @@ Item GetItemByID(unsigned char id)
     }
     printf("Item with ID %d not found\n", id);
     // return empty item if not found
-    return {0};
+    return {};
 }
 
 Item GetItemByKey(const std::string &key)
@@ -69,7 +69,7 @@ ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
     if (item.id == 0)
     {
         printf("Cannot create ItemStack: Item with ID %d not found\n", itemID);
-        return {0, 0};
+        return {};
     }
     if (quantity > item.stackSize)
     {

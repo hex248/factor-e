@@ -4,8 +4,8 @@
 #include <string>
 
 #define ITEMS_PATH "assets/data/items.json"
-#define ITEM_STACK_WIDTH 160
-#define ITEM_STACK_HEIGHT 160
+#define ITEM_STACK_WIDTH 160.0f
+#define ITEM_STACK_HEIGHT 160.0f
 
 #define TOOLS_PATH "assets/data/tools.json"
 
