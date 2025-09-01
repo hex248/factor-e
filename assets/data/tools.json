@@ -3,7 +3,8 @@
         "id": 1,
         "itemID": 3,
         "name": "Spade",
-        "targets": ["grass", "dirt"],
+        "targets": ["Grass", "Dirt"],
+        "function": "destroy",
         "speed": 1.0
     }
 }

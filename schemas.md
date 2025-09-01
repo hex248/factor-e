@@ -52,6 +52,7 @@ items.json
 | itemID        | unsigned char            | reference to item |
 | name          | std::string              |                   |
 | targets       | std::vector<std::string> |                   |
+| function      | std::string              | destroy, treat    |
 | speed         | float                    |                   |
 |               |                          |                   |
 |               |                          |                   |

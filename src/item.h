@@ -42,6 +42,7 @@ typedef struct Tool
     unsigned char itemID;
     std::string name;
     std::vector<std::string> targets;
+    std::string function;
     float speed;
 } Tool;
 
