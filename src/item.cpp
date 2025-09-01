@@ -127,6 +127,7 @@ void to_json(nlohmann::json &j, const Tool &tool)
              {"itemID", tool.itemID},
              {"name", tool.name},
              {"targets", tool.targets},
+             {"function", tool.function},
              {"speed", tool.speed}};
 }
 
@@ -136,6 +137,7 @@ void from_json(const nlohmann::json &j, Tool &tool)
     j.at("itemID").get_to(tool.itemID);
     j.at("name").get_to(tool.name);
     j.at("targets").get_to(tool.targets);
+    j.at("function").get_to(tool.function);
     j.at("speed").get_to(tool.speed);
 }
 
