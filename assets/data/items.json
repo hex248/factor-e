@@ -37,7 +37,7 @@
         "inHandScale": 8.0,
         "tileID": 2,
         "stackSize": 128,
-        "isPlaceable": true,
+        "isPlaceable": false,
         "showInHand": true,
         "isTool": true
     }
