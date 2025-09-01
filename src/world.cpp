@@ -487,6 +487,14 @@ void GenerateWorld()
 
 void InitWorld()
 {
+    Image missingTileImage = LoadImage(missingTileSprite);
+
+    ImageResizeNN(&missingTileImage,
+                  (int)((float)missingTileImage.width * missingTileScale),
+                  (int)((float)missingTileImage.height * missingTileScale));
+    RegisterTexture(missingTileImage, missingTileSprite);
+    UnloadImage(missingTileImage);
+
     Image tileHoverImage = LoadImage(TILE_HOVER_SPRITE_PATH);
 
     ImageResizeNN(&tileHoverImage,
