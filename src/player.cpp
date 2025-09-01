@@ -113,12 +113,11 @@ void Player::HandleMovement()
 
 void Player::UseTool(const Tool &tool)
 {
-    std::string lowerHoveringName = hovering.name;
-    std::transform(lowerHoveringName.begin(), lowerHoveringName.end(), lowerHoveringName.begin(), ::tolower);
+    std::string hoveringName = hovering.name;
 
     for (const std::string &target : tool.targets)
     {
-        if (lowerHoveringName == target)
+        if (hoveringName == target)
         {
             DestroyTile(&hovering);
             return;
