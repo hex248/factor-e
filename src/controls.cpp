@@ -83,6 +83,19 @@ void HandleControls()
 
             player.UseTool(tool);
         }
+        if (current.isPlaceable)
+        {
+            if (strcmp(player.hovering.name, "Empty") == 0 && player.hoveringIndex >= 0)
+            {
+                printf("Placing tile: %d\n", current.itemID);
+                PlaceTile(player.hoveringIndex, current.itemID);
+                player.inventory[player.selectedSlot].quantity--;
+                if (player.inventory[player.selectedSlot].quantity == 0)
+                {
+                    player.inventory[player.selectedSlot] = {};
+                }
+            }
+        }
     }
 
     if (IsKeyPressed(KEY_F10))
