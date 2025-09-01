@@ -160,6 +160,6 @@ void CheckHover();
 void CleanupWorld();
 
 void PlaceTile(int tileIndex, unsigned char itemID);
-void DestroyTile(WorldTile *tile);
+void DestroyTile(int tileIndex);
 
 #endif

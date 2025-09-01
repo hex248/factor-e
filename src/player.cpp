@@ -121,7 +121,7 @@ void Player::UseTool(const Tool &tool)
         {
             if (tool.function == "destroy")
             {
-                DestroyTile(&hovering);
+                DestroyTile(hoveringIndex);
             }
             return;
         }

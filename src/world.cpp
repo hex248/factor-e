@@ -898,7 +898,7 @@ void PlaceTile(int tileIndex, unsigned char itemID)
     }
 }
 
-void DestroyTile(WorldTile *tile)
+void DestroyTile(int tileIndex)
 {
-    world.tiles[tile->id] = emptyTile;
+    world.tiles[tileIndex] = emptyTile;
 }
