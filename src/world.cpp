@@ -607,25 +607,41 @@ void DrawWorld()
             else
             {
                 Texture2D sprite = GetTexture(std::string(world.tiles[index].sprite));
-                DrawTexture(sprite, (int)tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
-            }
+                if (sprite.id > 0)
+                {
+                    DrawTexture(sprite, (int)tileX - (sprite.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (sprite.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
+                }
+                else if (strcmp(world.tiles[index].name, emptyTile.name) != 0)
+                {
+                    printf("Missing tile: %s\n", world.tiles[index].name);
+                    printf("Empty tile: %s\n", emptyTile.name);
+                    Texture2D missingTex = GetTexture(missingTileSprite);
+                    DrawTexture(missingTex, (int)tileX - (missingTex.width / 2) + WORLD_TILE_SIZE / 2, (int)tileY - (missingTex.height / 2) + WORLD_TILE_SIZE / 2, WHITE);
+                }
 
-            // set diamond bounds for isometric tile collision (top face)
-            world.tiles[index].bounds.center = {(int)tileX + WORLD_TILE_SIZE / 2.0f, (int)tileY + WORLD_TILE_SIZE / 2.0f - WORLD_TILE_SIZE * 0.25f};
-            world.tiles[index].bounds.width = WORLD_TILE_SIZE;
-            world.tiles[index].bounds.height = WORLD_TILE_SIZE * 0.5f;
+                // set diamond bounds for isometric tile collision (top face)
+                world.tiles[index].bounds.center = {(int)tileX + WORLD_TILE_SIZE / 2.0f, (int)tileY + WORLD_TILE_SIZE / 2.0f - WORLD_TILE_SIZE * 0.25f};
+                world.tiles[index].bounds.width = WORLD_TILE_SIZE;
+                world.tiles[index].bounds.height = WORLD_TILE_SIZE * 0.5f;
 
-            // debug: draw tile bounds
-            if (showDebug)
-            {
-                Vector2 center = world.tiles[index].bounds.center;
-                float hw = world.tiles[index].bounds.width / 2.0f;
-                float hh = world.tiles[index].bounds.height / 2.0f;
+                // debug: draw tile bounds
+                if (showDebug)
+                {
+                    Vector2 center = world.tiles[index].bounds.center;
+                    float hw = world.tiles[index].bounds.width / 2.0f;
+                    float hh = world.tiles[index].bounds.height / 2.0f;
 
-                DrawLineEx({center.x - hw, center.y}, {center.x, center.y - hh}, 5, {255, 255, 255, 60});
-                DrawLineEx({center.x, center.y - hh}, {center.x + hw, center.y}, 5, {255, 255, 255, 60});
-                DrawLineEx({center.x + hw, center.y}, {center.x, center.y + hh}, 5, {255, 255, 255, 60});
-                DrawLineEx({center.x, center.y + hh}, {center.x - hw, center.y}, 5, {255, 255, 255, 60});
+                    Color tileColor = {255, 255, 255, 60};
+                    if (std::string(world.tiles[index].name) == std::string(emptyTile.name))
+                    {
+                        tileColor = {255, 0, 0, 60};
+                    }
+
+                    DrawLineEx({center.x - hw, center.y}, {center.x, center.y - hh}, 5, tileColor);
+                    DrawLineEx({center.x, center.y - hh}, {center.x + hw, center.y}, 5, tileColor);
+                    DrawLineEx({center.x + hw, center.y}, {center.x, center.y + hh}, 5, tileColor);
+                    DrawLineEx({center.x, center.y + hh}, {center.x - hw, center.y}, 5, tileColor);
+                }
             }
         }
     }
@@ -827,5 +843,5 @@ void CleanupWorld()
 
 void DestroyTile(WorldTile *tile)
 {
-    world.tiles[tile->id] = {};
+    world.tiles[tile->id] = emptyTile;
 }
