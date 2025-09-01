@@ -119,7 +119,10 @@ void Player::UseTool(const Tool &tool)
     {
         if (hoveringName == target)
         {
-            DestroyTile(&hovering);
+            if (tool.function == "destroy")
+            {
+                DestroyTile(&hovering);
+            }
             return;
         }
     }
