@@ -6,7 +6,10 @@
 
 # GAMEPLAY
 
--   tools
+-   place tiles
+-   tools:
+    -   pickaxe
+    -   sword
 -   inventory:
     -   save player to player.bin
 -   "spawn in" menu (debug mode)
@@ -20,6 +23,7 @@
 
 # ART:
 
+-   spade animation
 -   jackhammer or drill
 -   basic player animation
 
