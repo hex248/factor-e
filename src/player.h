@@ -22,6 +22,7 @@ public:
     unsigned int selectedSlot = 0;
 
     WorldTile hovering;
+    int hoveringIndex = -1;
 
     Vector2 position = {0, 0};
     Vector2 dir = {0, 0};

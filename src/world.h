@@ -133,8 +133,12 @@ typedef struct LgTexShaderData
 
 void to_json(nlohmann::json &j, const TileType &t);
 void from_json(const nlohmann::json &j, TileType &t);
+
 void to_json(nlohmann::json &j, const TileSet &t);
 void from_json(const nlohmann::json &j, TileSet &t);
+
+TileType GetTileByID(unsigned char tileID);
+TileSet GetTileSetByID(unsigned char tileSetID);
 
 // World save/load functions
 int World_Save(const char *path);
@@ -155,6 +159,7 @@ bool CheckPointInDiamond(Vector2 point, Diamond diamond);
 void CheckHover();
 void CleanupWorld();
 
+void PlaceTile(int tileIndex, unsigned char itemID);
 void DestroyTile(WorldTile *tile);
 
 #endif

@@ -142,12 +142,38 @@ void from_json(const json &j, TileSet &t)
     }
 }
 
+std::ifstream tile_types_json(TILE_TYPES_PATH);
+json tile_types_data = json::parse(tile_types_json);
+
+TileType GetTileByID(unsigned char tileID)
+{
+    for (const auto &item : tile_types_data.items())
+    {
+        TileType tileType = item.value().get<TileType>();
+        if (tileType.id == tileID)
+        {
+            return tileType;
+        }
+    }
+    return {};
+}
+
 // get tile set data from json file
 std::ifstream tile_sets_json(TILE_SETS_PATH);
 json tile_sets_data = json::parse(tile_sets_json);
 
-std::ifstream tile_types_json(TILE_TYPES_PATH);
-json tile_types_data = json::parse(tile_types_json);
+TileSet GetTileSetByID(unsigned char tileSetID)
+{
+    for (const auto &item : tile_sets_data.items())
+    {
+        TileSet tileSet = item.value().get<TileSet>();
+        if (tileSet.id == tileSetID)
+        {
+            return tileSet;
+        }
+    }
+    return {};
+}
 
 void RegenerateTexturesForLoadedWorld()
 {
@@ -667,6 +693,7 @@ void CheckHover()
     Vector2 mouseScreenPos = GetMouseVirtualPosition();
     WorldTile hoveredTile;
     bool tileFound = false;
+    int hoveredIndex = -1;
 
     float diffX = mouseWorldPos.x - player.position.x;
     float diffY = mouseWorldPos.y - player.position.y;
@@ -771,6 +798,7 @@ void CheckHover()
                     hoveredTile = world.tiles[i];
                     world.tiles[i].hovered = true;
                     tileFound = true;
+                    hoveredIndex = i;
                 }
 
                 // only show the hover overlay for the "HAND" cursor
@@ -818,6 +846,7 @@ tile_check_done:
         SetCurrentCursorSprite(hoveredTile.cursorType);
 
         player.hovering = hoveredTile;
+        player.hoveringIndex = hoveredIndex;
     }
     else
     {
@@ -825,6 +854,7 @@ tile_check_done:
         SetCurrentCursorSprite("POINTER");
 
         player.hovering = {};
+        player.hoveringIndex = -1;
     }
 }
 
@@ -838,6 +868,33 @@ void CleanupWorld()
     {
         free(world.tiles);
         world.tiles = NULL;
+    }
+}
+
+void PlaceTile(int tileIndex, unsigned char itemID)
+{
+    WorldTile *tile = &world.tiles[tileIndex];
+    Item item = GetItemByID(itemID);
+    TileType tileToPlace = GetTileByID(item.tileID);
+
+    snprintf(tile->name, sizeof(tile->name), "%s", tileToPlace.name.c_str());
+    strncpy(tile->sprite, tileToPlace.spritePath.c_str(), sizeof(tile->sprite) - 1);
+    tile->sprite[sizeof(tile->sprite) - 1] = '\0';
+    snprintf(tile->cursorType, sizeof(tile->cursorType), "%s", tileToPlace.cursorType);
+    tile->useShader = tileToPlace.useShader;
+    snprintf(tile->largeTexturePath, sizeof(tile->largeTexturePath), "%s", tileToPlace.largeTexturePath.c_str());
+
+    Texture2D existingTex = GetTexture(tile->sprite);
+
+    if (existingTex.id <= 0)
+    {
+        Image tileImage = LoadImage(tile->sprite);
+        ImageResizeNN(&tileImage,
+                      (int)((float)tileImage.width * tileToPlace.spriteScale),
+                      (int)((float)tileImage.height * tileToPlace.spriteScale));
+
+        RegisterTexture(tileImage, tile->sprite);
+        UnloadImage(tileImage);
     }
 }
 
