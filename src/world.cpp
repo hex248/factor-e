@@ -19,6 +19,20 @@
 
 World world;
 
+const char *missingTileSprite = "assets/sprites/tiles/missing.png";
+
+float missingTileScale = 8.0f;
+
+WorldTile emptyTile = {
+    .id = 0,
+    .name = "Empty",
+    .sprite = "",
+    .bounds = {0, 0, 0, 0},
+    .hovered = false,
+    .cursorType = "HAND",
+    .useShader = false,
+    .largeTexturePath = ""};
+
 Image noise;
 Texture2D noiseTexture;
 
