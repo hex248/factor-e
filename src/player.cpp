@@ -127,3 +127,51 @@ void Player::UseTool(const Tool &tool)
         }
     }
 }
+
+void Player::AddToInventory(const Item &item, int quantity)
+{
+    int spill = quantity;
+    // find existing stack
+    for (int i = 0; i < 21; i++)
+    {
+        if (inventory[i].itemID == item.id)
+        {
+            if (inventory[i].quantity < item.stackSize)
+            {
+                int space = item.stackSize - inventory[i].quantity;
+
+                // add items to stack, but don't let it overflow
+                inventory[i].quantity = fmin(inventory[i].quantity + spill, item.stackSize);
+
+                spill -= space;
+
+                if (spill <= 0)
+                    break;
+            }
+        }
+    }
+
+    if (spill > 0)
+    {
+        // add new stack
+        for (int i = 0; i < 21; i++)
+        {
+            if (inventory[i].quantity == 0)
+            {
+                int amountToAdd = fmin(spill, item.stackSize);
+                inventory[i] = CreateItemStack(item.id, amountToAdd);
+                spill -= amountToAdd;
+
+                if (spill <= 0)
+                    break;
+            }
+        }
+    }
+
+    if (spill > 0)
+    {
+        printf("OVERFLOW OF ITEM: %s x%d\n", item.name.c_str(), spill);
+
+        //! handle overflow at a later date
+    }
+}

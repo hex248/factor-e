@@ -38,6 +38,7 @@ public:
     void HandleMovement();
     void LoadSprite();
     void UseTool(const Tool &tool);
+    void AddToInventory(const Item &item, int quantity);
 };
 
 extern Player player;
