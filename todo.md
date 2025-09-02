@@ -6,7 +6,6 @@
 
 # GAMEPLAY
 
--   place tiles
 -   tools:
     -   pickaxe
     -   sword
