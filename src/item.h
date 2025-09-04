@@ -1,3 +1,6 @@
+#ifndef ITEM_H
+#define ITEM_H
+
 #include <string>
 #include "include/json.hpp"
 #include "raylib.h"
@@ -59,3 +62,5 @@ void to_json(nlohmann::json &j, const Tool &tool);
 void from_json(const nlohmann::json &j, Tool &tool);
 
 Tool GetToolByName(const std::string &name);
+
+#endif

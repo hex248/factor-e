@@ -1,3 +1,6 @@
+#ifndef UI_H
+#define UI_H
+
 #include "raylib.h"
 #include <string>
 
@@ -12,3 +15,5 @@ Texture2D GetTexture(std::string customKey);
 void UnregisterTextures();
 void UnregisterTexture(unsigned char key);
 void UnregisterTexture(std::string customKey);
+
+#endif

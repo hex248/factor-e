@@ -12,7 +12,6 @@
 -   inventory:
     -   save player to player.bin
 -   "spawn in" menu (debug mode)
--   break + place tiles
 
 # WORLD MANAGEMENT
 
