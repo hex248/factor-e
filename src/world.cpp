@@ -34,7 +34,6 @@ WorldTile emptyTile = {
     .largeTexturePath = ""};
 
 Image noise;
-Texture2D noiseTexture;
 
 unsigned char tileHoverSprite;
 unsigned char potentialTileHoverSprite;
@@ -372,7 +371,7 @@ TileType GetTileFromNoiseWeighted(int x, int y, Image noiseImage, const std::map
     }
 
     // get pixel color from noise image
-    Color pixelColor = GetImageColor(noiseImage, x * WORLD_TILE_SIZE, y * WORLD_TILE_SIZE);
+    Color pixelColor = GetImageColor(noiseImage, x, y);
 
     // normalize lightness to totalWeight
     float lightness = ((float)pixelColor.r / 255) * totalWeight;
@@ -447,8 +446,6 @@ void GenerateWorld()
     int seedX = GetRandomValue(0, 10000000);
     int seedY = GetRandomValue(0, 10000000);
     noise = GenImagePerlinNoise(WORLD_SIZE_X, WORLD_SIZE_Y, seedX, seedY, 1.5);
-    ImageResizeNN(&noise, WORLD_SIZE_X * WORLD_TILE_SIZE, WORLD_SIZE_Y * WORLD_TILE_SIZE);
-    noiseTexture = LoadTextureFromImage(noise);
 
     InitTextureShader();
 
