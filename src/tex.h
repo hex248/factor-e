@@ -1,5 +1,5 @@
-#ifndef UI_H
-#define UI_H
+#ifndef TEX_H
+#define TEX_H
 
 #include "raylib.h"
 #include <string>
