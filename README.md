@@ -1,3 +1,5 @@
+<img src="icon.png" width="128" />
+
 # factor-e
 
 ### View project details here: [ob248.com/projects/factor-e](https://ob248.com/projects/factor-e)
