@@ -1,6 +1,9 @@
 # factor-e
 
-[todo](todo.md)
+### View project details here: [https://ob248.com/projects/factor-e](https://ob248.com/projects/factor-e)
+
+
+[Todo list](todo.md)
 
 ## Installing dependencies & raylib:
 
