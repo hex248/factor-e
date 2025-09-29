@@ -29,3 +29,12 @@ sudo ppa-purge ppa:readableauthor/raylib
 ### Windows:
 
 Ensure that you have the `Desktop Development with C++` Workload from [Visual Studio](https://visualstudio.microsoft.com/thank-you-downloading-visual-studio/?sku=Community&channel=Preview&version=VS2022&source=VSLandingPage&cid=2060&passive=false)
+
+## run:
+
+```sh
+./go.sh
+or
+./go.bat
+```
+This should just compile + run `factor-e`
