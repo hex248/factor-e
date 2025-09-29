@@ -1,6 +1,6 @@
 # factor-e
 
-### View project details here: [https://ob248.com/projects/factor-e](https://ob248.com/projects/factor-e)
+### View project details here: [ob248.com/projects/factor-e](https://ob248.com/projects/factor-e)
 
 
 [Todo list](todo.md)
