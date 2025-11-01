@@ -1,4 +1,4 @@
-#define DEV 1
+#define DEV 0
 
 void ReloadGame();
 void RegenerateWorld();

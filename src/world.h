@@ -1,6 +1,7 @@
 #ifndef WORLD_H
 #define WORLD_H
 
+#include "item.h"
 #include "raylib.h"
 #include <string>
 #include <vector>
@@ -159,7 +160,7 @@ bool CheckPointInDiamond(Vector2 point, Diamond diamond);
 void CheckHover();
 void CleanupWorld();
 
-void PlaceTile(int tileIndex, unsigned char itemID);
+void PlaceTile(int tileIndex, Item item);
 void DestroyTile(int tileIndex);
 
 #endif

@@ -78,16 +78,15 @@ void HandleControls()
         ItemStack current = player.inventory[player.selectedSlot];
         if (current.isTool)
         {
-            Item toolItem = GetItemByID(current.itemID);
+            Item toolItem = current.item;
             Tool tool = GetToolByName(toolItem.name);
-
             player.UseTool(tool);
         }
         if (current.isPlaceable)
         {
             if (strcmp(player.hovering.name, "Empty") == 0 && player.hoveringIndex >= 0)
             {
-                PlaceTile(player.hoveringIndex, current.itemID);
+                PlaceTile(player.hoveringIndex, current.item);
                 player.inventory[player.selectedSlot].quantity--;
                 if (player.inventory[player.selectedSlot].quantity == 0)
                 {

@@ -22,7 +22,7 @@ items.json
 | property name | type          | note                               |
 | ------------- | ------------- | ---------------------------------- |
 | id            | unsigned char |                                    |
-| itemID        | unsigned char | references item in items.json      |
+| item          | Item          | item from items.json               |
 | quantity      | unsigned int  | amount of these items in the stack |
 | iconSprite    | const char \* |                                    |
 | inHandSprite  | const char \* |                                    |

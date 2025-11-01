@@ -63,23 +63,15 @@ Item GetItemByKey(const std::string &key)
     return items_data[key].template get<Item>();
 }
 
-ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity)
+ItemStack CreateItemStack(Item item, unsigned int quantity)
 {
-    Item item = GetItemByID(itemID);
-    if (item.id == 0)
-    {
-        printf("Cannot create ItemStack: Item with ID %d not found\n", itemID);
-        return {};
-    }
     if (quantity > item.stackSize)
     {
         quantity = item.stackSize;
     }
     ItemStack stack;
-    stack.itemID = itemID;
+    stack.item = item;
     stack.quantity = quantity;
-    stack.iconSprite = item.iconSpritePath;
-    stack.inHandSprite = item.inHandSpritePath;
 
     Texture2D iconTex = GetTexture(item.iconSpritePath);
     if (iconTex.id <= 0)

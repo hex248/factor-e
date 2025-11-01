@@ -868,10 +868,9 @@ void CleanupWorld()
     }
 }
 
-void PlaceTile(int tileIndex, unsigned char itemID)
+void PlaceTile(int tileIndex, Item item)
 {
     WorldTile *tile = &world.tiles[tileIndex];
-    Item item = GetItemByID(itemID);
     TileType tileToPlace = GetTileByID(item.tileID);
 
     snprintf(tile->name, sizeof(tile->name), "%s", tileToPlace.name.c_str());

@@ -31,6 +31,7 @@ typedef struct Item
 typedef struct ItemStack
 {
     unsigned char itemID;
+    Item item;
     unsigned int quantity;
     std::string iconSprite;
     std::string inHandSprite;
@@ -56,7 +57,7 @@ void from_json(const nlohmann::json &j, Item &item);
 Item GetItemByID(unsigned char id);
 Item GetItemByKey(const std::string &key);
 
-ItemStack CreateItemStack(unsigned char itemID, unsigned int quantity);
+ItemStack CreateItemStack(Item item, unsigned int quantity);
 
 void to_json(nlohmann::json &j, const Tool &tool);
 void from_json(const nlohmann::json &j, Tool &tool);

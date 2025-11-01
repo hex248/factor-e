@@ -137,7 +137,7 @@ void DrawToolBelt()
         const ItemStack &stack = player.inventory[i];
         if (stack.quantity > 0)
         {
-            Texture2D tex = GetTexture(stack.iconSprite);
+            Texture2D tex = GetTexture(stack.item.iconSpritePath);
             DrawTextureV(tex, itemPos, WHITE);
 
             if (stack.quantity > 1)

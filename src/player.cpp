@@ -18,9 +18,9 @@ Player::~Player()
 
 void Player::Initialize(Vector2 pos, float sz, float sp)
 {
-    inventory[0] = CreateItemStack(3, 1);
-    inventory[1] = CreateItemStack(1, 128);
-    inventory[2] = CreateItemStack(2, 16);
+    inventory[0] = CreateItemStack(GetItemByID(3), 1);
+    inventory[1] = CreateItemStack(GetItemByID(1), 128);
+    inventory[2] = CreateItemStack(GetItemByID(2), 16);
     position = pos;
     size = sz;
     speed = sp;
@@ -77,7 +77,7 @@ void Player::Draw()
 
     if (selectedSlot < 7 && inventory[selectedSlot].quantity > 0 && inventory[selectedSlot].showInHand)
     {
-        Texture2D inHandSprite = GetTexture(inventory[selectedSlot].inHandSprite);
+        Texture2D inHandSprite = GetTexture(inventory[selectedSlot].item.inHandSpritePath);
         Vector2 inHandSpritePos = {(position.x - (float)inHandSprite.width / 2.0f) + inventory[selectedSlot].inHandOffset.x,
                                    (position.y - (float)inHandSprite.height / 2.0f) + inventory[selectedSlot].inHandOffset.y};
 
@@ -134,7 +134,7 @@ void Player::AddToInventory(const Item &item, int quantity)
     // find existing stack
     for (int i = 0; i < 21; i++)
     {
-        if (inventory[i].itemID == item.id)
+        if (inventory[i].item.id == item.id)
         {
             if (inventory[i].quantity < item.stackSize)
             {
@@ -159,7 +159,7 @@ void Player::AddToInventory(const Item &item, int quantity)
             if (inventory[i].quantity == 0)
             {
                 int amountToAdd = fmin(spill, item.stackSize);
-                inventory[i] = CreateItemStack(item.id, amountToAdd);
+                inventory[i] = CreateItemStack(item, amountToAdd);
                 spill -= amountToAdd;
 
                 if (spill <= 0)
